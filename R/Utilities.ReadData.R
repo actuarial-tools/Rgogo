@@ -1,0 +1,45 @@
+ReadCovInfo<- function(dataSrc, datasetID, runID, covID){
+   dbConn <- GetConnection(dataSrc)
+   strSQL <- paste0("SELECT  c.*,s.CovPeriodMonths,s.PremPeriodMonths,s.CurrentPolMonth FROM [CovData] c")
+   strSQL <- paste0(strSQL, " LEFT JOIN [SeriatimSummary] s ON c.DatasetID=s.DatasetID and c.CovID=s.CovID")
+   strSQL <- paste0(strSQL, " WHERE c.DatasetID='", datasetID, "' AND c.CovID='", covID, "' AND s.RunID='", runID, "'")
+   dfCovInfo <- RODBC::sqlQuery(dbConn, strSQL, stringsAsFactors = FALSE, as.is = TRUE)
+   RODBC::odbcClose(dbConn)
+   return(dfCovInfo)
+}
+
+SumSeriatimSummary<- function(dataSrc, datasetID, runID, selectScope){
+   dbConn <- GetConnection(dataSrc)
+   strSQL <- "select sum(PolicyCount) PolicyCount,"
+   strSQL <- paste0(strSQL, "sum(CovCount) CovCount,")
+   strSQL <- paste0(strSQL, "sum(AnlzPrem) AnlzPrem,")
+   strSQL <- paste0(strSQL, "sum(GrossSumIns) GrossSumIns,")
+   strSQL <- paste0(strSQL, "sum(NetSumIns) NetSumIns,")
+   strSQL <- paste0(strSQL, "sum(GrossReserve) GrossReserve,")
+   strSQL <- paste0(strSQL, "sum(NetReserve) NetReserve,")
+   strSQL <- paste0(strSQL, "sum(CV) CV,")
+   strSQL <- paste0(strSQL, "sum(Reserve1) Reserve1,")
+   strSQL <- paste0(strSQL, "sum(Reserve2) Reserve2,")
+   strSQL <- paste0(strSQL, "sum(Reserve3) Reserve3,")
+   strSQL <- paste0(strSQL, "sum(Reserve4) Reserve4,")
+   strSQL <- paste0(strSQL, "sum(Reserve5) Reserve5,")
+   strSQL <- paste0(strSQL, "sum(PvPrem) PvPrem,")
+   strSQL <- paste0(strSQL, "sum(PvPremTax) PvPremTax,")
+   strSQL <- paste0(strSQL, "sum(PvComm) PvComm,")
+   strSQL <- paste0(strSQL, "sum(PvOvrd) PvOvrd,")
+   strSQL <- paste0(strSQL, "sum(PvDthBen) PvDthBen,")
+   strSQL <- paste0(strSQL, "sum(PvMatBen) PvMatBen,")
+   strSQL <- paste0(strSQL, "sum(PvCV) PvCV,")
+   strSQL <- paste0(strSQL, "sum(PvMEPerPol) PvMEPerPol,")
+   strSQL <- paste0(strSQL, "sum(PvReinPrem) PvReinPrem,")
+   strSQL <- paste0(strSQL, "sum(PvReinComm) PvReinComm,")
+   strSQL <- paste0(strSQL, "sum(PvReinDthBen) PvReinDthBen")
+   strSQL <- paste0(strSQL," FROM [SeriatimSummary] JOIN [CovData] on [SeriatimSummary].DatasetID=[CovData].DatasetID and [SeriatimSummary].CovID=[CovData].CovID")
+   strSQL <- paste0(strSQL," WHERE [SeriatimSummary].DatasetID='", datasetID, "' AND [SeriatimSummary].RunID='", runID, "' ")
+   if (IsEmptyString(selectScope) == FALSE) {
+      strSQL <- paste0(strSQL," AND ", selectScope)
+   }
+   dfSeriatimSummary <- RODBC::sqlQuery(dbConn, strSQL, stringsAsFactors = FALSE, as.is = TRUE)
+   RODBC::odbcClose(dbConn)
+   return(dfSeriatimSummary)
+}

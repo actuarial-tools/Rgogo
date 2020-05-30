@@ -1,0 +1,509 @@
+#' @include IExpnsAssump.R
+NULL
+
+
+setClass(
+   Class = "ExpnsAssump",
+   contains = "IExpnsAssump",
+   slots = c(
+      MEPerPol = "numeric",
+      MEPerPolInflRate = "numeric",
+      MEPerPolPfad = "numeric",
+      MEPerPrem = "numeric",
+      MEPerPremInflRate = "numeric",
+      MEPerPremPfad = "numeric",
+      MEPerPremAmt = "numeric",
+      MEPerPremAmtPfad = "numeric",
+      AEPerPol = "numeric",
+      AEPerPolPfad = "numeric",
+      AEPerFaceAmt = "numeric",
+      AEPerFaceAmtPfad = "numeric"
+   )
+)
+
+
+setValidity(
+   Class = "ExpnsAssump",
+   method = function(object) {
+      err <- New.SysMessage()
+      v <- Validator.Length(minLen = 1, maxLen = 1)
+      # Validate @MEPerPol
+      isValid <- Validate(v, object@MEPerPol)
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot '@MEPerPol in a object of or extending class 'ExpnsAssump' must contain a numeric value of length 1."
+      }
+      # Validate @MEPerPrem
+      isValid <- Validate(v, object@MEPerPrem)
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot '@MEPerPrem in a object of or extending class 'ExpnsAssump' must contain a numeric value of length 1."
+      }
+      # Validate @MEPerPremAmt
+      isValid <- Validate(v, object@MEPerPremAmt)
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot '@MEPerPremAmt in a object of or extending class 'ExpnsAssump' must contain a numeric value of length 1."
+      }
+      # Validate @AEPerPol
+      if (length(object@AEPerPol) > 1) {
+         v <- Validator.Names(hasNames = TRUE, namesAllowed = as.character(0:100))
+      } else {
+         v <- Validator.Names(hasNames = FALSE)
+      }
+      isValid <- Validate(v, object@AEPerPol)
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot '@AEPerPol in a object of or extending class 'ExpnsAssump' contains a value with invalid name attributes."
+      }
+      # Validate @AEPerFaceAmt
+      v <- Validator.Length(minLen = 1, maxLen = 1)
+      isValid <- Validate(v, object@AEPerFaceAmt)
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot '@AEPerFaceAmt in a object of or extending class 'ExpnsAssump' must contain a numeric value of length 1."
+      }
+      v <- Validator.Length(minLen = 1, maxLen = 9999)
+      # Validate @MEPerPolInflRate
+      isValid <- Validate(v, object@MEPerPolInflRate)
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot '@MEPerPolInflRate in a object of or extending class 'ExpnsAssump' must contain a numeric value of length at least 1."
+      }
+      # Validate @MEPerPremInflRate
+      isValid <- Validate(v, object@MEPerPremInflRate)
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot '@MEPerPremInflRate in a object of or extending class 'ExpnsAssump' must contain a numeric value of length at least 1."
+      }
+      # # Validate @MEPerClaimInflRate
+      # isValid <- Validate(v, object@MEPerClaimInflRate)
+      # if (isValid != TRUE) {
+      #    AddMessage(err) <- "Slot '@MEPerClaimInflRate in a object of or extending class 'ExpnsAssump' must contain a numeric value of length at least 1."
+      # }
+      # Validate @MEPerPolPfad
+      isValid <- Validate(v, object@MEPerPolPfad)
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot '@MEPerPolPfad in a object of or extending class 'ExpnsAssump' must contain a numeric value of length at least 1."
+      }
+      # Validate @MEPerPremPfad
+      isValid <- Validate(v, object@MEPerPremPfad)
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot '@MEPerPremPfad in a object of or extending class 'ExpnsAssump' must contain a numeric value of length at least 1."
+      }
+      # Validate @MEPerPremAmtPfad
+      isValid <- Validate(v, object@MEPerPremAmtPfad)
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot '@MEPerPremAmtPfad in a object of or extending class 'ExpnsAssump' must contain a numeric value of length at least 1."
+      }
+      # Validate @AEPerPolPfad
+      isValid <- Validate(v, object@AEPerPolPfad)
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot '@AEPerPolPfad in a object of or extending class 'ExpnsAssump' must contain a numeric value of length at least 1."
+      }
+      # Validate @AEPerFaceAmtPfad
+      isValid <- Validate(v, object@AEPerFaceAmtPfad)
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot '@AEPerFaceAmtPfad in a object of or extending class 'ExpnsAssump' must contain a numeric value of length at least 1."
+      }
+      if (NoMessage(err)) {
+         return(TRUE)
+      } else {
+         return(GetMessage(err))
+      }
+   }
+)
+
+
+ExpnsAssump <- function(id = character()) {
+   assump <- new(
+      Class = "ExpnsAssump",
+      Id = as.character(id),
+      MEPerPol = 0,
+      MEPerPolInflRate = 0,
+      MEPerPolPfad = 0,
+      MEPerPrem = 0,
+      MEPerPremInflRate = 0,
+      MEPerPremPfad = 0,
+      MEPerPremAmt = 0,
+      MEPerPremAmtPfad = 0,
+      AEPerPol = 0,
+      AEPerPolPfad = 0,
+      AEPerFaceAmt = 0,
+      AEPerFaceAmtPfad = 0
+   )
+   return(assump)
+}
+
+
+setMethod(
+   f = "ProjMntExpnsPerPol",
+   signature = "ExpnsAssump",
+   definition = function(object, cov, plan, assumpInfo, projStartDate) {
+      tInfo <- assumpInfo$Timeline
+      expns <- c(rep(object@MEPerPol / 12, length.out = GetProjLen(tInfo) - 1), 0)
+      inflAdj <- .GetInflAdjVector(object@MEPerPolInflRate, GetProjLen(tInfo))
+      me.PerPol.Expd <- expns * inflAdj * (GetProjTimeline(tInfo) >= GetIssDate(cov))
+      names(me.PerPol.Expd) <- NULL
+      assumpInfo$me.PerPol.Expd <- me.PerPol.Expd
+      return(assumpInfo)
+   }
+)
+
+
+setMethod(
+   f = "ProjMntExpnsPerPrem",
+   signature = "ExpnsAssump",
+   definition = function(object, cov, plan, assumpInfo, projStartDate) {
+      tInfo <- assumpInfo$Timeline
+      projLen <- GetProjLen(tInfo)
+      if (!is.null(assumpInfo$Proj.Prem)) {
+         prem <- c(rep(0, length.out = projLen - GetCovProjLen(tInfo)), assumpInfo$Proj.Prem[GetCovProjTimeIndex(tInfo) >= 0])
+         expns <- rep(object@MEPerPrem, length.out = projLen)
+         inflAdj <- .GetInflAdjVector(object@MEPerPremInflRate, projLen)
+         me.PerPrem.Expd <- expns * inflAdj * (prem != 0)
+         me.PerPremAmt.Expd <- prem * object@MEPerPremAmt
+      } else {
+         me.PerPrem.Expd <- rep(0, length.out = projLen)
+         me.PerPremAmt.Expd <- rep(0, length.out = projLen)
+      }
+      names(me.PerPrem.Expd) <- NULL
+      assumpInfo$me.PerPrem.Expd <- me.PerPrem.Expd
+      names(me.PerPremAmt.Expd) <- NULL
+      assumpInfo$me.PerPremAmt.Expd <- me.PerPremAmt.Expd
+      return(assumpInfo)
+   }
+)
+
+
+setMethod(
+   f = "ProjAcqExpns",
+   signature = "ExpnsAssump",
+   definition = function(object, cov, plan, assumpInfo, projStartDate) {
+      projLen <- GetProjLen(assumpInfo$Timeline)
+      covProjLen <- GetCovProjLen(assumpInfo$Timeline)
+      if (projStartDate <= GetIssDate(cov)) {
+         if (length(object@AEPerPol) == 1) {
+            ae.PerPol.Expd <- FillZeroIfNA(object@AEPerPol, len = covProjLen)
+         } else {
+            ae.PerPol.Expd <- FillZeroIfNA(object@AEPerPol[as.character(GetIssAge(cov))], len = covProjLen)
+         }
+         ae.PerPol.Expd <- c(rep(0, length.out = projLen - covProjLen), ae.PerPol.Expd)
+         ae.PerFaceAmt.Expd <- c(rep(0, length.out = projLen - covProjLen),
+                                 FillZeroIfNA(GetFaceAmt(cov) * object@AEPerFaceAmt, len = covProjLen))
+      } else {
+         ae.PerPol.Expd <- rep(0, length.out = projLen)
+         ae.PerFaceAmt.Expd <- rep(0, length.out = projLen)
+      }
+      names(ae.PerPol.Expd) <- NULL
+      assumpInfo$ae.PerPol.Expd <- ae.PerPol.Expd
+      names(ae.PerFaceAmt.Expd) <- NULL
+      assumpInfo$ae.PerFaceAmt.Expd <- ae.PerFaceAmt.Expd
+      return(assumpInfo)
+   }
+)
+
+
+setMethod(
+   f = "GetExpdAssump",
+   signature = "ExpnsAssump",
+   definition = function(object, cov, plan, assumpInfo, projStartDate) {
+      stopifnot(projStartDate <= GetExpiryDate(plan, cov))
+      assumpInfo <- ProjMntExpnsPerPol(object, cov, plan, assumpInfo, projStartDate)
+      assumpInfo <- ProjMntExpnsPerPrem(object, cov, plan, assumpInfo, projStartDate)
+      # assumpInfo <- ProjMntExpnsPerClaim(object, cov, plan, assumpInfo, projStartDate)
+      assumpInfo <- ProjAcqExpns(object, cov, plan, assumpInfo, projStartDate)
+      return(assumpInfo)
+   }
+)
+
+
+setMethod(
+   f = "GetPaddAssump",
+   signature = "ExpnsAssump",
+   definition = function(object, cov, plan, assumpInfo, projStartDate) {
+      stopifnot(projStartDate <= GetExpiryDate(plan, cov))
+      projLen <- length(assumpInfo$me.PerPol.Expd)
+      assumpInfo$me.PerPol.Padd <- assumpInfo$me.PerPol.Expd * (1 + .GetExpnsPfad(object@MEPerPolPfad, projLen))
+      assumpInfo$me.PerPrem.Padd <- assumpInfo$me.PerPrem.Expd * (1 + .GetExpnsPfad(object@MEPerPremPfad, projLen))
+      assumpInfo$me.PerPremAmt.Padd <- assumpInfo$me.PerPremAmt.Expd * (1 + .GetExpnsPfad(object@MEPerPremAmtPfad, projLen))
+      # assumpInfo$me.PerClaim.Padd <- assumpInfo$me.PerClaim.Expd * (1 + .GetExpnsPfad(object@MEPerClaimPfad, projLen))
+      assumpInfo$ae.PerPol.Padd <- assumpInfo$ae.PerPol.Expd * (1 + .GetExpnsPfad(object@AEPerPolPfad, projLen))
+      assumpInfo$ae.PerFaceAmt.Padd <- assumpInfo$ae.PerFaceAmt.Expd * (1 + .GetExpnsPfad(object@AEPerFaceAmtPfad, projLen))
+      return(assumpInfo)
+   }
+)
+
+
+setMethod(
+   f = "GetAssump",
+   signature = "ExpnsAssump",
+   definition = function(object, cov, plan, assumpInfo, projStartDate) {
+      if (is.null(projStartDate)) {
+         projStartDate <- GetIssDate(cov)
+      }
+      assumpInfo <- GetExpdAssump(object, cov, plan, assumpInfo, projStartDate)
+      assumpInfo <- GetPaddAssump(object, cov, plan, assumpInfo, projStartDate)
+      return(assumpInfo)
+
+   }
+)
+
+
+setMethod(
+   f = "GetMntExpnsPerPol",
+   signature = "ExpnsAssump",
+   definition = function(object) {
+      return(object@MEPerPol)
+   }
+)
+
+
+setMethod(
+   f = "SetMntExpnsPerPol<-",
+   signature = "ExpnsAssump",
+   definition = function(object, value) {
+      object@MEPerPol <- value
+      validObject(object)
+      return(object)
+   }
+)
+
+
+setMethod(
+   f = "GetMntExpnsPerPrem",
+   signature = "ExpnsAssump",
+   definition = function(object) {
+      return(object@MEPerPrem)
+   }
+)
+
+
+setMethod(
+   f = "SetMntExpnsPerPrem<-",
+   signature = "ExpnsAssump",
+   definition = function(object, value) {
+      object@MEPerPrem <- value
+      validObject(object)
+      return(object)
+   }
+)
+
+
+setMethod(
+   f = "GetMntExpnsPerPremAmt",
+   signature = "ExpnsAssump",
+   definition = function(object) {
+      return(object@MEPerPremAmt)
+   }
+)
+
+
+setMethod(
+   f = "SetMntExpnsPerPremAmt<-",
+   signature = "ExpnsAssump",
+   definition = function(object, value) {
+      object@MEPerPremAmt <- value
+      validObject(object)
+      return(object)
+   }
+)
+
+
+setMethod(
+   f = "GetAcqExpnsPerPol",
+   signature = "ExpnsAssump",
+   definition = function(object) {
+      return(object@AEPerPol)
+   }
+)
+
+
+setMethod(
+   f = "SetAcqExpnsPerPol<-",
+   signature = "ExpnsAssump",
+   definition = function(object, value) {
+      object@AEPerPol <- value
+      validObject(object)
+      return(object)
+   }
+)
+
+
+setMethod(
+   f = "GetAcqExpnsPerFaceAmt",
+   signature = "ExpnsAssump",
+   definition = function(object) {
+      return(object@AEPerFaceAmt)
+   }
+)
+
+
+setMethod(
+   f = "SetAcqExpnsPerFaceAmt<-",
+   signature = "ExpnsAssump",
+   definition = function(object, value) {
+      object@AEPerFaceAmt <- value
+      validObject(object)
+      return(object)
+   }
+)
+
+
+setMethod(
+   f = "GetMntExpnsPerPolInflRate",
+   signature = "ExpnsAssump",
+   definition = function(object) {
+      return(object@MEPerPolInflRate)
+   }
+)
+
+
+setMethod(
+   f = "SetMntExpnsPerPolInflRate<-",
+   signature = "ExpnsAssump",
+   definition = function(object, value) {
+      object@MEPerPolInflRate <- value
+      validObject(object)
+      return(object)
+   }
+)
+
+
+setMethod(
+   f = "GetMntExpnsPerPremInflRate",
+   signature = "ExpnsAssump",
+   definition = function(object) {
+      return(object@MEPerPremInflRate)
+   }
+)
+
+
+setMethod(
+   f = "SetMntExpnsPerPremInflRate<-",
+   signature = "ExpnsAssump",
+   definition = function(object, value) {
+      object@MEPerPremInflRate <- value
+      validObject(object)
+      return(object)
+   }
+)
+
+
+setMethod(
+   f = "GetMntExpnsPerPolPfad",
+   signature = "ExpnsAssump",
+   definition = function(object) {
+      return(object@MEPerPolPfad)
+   }
+)
+
+
+setMethod(
+   f = "SetMntExpnsPerPolPfad<-",
+   signature = "ExpnsAssump",
+   definition = function(object, value) {
+      object@MEPerPolPfad <- value
+      validObject(object)
+      return(object)
+   }
+)
+
+
+setMethod(
+   f = "GetMntExpnsPerPremPfad",
+   signature = "ExpnsAssump",
+   definition = function(object) {
+      return(object@MEPerPremPfad)
+   }
+)
+
+
+setMethod(
+   f = "SetMntExpnsPerPremPfad<-",
+   signature = "ExpnsAssump",
+   definition = function(object, value) {
+      object@MEPerPremPfad <- value
+      validObject(object)
+      return(object)
+   }
+)
+
+
+setMethod(
+   f = "GetMntExpnsPerPremAmtPfad",
+   signature = "ExpnsAssump",
+   definition = function(object) {
+      return(object@MEPerPremAmtPfad)
+   }
+)
+
+
+setMethod(
+   f = "SetMntExpnsPerPremAmtPfad<-",
+   signature = "ExpnsAssump",
+   definition = function(object, value) {
+      object@MEPerPremAmtPfad <- value
+      validObject(object)
+      return(object)
+   }
+)
+
+
+setMethod(
+   f = "GetAcqExpnsPerPolPfad",
+   signature = "ExpnsAssump",
+   definition = function(object) {
+      return(object@AEPerPolPfad)
+   }
+)
+
+
+setMethod(
+   f = "SetAcqExpnsPerPolPfad<-",
+   signature = "ExpnsAssump",
+   definition = function(object, value) {
+      object@AEPerPolPfad <- value
+      validObject(object)
+      return(object)
+   }
+)
+
+
+setMethod(
+   f = "GetAcqExpnsPerFaceAmtPfad",
+   signature = "ExpnsAssump",
+   definition = function(object) {
+      return(object@AEPerFaceAmtPfad)
+   }
+)
+
+
+setMethod(
+   f = "SetAcqExpnsPerFaceAmtPfad<-",
+   signature = "ExpnsAssump",
+   definition = function(object, value) {
+      object@AEPerFaceAmtPfad <- value
+      validObject(object)
+      return(object)
+   }
+)
+
+
+.GetInflAdjVector <- function(inflSlotValue, projLen) {
+   l <- ceiling(projLen / 12)   # Number of projection years
+   if (length(inflSlotValue) == 1) {
+      inflRate <- c(0, RepeatTail(inflSlotValue, len = l - 1))
+   } else {
+      inflRate <- c(0, FillZeroIfNA(inflSlotValue, len = l - 1))
+   }
+   inflRate <- rep(inflRate, each = 12, length.out = projLen) * (((1:projLen) - 1) %% 12 == 0)
+   inflAdj <- cumprod(1 + inflRate)
+   return(inflAdj)
+}
+
+
+.GetExpnsPfad <- function(pfadSlotValue, projLen) {
+   if (length(pfadSlotValue) == 1) {
+      return(pfadSlotValue)
+   } else {
+      return(FillZeroIfNA(pfadSlotValue, len = projLen))
+   }
+}
+
+
+
+
