@@ -39,7 +39,7 @@ ArgSet.PPM <- function(id = character(0L),
                        applyLapseMargin = TRUE,
                        applyExpnsMargin = TRUE,
                        applyIntrMargin = TRUE,
-                       reserveFloor = -Inf){
+                       reserveFloor = -Inf) {
    args <- new(
       Class = "ArgSet.PPM",
       Id = id,
@@ -58,6 +58,26 @@ ArgSet.PPM <- function(id = character(0L),
    return(args)
 }
 
+
+setMethod(
+   f = "SetArgValue",
+   signature = "ArgSet.PPM",
+   definition = function(object, ...) {
+      valueList <- list(...)
+      argNames <- names(valueList)
+      if ("ProjStartDate" %in% argNames) {
+         stop("Setting argument value for slot '@ProjStartDate' of class 'ArgSet.PPM' is not permitted.")
+      }
+      for (i in 1:length(valueList)) {
+         slot(object, argNames[i]) <- valueList[[i]]
+         if (argNames[i] == "ValuDate") {
+            slot(object, "ProjStartDate") <- valueList[[i]] + 1
+         }
+      }
+      validObject(object)
+      return(object)
+   }
+)
 
 
 

@@ -174,9 +174,11 @@ setMethod(
    signature = "Job.CfProj",
    definition = function(object, result) {
       if (object@ExportExcel != FALSE) {
+         df <- Round.data.frame(result$Cf, digits = 0)
          wb <- openxlsx::createWorkbook()
          sht <- openxlsx::addWorksheet(wb, sheetName = "Cf")
-         openxlsx::writeDataTable(wb, sht, result[[1]])
+         openxlsx::writeDataTable(wb, sht, df, startCol = 1, startRow = 1)
+         openxlsx::setColWidths(wb, sht, cols = 1:dim(df)[2], widths = 10)
          openxlsx::saveWorkbook(wb, object@ExportExcel, overwrite = TRUE)
      }
    }
