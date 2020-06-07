@@ -35,7 +35,6 @@ Collate:
     'ArgSet.ScnrSet.R'
     'ArgSet.ScnrTest.R'
     'ArgSet.UPR.R'
-    'CLib.R'
     'IPlan.R'
     'Cov.R'
     'ExpnsAssump.R'
