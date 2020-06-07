@@ -1,7 +1,6 @@
 #' @include IIntrAssump.R
 NULL
 
-
 setClass(
    Class = "ArgSet.DCF",
    contains = "ArgSet.CF",
@@ -10,7 +9,6 @@ setClass(
       ApplyIntrMargin = "logical"
    )
 )
-
 
 setValidity(
    Class = "ArgSet.DCF",
@@ -34,23 +32,28 @@ setValidity(
    }
 )
 
-
-
-ArgSet.DCF <- function(...) {
-   args <- new(
+ArgSet.DCF <- function(projStartDate = "1900-01-01",
+                       mortAssump = character(0L), lapseAssump = character(0L),
+                       expnsAssump = character(0L), intrAssump = character(0L),
+                       applyMortMargin = FALSE, applyLapseMargin = FALSE,
+                       applyExpnsMargin = FALSE, applyIntrMargin = FALSE,
+                       id = character(0L), descrip = character(0L)) {
+   arg <- new(
       Class = "ArgSet.DCF",
-      ProjStartDate = as.Date("1900-01-01"),
-      ApplyMortMargin = FALSE,
-      ApplyLapseMargin = FALSE,
-      ApplyExpnsMargin = FALSE,
-      ApplyIntrMargin = FALSE
+      ProjStartDate = lubridate::as_date(projStartDate),
+      MortAssump = mortAssump,
+      LapseAssump = lapseAssump,
+      ExpnsAssump = expnsAssump,
+      IntrAssump = intrAssump,
+      ApplyMortMargin = as.logical(applyMortMargin),
+      ApplyLapseMargin = as.logical(applyLapseMargin),
+      ApplyExpnsMargin = as.logical(applyExpnsMargin),
+      ApplyIntrMargin = as.logical(applyIntrMargin),
+      Id = as.character(id),
+      Descrip = as.character(descrip)
    )
-   if (length(list(...)) > 0) {
-      args <- SetArgValue(args, ...)
-   }
-   return(args)
+   return(arg)
 }
-
 
 setMethod(
    f = "GetArgValue",
@@ -63,7 +66,6 @@ setMethod(
       return(value)
    }
 )
-
 
 setMethod(
    f = "GetIntrAssump",
@@ -83,5 +85,34 @@ setMethod(
    }
 )
 
+setMethod(
+   f = "SetIntrAssump<-",
+   signature = "ArgSet.DCF",
+   definition = function(object, value) {
+      object@IntrAssump <- value
+      validObject(object)
+      return(object)
+   }
+)
 
+setMethod(
+   f = "ApplyIntrMargin",
+   signature = "ArgSet.DCF",
+   definition = function(object) {
+      if (object@ApplyIntrMargin == TRUE) {
+         return(TRUE)
+      } else {
+         return(FALSE)
+      }
+   }
+)
 
+setMethod(
+   f = "ApplyIntrMargin<-",
+   signature = "ArgSet.DCF",
+   definition = function(object, value) {
+      object@ApplyIntrMargin <- as.logical(value)
+      validObject(object)
+      return(object)
+   }
+)

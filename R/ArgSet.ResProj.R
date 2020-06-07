@@ -1,12 +1,6 @@
 setClassUnion(name = "IModel_or_list", members = c("IModel", "list"))
 setClassUnion(name = "IArgSet_or_list", members = c("IArgSet", "list"))
 
-
-setGeneric(name = "GetArgsList", def = function(object) {standardGeneric("GetArgsList")})
-#setGeneric(name = "GetModelList", def = function(object) {standardGeneric("GetModelList")})
-setGeneric(name = "GetValuDates", def = function(object) {standardGeneric("GetValuDates")})
-
-
 setClass(
    Class = "ArgSet.ResProj",
    contains = "IArgSet",
@@ -15,7 +9,6 @@ setClass(
       ValuModel = "IModel"
    )
 )
-
 
 setValidity(
    Class = "ArgSet.ResProj",
@@ -39,7 +32,6 @@ setValidity(
    }
 )
 
-
 ArgSet.ResProj <- function(valuModel, valuArgSet) {
    args <- new(
       Class = "ArgSet.ResProj",
@@ -47,7 +39,6 @@ ArgSet.ResProj <- function(valuModel, valuArgSet) {
       ValuArgSet = valuArgSet
    )
 }
-
 
 setMethod(
    f = "GetArgsList",
@@ -61,7 +52,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetModel",
    signature = "ArgSet.ResProj",
@@ -69,7 +59,6 @@ setMethod(
       return(object@ValuModel)
    }
 )
-
 
 setMethod(
    f = "GetValuDates",

@@ -1,62 +1,19 @@
 setClass(Class = "Model.PremSolver", contains = "IModel")
 
-
 Model.PremSolver <- function(args = ArgSet.PremSolver()) {
    model <- new(Class = "Model.PremSolver", Args = args)
    return(model)
 }
 
-
-.GetPricRiskClass <- function(plan) {
-   if (length(plan@PremTable) > 1) {
-      riskClasses <- names(plan@PremTable)
-   } else {
-      riskClasses <- NA_character_
-   }
-   return(riskClasses)
-}
-
-
-.GetPricIssAgeRange <- function(object, riskClass) {
-   issAges <- GetArgValue(object, "PricIssAge")
-   if (is.list(issAges)) {
-      issAges <- issAges[[as.character(riskClass)]]
-   }
-   return(c(min(issAges), max(issAges)))
-}
-
-
-.GetPricFaceAmt <- function(object, riskClass, issAge) {
-   argValue <- GetArgValue(object, "PricFaceAmt")
-   if (is.list(argValue)) {
-      argValue <- argValue[[as.character(riskClass)]]
-   }
-   if (length(argValue) == 1) {
-      return(argValue)
-   } else {
-      return(argValue[as.character(issAge)])
-   }
-}
-
-
-.GetTargProfitMargin <- function(object, riskClass, issAge) {
-   argValue <- GetArgValue(object, "TargProfitMargin")
-   if (is.list(argValue)) {
-      argValue <- argValue[[as.character(riskClass)]]
-   }
-   if (length(argValue) == 1) {
-      return(argValue)
-   } else {
-      return(argValue[as.character(issAge)])
-   }
-}
-
-
 setMethod(
    f = "Run",
    signature = c("Model.PremSolver", "IPlan.LT"),
    definition = function(object, var, result = list()) {
-      riskClasses <- .GetPricRiskClass(var)
+      if (length(var@PremTable) > 1) {
+         riskClasses <- names(var@PremTable)
+      } else {
+         riskClasses <- NA_character_
+      }
       unitFace <- GetArgValue(object, "UnitFace")
       issDate <- GetArgValue(object, "ProjStartDate")
       premMode <- GetArgValue(object, "PricPremMode")
@@ -72,7 +29,7 @@ setMethod(
          X = as.list(riskClasses),
          fun = function(rc, model, plan) {
             # Create a new premium table
-            ageRange <- .GetPricIssAgeRange(model, rc)
+            ageRange <- GetPricIssAge(model, rc)
             tbl <- Table.IA(minAge = min(ageRange), maxAge = max(ageRange), tBase = unitFace)
             if (is.na(rc)) {
                tblId <- plan@PremTable
@@ -89,11 +46,11 @@ setMethod(
                      IssDate = issDate,
                      IssAge = as.integer(age),
                      RiskClass = rc,
-                     FaceAmt = .GetPricFaceAmt(model, rc, age),
+                     FaceAmt = GetPricFaceAmt(model, rc, age),
                      PremMode = premMode,
                      ModPrem = 1     # Set initial value
                   )
-                  profitMargin <- .GetTargProfitMargin(model, rc, age)
+                  profitMargin <- GetTargProfitMargin(model, rc, age)
                   tmpResult <- optimize(f = .CalcSolverObjective,
                                         interval = GetArgValue(model, "Interval"),
                                         cov, plan, unitFace, profitMargin, GetArgs(model),
@@ -114,8 +71,6 @@ setMethod(
       return(result)
    }
 )
-
-
 
 .CalcSolverObjective <- function(premRate, cov, plan, unitFace, profitMargin, args) {
    SetModPrem(cov) <- premRate * GetFaceAmt(cov) / unitFace * GetModFactor(plan, GetPremMode(cov)) + GetPolFee(plan, GetPremMode(cov))

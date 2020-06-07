@@ -1,15 +1,12 @@
 #' @include IObject.R
 NULL
 
-
 setClass(
    Class = "IArgSet",
    contains = c("IObject", "VIRTUAL")
 )
 
-
 setClassUnion(name = "character_or_IArgSet", members = c("character", "IArgSet"))
-
 
 setMethod(
    f = "GetArgNames",
@@ -19,7 +16,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetArgValue",
    signature = "IArgSet",
@@ -27,7 +23,6 @@ setMethod(
       return(slot(object, argName))
    }
 )
-
 
 setMethod(
    f = "SetArgValue",
@@ -43,26 +38,6 @@ setMethod(
    }
 )
 
-
-# setMethod(
-#    f = "Deploy",
-#    signature = c("IArgSet", "logical"),
-#    definition = function(object, overwrite = FALSE) {
-#       Serialize(object, overwrite, class(object))
-#    }
-# )
-
-
-# setMethod(
-#    f = "SaveAsRda",
-#    signature = "IArgSet",
-#    definition = function(object, overwrite = FALSE) {
-#       Deploy(object, overwrite)
-#    }
-# )
-
-
-
 setMethod(
    f = "SaveAsRda",
    signature = "IArgSet",
@@ -73,6 +48,3 @@ setMethod(
       eval(parse(text = paste("usethis::use_data(", rdaName, ", overwrite = ", overwrite, ")")))
    }
 )
-
-
-

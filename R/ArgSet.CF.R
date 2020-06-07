@@ -4,7 +4,6 @@
 #' @include IExpnsAssump.R
 NULL
 
-
 setClass(
    Class = "ArgSet.CF",
    contains = "IArgSet",
@@ -18,7 +17,6 @@ setClass(
       ApplyExpnsMargin = "logical"
    )
 )
-
 
 setValidity(
    Class = "ArgSet.CF",
@@ -71,21 +69,24 @@ setValidity(
    }
 )
 
-
-ArgSet.CF <- function(...) {
-   args <- new(
+ArgSet.CF <- function(projStartDate = "1900-01-01", mortAssump = character(0L),
+                      lapseAssump = character(0L), expnsAssump = character(0L),
+                      applyMortMargin = FALSE, applyLapseMargin = FALSE, applyExpnsMargin = FALSE,
+                      id = character(0L), descrip = character(0L)) {
+   arg <- new(
       Class = "ArgSet.CF",
-      ProjStartDate = as.Date("1900-01-01"),
-      ApplyMortMargin = FALSE,
-      ApplyLapseMargin = FALSE,
-      ApplyExpnsMargin = FALSE
+      ProjStartDate = lubridate::as_date(projStartDate),
+      MortAssump = mortAssump,
+      LapseAssump = lapseAssump,
+      ExpnsAssump = expnsAssump,
+      ApplyMortMargin = as.logical(applyMortMargin),
+      ApplyLapseMargin = as.logical(applyLapseMargin),
+      ApplyExpnsMargin = as.logical(applyExpnsMargin),
+      Id = as.character(id),
+      Descrip = as.character(descrip)
    )
-   if (length(list(...)) > 0) {
-      args <- SetArgValue(args, ...)
-   }
-   return(args)
+   return(arg)
 }
-
 
 setMethod(
    f = "GetArgValue",
@@ -101,6 +102,13 @@ setMethod(
    }
 )
 
+setMethod(
+   f = "GetProjStartDate",
+   signature = "ArgSet.CF",
+   definition = function(object) {
+      return(object@ProjStartDate)
+   }
+)
 
 setMethod(
    f = "GetMortAssump",
@@ -120,7 +128,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetLapseAssump",
    signature = "ArgSet.CF",
@@ -138,7 +145,6 @@ setMethod(
       }
    }
 )
-
 
 setMethod(
    f = "GetExpnsAssump",
@@ -158,4 +164,109 @@ setMethod(
    }
 )
 
+setMethod(
+   f = "SetProjStartDate<-",
+   signature = "ArgSet.CF",
+   definition = function(object, value) {
+      object@ProjStartDate <- lubridate::as_date(value)
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "SetMortAssump<-",
+   signature = "ArgSet.CF",
+   definition = function(object, value) {
+      object@MortAssump <- value
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "SetLapseAssump<-",
+   signature = "ArgSet.CF",
+   definition = function(object, value) {
+      object@LapseAssump <- value
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "SetExpnsAssump<-",
+   signature = "ArgSet.CF",
+   definition = function(object, value) {
+      object@ExpnsAssump <- value
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "ApplyMortMargin",
+   signature = "ArgSet.CF",
+   definition = function(object) {
+      if (object@ApplyMortMargin == TRUE) {
+         return(TRUE)
+      } else {
+         return(FALSE)
+      }
+   }
+)
+
+setMethod(
+   f = "ApplyLapseMargin",
+   signature = "ArgSet.CF",
+   definition = function(object) {
+      if (object@ApplyLapseMargin == TRUE) {
+         return(TRUE)
+      } else {
+         return(FALSE)
+      }
+   }
+)
+
+setMethod(
+   f = "ApplyExpnsMargin",
+   signature = "ArgSet.CF",
+   definition = function(object) {
+      if (object@ApplyExpnsMargin == TRUE) {
+         return(TRUE)
+      } else {
+         return(FALSE)
+      }
+   }
+)
+
+setMethod(
+   f = "ApplyMortMargin<-",
+   signature = "ArgSet.CF",
+   definition = function(object, value) {
+      object@ApplyMortMargin <- as.logical(value)
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "ApplyLapseMargin<-",
+   signature = "ArgSet.CF",
+   definition = function(object, value) {
+      object@ApplyLapseMargin <- as.logical(value)
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "ApplyExpnsMargin<-",
+   signature = "ArgSet.CF",
+   definition = function(object, value) {
+      object@ApplyExpnsMargin <- as.logical(value)
+      validObject(object)
+      return(object)
+   }
+)
 

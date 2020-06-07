@@ -7,7 +7,6 @@ setClass(
    )
 )
 
-
 setValidity(
    Class = "ArgSet.PPM",
    method = function(object) {
@@ -28,9 +27,7 @@ setValidity(
    }
 )
 
-
-ArgSet.PPM <- function(id = character(0L),
-                       valuDate = as.Date("1899-12-31"),
+ArgSet.PPM <- function(valuDate = as.Date("1899-12-31"),
                        mortAssump = character(),
                        lapseAssump = character(),
                        expnsAssump = character(),
@@ -39,25 +36,27 @@ ArgSet.PPM <- function(id = character(0L),
                        applyLapseMargin = TRUE,
                        applyExpnsMargin = TRUE,
                        applyIntrMargin = TRUE,
-                       reserveFloor = -Inf) {
+                       reserveFloor = -Inf,
+                       id = character(0L),
+                       descrip = character(0L)) {
    args <- new(
       Class = "ArgSet.PPM",
-      Id = id,
       ValuDate = lubridate::as_date(valuDate),
       ProjStartDate = lubridate::as_date(valuDate) + 1,
       MortAssump = mortAssump,
       LapseAssump = lapseAssump,
       ExpnsAssump = expnsAssump,
       IntrAssump = intrAssump,
-      ApplyMortMargin = applyMortMargin,
-      ApplyLapseMargin = applyLapseMargin,
-      ApplyExpnsMargin = applyExpnsMargin,
-      ApplyIntrMargin = applyIntrMargin,
-      ResFloor = reserveFloor
+      ApplyMortMargin = as.logical(applyMortMargin),
+      ApplyLapseMargin = as.logical(applyLapseMargin),
+      ApplyExpnsMargin = as.logical(applyExpnsMargin),
+      ApplyIntrMargin = as.logical(applyIntrMargin),
+      ResFloor = as.numeric(reserveFloor),
+      Id = as.character(id),
+      Descrip = as.character(descrip)
    )
    return(args)
 }
-
 
 setMethod(
    f = "SetArgValue",
@@ -79,5 +78,48 @@ setMethod(
    }
 )
 
+setMethod(
+   f = "GetValuDate",
+   signature = "ArgSet.PPM",
+   definition = function(object) {
+      return(object@ValuDate)
+   }
+)
 
+setMethod(
+   f = "SetValuDate<-",
+   signature = "ArgSet.PPM",
+   definition = function(object, value) {
+      object@ValuDate <- lubridate::as_date(value)
+      object@ProjStartDate <- lubridate::as_date(value) + 1
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "SetProjStartDate<-",
+   signature = "ArgSet.PPM",
+   definition = function(object, value) {
+      stop("Method 'SetProjStartDate<-' cannot be invoked by an object of class 'ArgSet.PPM'")
+   }
+)
+
+setMethod(
+   f = "GetResFloor",
+   signature = "ArgSet.PPM",
+   definition = function(object) {
+      return(object@ResFloor)
+   }
+)
+
+setMethod(
+   f = "SetResFloor<-",
+   signature = "ArgSet.PPM",
+   definition = function(object, value) {
+      object@ResFloor <- as.numeric(value)
+      validObject(object)
+      return(object)
+   }
+)
 

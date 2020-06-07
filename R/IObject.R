@@ -7,7 +7,6 @@ setClass(
    )
 )
 
-
 setValidity(
    Class = "IObject",
    method = function(object) {
@@ -23,7 +22,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetId<-",
    signature = c("IObject", "character"),
@@ -34,7 +32,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetDescrip",
    signature = "IObject",
@@ -42,7 +39,6 @@ setMethod(
       return(object@Descrip)
    }
 )
-
 
 setMethod(
    f = "SetDescrip<-",
@@ -54,7 +50,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SaveAsRda",
    signature = "IObject",
@@ -62,31 +57,3 @@ setMethod(
       stop("Method 'SaveAsRda' must be implemented by class that extends 'IObject'.")
    }
 )
-
-
-# setMethod(
-#    f = "Deploy",
-#    signature = c("IObject", "logical"),
-#    definition = function(object, overwrite = FALSE) {
-#       stop("'Deploy' method must be implemented by a class extending 'IObject' virtual class.")
-#    }
-# )
-#
-#
-# # Helper function for serializing an instance of IObject
-# Serialize <- function(object, overwrite, prefix = character(0L)) {
-#    stopifnot(HasValue(id <- GetId(object)))
-#    if (length(prefix) > 0) {
-#       prefix <- ifelse(endsWith(prefix, "."), prefix, paste0(prefix, "."))
-#       rdaName <- ifelse(startsWith(id, prefix), id, paste0(prefix, id))
-#    } else {
-#       rdaName <- id
-#    }
-#    eval(parse(text = paste(rdaName, "<- object")))
-#    eval(parse(text = paste("usethis::use_data(", rdaName, ", overwrite = ", overwrite, ")")))
-# }
-
-
-
-
-

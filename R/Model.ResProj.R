@@ -4,12 +4,10 @@ setClass(
    slots = (Args = "IArgSet.ResProj")
 )
 
-
 Model.ResProj <- function(args) {
    model <- new(Class = "Model.ResProj", Args = args)
    return(model)
 }
-
 
 setMethod(
    f = "GetArgsList",
@@ -19,7 +17,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetValuDates",
    signature = "Model.ResProj",
@@ -28,7 +25,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetModel",
    signature = "Model.ResProj",
@@ -36,7 +32,6 @@ setMethod(
       return(GetModel(GetArgs(object)))
    }
 )
-
 
 setMethod(
    f = "Run",

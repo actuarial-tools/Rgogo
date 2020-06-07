@@ -2,7 +2,6 @@
 #' @include IModel.R
 NULL
 
-
 setClass(
    Class = "ArgSet.PfadAnlys",
    contains = "IArgSet",
@@ -10,7 +9,6 @@ setClass(
       ValuModel = "character_or_IModel"
    )
 )
-
 
 setValidity(
    Class = "ArgSet.PfadAnlys",
@@ -25,12 +23,15 @@ setValidity(
    }
 )
 
-
-ArgSet.PfadAnlys <- function(id = character(0L), valuModel) {
-   args <- new(Class = "ArgSet.PfadAnlys", Id = id, ValuModel = valuModel)
+ArgSet.PfadAnlys <- function(valuModel, id = character(0L), descrip = character(0L)) {
+   args <- new(
+      Class = "ArgSet.PfadAnlys",
+      ValuModel = valuModel,
+      Id = as.character(id),
+      Descrip = as.character(descrip)
+   )
    return(args)
 }
-
 
 setMethod(
    f = "GetModel",
