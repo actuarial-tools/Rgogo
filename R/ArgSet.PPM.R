@@ -101,7 +101,7 @@ setMethod(
    f = "SetProjStartDate<-",
    signature = "ArgSet.PPM",
    definition = function(object, value) {
-      stop("Method 'SetProjStartDate<-' cannot be invoked by an object of class 'ArgSet.PPM'")
+      stop("Method 'SetProjStartDate<-' cannot be invoked for an object of class 'ArgSet.PPM'")
    }
 )
 
