@@ -14,7 +14,7 @@ setMethod(
       } else {
          riskClasses <- NA_character_
       }
-      unitFace <- GetArgValue(object, "UnitFace")
+      unitFace <- GetArgValue(object, "UnitFaceAmt")
       issDate <- GetArgValue(object, "ProjStartDate")
       premMode <- GetArgValue(object, "PricPremMode")
       # In R 4.0.0, there appear to be a bug when using makeCluster in MacOS.  A way to work around is to add argument setup_strategy = "sequential".
@@ -29,7 +29,7 @@ setMethod(
          X = as.list(riskClasses),
          fun = function(rc, model, plan) {
             # Create a new premium table
-            ageRange <- GetPricIssAge(model, rc)
+            ageRange <- GetPricIssAge(GetArgs(model), rc)
             tbl <- Table.IA(minAge = min(ageRange), maxAge = max(ageRange), tBase = unitFace)
             if (is.na(rc)) {
                tblId <- plan@PremTable
@@ -46,11 +46,11 @@ setMethod(
                      IssDate = issDate,
                      IssAge = as.integer(age),
                      RiskClass = rc,
-                     FaceAmt = GetPricFaceAmt(model, rc, age),
+                     FaceAmt = GetPricFaceAmt(GetArgs(model), rc, age),
                      PremMode = premMode,
                      ModPrem = 1     # Set initial value
                   )
-                  profitMargin <- GetTargProfitMargin(model, rc, age)
+                  profitMargin <- GetTargProfitMargin(GetArgs(model), rc, age)
                   tmpResult <- optimize(f = .CalcSolverObjective,
                                         interval = GetArgValue(model, "Interval"),
                                         cov, plan, unitFace, profitMargin, GetArgs(model),

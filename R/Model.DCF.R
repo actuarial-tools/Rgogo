@@ -62,7 +62,7 @@ setMethod(
       ### End of deprecated code block
 
       result$PV <- data.frame(
-         CovId = GetId(var),
+         CovId = ifelse(length(GetId(var)) > 0, GetId(var), NA),
          Prem = ifelse(is.null(result$Cf.Prem), 0, sum(result$Cf.Prem * v)),
          Prem.Tax = ifelse(is.null(result$Cf.Prem.Tax), 0, sum(result$Cf.Prem.Tax * v)),
          Comm =  ifelse(is.null(result$Cf.Comm), 0, sum(result$Cf.Comm * v)),
