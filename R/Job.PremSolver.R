@@ -1,8 +1,7 @@
 setClass(
    Class = "Job.PremSolver",
-   contains = "IJob",
+   contains = "IJob"
 )
-
 
 Job.PremSolver <- function(inpVars = list(), dispatcher = character()) {
    job <- new(
@@ -12,7 +11,6 @@ Job.PremSolver <- function(inpVars = list(), dispatcher = character()) {
    )
    return(job)
 }
-
 
 setMethod(
    f = "Finalize",
@@ -30,7 +28,6 @@ setMethod(
       return(jobResult)
    }
 )
-
 
 setMethod(
    f = "ExportToExcel",
