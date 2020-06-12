@@ -1,7 +1,6 @@
 #' @include IPlan.R
 NULL
 
-
 setClass(
    Class = "IPlan.LT",
    contains = c("IPlan"),
@@ -18,7 +17,6 @@ setClass(
       Rein = "character"
    )
 )
-
 
 setValidity(
    Class = "IPlan.LT",
@@ -110,8 +108,10 @@ setValidity(
    }
 )
 
-
-IPlan.LT <- function(planId = character(), covYears = NA, covToAge = NA, premYears = NA, premToAge = NA) {
+IPlan.LT <- function(covYears = NA, covToAge = NA, premYears = NA, premToAge = NA,
+                     premTable = character(0L), modFactor = c("1" = 1, "2" = 0.5, "4" = 0.25, "12" = 1/12),
+                     polFee = numeric(0), commSchd = numeric(0L), ovrdOnPremSchd = numeric(0L), ovrdOnCommSchd = numeric(0L),
+                     premTaxRate = numeric(0L), rein = character(0L), planId = character(0L), descrip = character(0L)) {
    stopifnot(any(!is.na(c(covYears, covToAge))))
    covPeriod <- c(CovYears = covYears, CovToAge = as.integer(covToAge))
    covPeriod <- covPeriod[!is.na(covPeriod)]
@@ -122,13 +122,21 @@ IPlan.LT <- function(planId = character(), covYears = NA, covToAge = NA, premYea
    }
    premPeriod <- premPeriod[!is.na(premPeriod)]
    plan <- new(Class = "IPlan.LT",
-               Id = as.character(planId),
                CovPeriod = covPeriod,
-               PremPeriod = premPeriod
+               PremPeriod = premPeriod,
+               PremTable = premTable,
+               ModFactor = modFactor,
+               PolFee = polFee,
+               CommSchd = commSchd,
+               OvrdOnPremSchd = ovrdOnPremSchd,
+               OvrdOnCommSchd = ovrdOnCommSchd,
+               PremTaxRate = premTaxRate,
+               Rein = rein,
+               Id = as.character(planId),
+               Descrip = as.character(descrip)
    )
    return(plan)
 }
-
 
 setMethod(
    f = "GetRiskClass",
@@ -137,7 +145,6 @@ setMethod(
       return(GetRiskClass(cov))
    }
 )
-
 
 setMethod(
    f = "GetCovYears",
@@ -150,7 +157,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetPremYears",
    signature = "IPlan.LT",
@@ -161,7 +167,6 @@ setMethod(
       return(premYears)
    }
 )
-
 
 setMethod(
    f = "GetPremTable",
@@ -181,7 +186,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetPremTable<-",
    signature = "IPlan.LT",
@@ -191,7 +195,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetPremRate",
@@ -206,7 +209,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetModFactor",
    signature = "IPlan.LT",
@@ -219,7 +221,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetModFactor<-",
    signature = "IPlan.LT",
@@ -229,7 +230,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetPolFee",
@@ -247,7 +247,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetPolFee<-",
    signature = "IPlan.LT",
@@ -257,7 +256,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetCommSchd",
@@ -272,7 +270,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetCommSchd<-",
    signature = "IPlan.LT",
@@ -282,7 +279,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetOvrdOnCommSchd",
@@ -297,7 +293,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetOvrdOnCommSchd<-",
    signature = "IPlan.LT",
@@ -307,7 +302,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetOvrdOnPremSchd",
@@ -322,7 +316,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetOvrdOnPremSchd<-",
    signature = "IPlan.LT",
@@ -332,7 +325,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetPremTaxRate",
@@ -346,7 +338,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetPremTaxRate<-",
    signature = "IPlan.LT",
@@ -356,7 +347,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetRein",
@@ -376,7 +366,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetRein<-",
    signature = "IPlan.LT",
@@ -386,7 +375,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetModPrem",
@@ -399,7 +387,6 @@ setMethod(
       return(modPrem)
    }
 )
-
 
 setMethod(
    f = "ProjPrem",
@@ -416,17 +403,14 @@ setMethod(
       prem <- FillZeroIfNA(rep(c(modPrem, rep(0, times = (12 / premMode - 1))), length.out = GetPremMonths(object, cov)), len = GetCovMonths(object, cov) + 1)
       premTax <- prem * GetPremTaxRate(object, cov)
       if (!all(prem == 0)) {
-         resultContainer$Proj.Prem <- prem
          resultContainer %<>% AddProjection(projItem = "Prem", projValue = prem)
       }
       if (!all(premTax == 0)) {
-         resultContainer$Proj.Prem.Tax <- premTax
          resultContainer %<>% AddProjection(projItem = "Prem.Tax", projValue = premTax)
       }
       return(resultContainer)
    }
 )
-
 
 setMethod(
    f = "ProjComm",
@@ -435,22 +419,19 @@ setMethod(
       commSchd <- GetCommSchd(object, cov)
       ovrdOnPremSchd <- GetOvrdOnPremSchd(object, cov)
       ovrdOnCommSchd <- GetOvrdOnCommSchd(object, cov)
-      if (!is.null(resultContainer$Proj.Prem)) {
-         comm <- resultContainer$Proj.Prem * GetCommSchd(object, cov)
-         ovrd <- resultContainer$Proj.Prem * GetOvrdOnPremSchd(object, cov) + comm * GetOvrdOnCommSchd(object, cov)
+      if (!is.null(resultContainer$Proj$Prem)) {
+         comm <- resultContainer$Proj$Prem * GetCommSchd(object, cov)
+         ovrd <- resultContainer$Proj$Prem * GetOvrdOnPremSchd(object, cov) + comm * GetOvrdOnCommSchd(object, cov)
          if (!all(comm == 0)) {
-            resultContainer$Proj.Comm <- comm
             resultContainer %<>% AddProjection(projItem = "Comm", projValue = comm)
          }
          if (!all(ovrd == 0)) {
-            resultContainer$Proj.Comm.Ovrd <- ovrd
             resultContainer %<>% AddProjection(projItem = "Comm.Ovrd", projValue = ovrd)
          }
       }
       return(resultContainer)
    }
 )
-
 
 setMethod(
    f = "ProjDthBen",
@@ -460,13 +441,11 @@ setMethod(
       if (faceAmt != 0) {
          covMonths <- GetCovMonths(object, cov)
          benDth <- c(rep(faceAmt, covMonths + 1))
-         resultContainer$Proj.Ben.Dth <- benDth
          resultContainer %<>% AddProjection(projItem = "Ben.Dth", projValue = benDth)
       }
       return(resultContainer)
    }
 )
-
 
 setMethod(
    f = "ProjRein",
@@ -477,7 +456,6 @@ setMethod(
       return(resultContainer)
    }
 )
-
 
 setMethod(
    f = "Project",
@@ -491,7 +469,6 @@ setMethod(
    }
 )
 
-
 # A function to create an instance of data.frame to store projection information in result container.
 NewProjection <- function(resultContainer, cov, plan) {
    stopifnot(is.list(resultContainer), is.null(resultContainer$Proj))
@@ -502,7 +479,6 @@ NewProjection <- function(resultContainer, cov, plan) {
    )
    return(resultContainer)
 }
-
 
 # Add a new projection item to projection container.
 AddProjection <- function(resultContainer, projItem, projValue) {

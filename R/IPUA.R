@@ -353,7 +353,6 @@ setMethod(
          ((lubridate::interval(GetIssDate(cov), timeLine) / lubridate::years(1)) >= 1)      # Eligible for bonus only after completion of one full policy year.
       projPUA <- cumprod(1 + puaRate) * (GetFaceAmt(cov) + GetPUAAmt(cov)) - GetFaceAmt(cov)
       projPUA <- ifelse(timeLine < projStartDate, NA, projPUA)
-      resultContainer$Proj.PUA <- projPUA
       resultContainer %<>% AddProjection(projItem = "PUA", projValue = projPUA)
       return(resultContainer)
    }
@@ -365,8 +364,7 @@ setMethod(
    signature = "IPUA",
    definition = function(object, cov, resultContainer) {
       if (IsPUAPaidOnDth(object)) {
-         pua <- resultContainer$Proj.PUA
-         resultContainer$Proj.Ben.Dth.PUA <- pua
+         pua <- resultContainer$Proj$PUA
          resultContainer %<>% AddProjection(projItem = "Ben.Dth.PUA", projValue = pua)
       }
       return(resultContainer)
@@ -379,10 +377,9 @@ setMethod(
    signature = "IPUA",
    definition = function(object, cov, resultContainer) {
       if (IsPUAPaidOnMat(object)) {
-         pua <- resultContainer$Proj.PUA
+         pua <- resultContainer$Proj$PUA
          covMonths <- GetCovMonths(GetPlan(cov), cov)
-         matBen <- c(rep(0, covMonths), resultContainer$Proj.PUA[covMonths + 1])
-         resultContainer$Proj.Ben.Mat.PUA <- matBen
+         matBen <- c(rep(0, covMonths), resultContainer$Proj$PUA[covMonths + 1])
          resultContainer %<>% AddProjection(projItem = "Ben.Mat.PUA", projValue = matBen)
       }
       return(resultContainer)
@@ -403,8 +400,7 @@ setMethod(
    f = "ProjCV",
    signature = "IPUA",
    definition = function(object, cov, resultContainer) {
-      projPUACV <- GetCVRateVector(object, cov) * resultContainer$Proj.PUA
-      resultContainer$Proj.CV.PUA <- projPUACV
+      projPUACV <- GetCVRateVector(object, cov) * resultContainer$Proj$PUA
       resultContainer %<>% AddProjection(projItem = "CV.PUA", projValue = projPUACV)
       return(resultContainer)
    }
@@ -416,8 +412,7 @@ setMethod(
    signature = "IPUA",
    definition = function(object, cov, resultContainer) {
       if (IsPUAPaidOnSur(object)) {
-         projPUACV <- resultContainer$Proj.CV.PUA
-         resultContainer$Proj.Ben.Sur.PUA <- projPUACV
+         projPUACV <- resultContainer$Proj$CV.PUA
          resultContainer %<>% AddProjection(projItem = "Ben.Sur.PUA", projValue = projPUACV)
       }
       return(resultContainer)

@@ -329,11 +329,9 @@ setMethod(
       prem <- c(singlePrem, rep(0, length.out = GetCovMonths(object, cov)))
       premTax <- prem * GetPremTaxRate(object, cov)
       if (!all(prem == 0)) {
-         resultContainer$Proj.Prem <- prem
          resultContainer %<>% AddProjection(projItem = "Prem", projValue = prem)
       }
       if (!all(premTax == 0)) {
-         resultContainer$Proj.Prem.Tax <- premTax
          resultContainer %<>% AddProjection(projItem = "Prem.Tax", projValue = premTax)
       }
       return(resultContainer)
@@ -405,7 +403,6 @@ setMethod(
       a <- rep(GetFaceAmt(cov) / object@AnuMode, length.out = covMonths)   # Face amount of coverage contrains annualized annuity benefit information.
       m <- (seq(from = 1, to = length(a)) - 1) %% (12 / object@AnuMode) == 0
       if (object@AnuTiming == 0) v <- c(a * m, 0) else v <- c(0, a * m)
-      resultContainer$Proj.Ben.Anu <- v
       resultContainer %<>% AddProjection(projItem = "Ben.Anu", projValue = v)
       return(resultContainer)
    }
@@ -427,7 +424,6 @@ setMethod(
    signature = "IPlan.IA",
    definition = function(object, cov, resultContainer){
       projCV <- GetFaceAmt(cov) * GetCVRateVector(object, cov)
-      resultContainer$Proj.CV <- projCV
       resultContainer %<>% AddProjection(projItem = "CV", projValue = projCV)
       return(resultContainer)
    }
@@ -438,8 +434,7 @@ setMethod(
    f = "ProjSurBen",
    signature = "IPlan.IA",
    definition = function(object, cov, resultContainer) {
-      projCV <- resultContainer$Proj.CV
-      resultContainer$Proj.Ben.Sur <- projCV
+      projCV <- resultContainer$Proj$CV
       resultContainer %<>% AddProjection(projItem = "Ben.Sur", projValue = projCV)
       return(resultContainer)
    }

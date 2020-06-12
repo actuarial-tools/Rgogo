@@ -150,8 +150,8 @@ setMethod(
    definition = function(object, cov, plan, assumpInfo, projStartDate) {
       tInfo <- assumpInfo$Timeline
       projLen <- GetProjLen(tInfo)
-      if (!is.null(assumpInfo$Proj.Prem)) {
-         prem <- c(rep(0, length.out = projLen - GetCovProjLen(tInfo)), assumpInfo$Proj.Prem[GetCovProjTimeIndex(tInfo) >= 0])
+      if (!is.null(assumpInfo$Proj$Prem)) {
+         prem <- c(rep(0, length.out = projLen - GetCovProjLen(tInfo)), assumpInfo$Proj$Prem[GetCovProjTimeIndex(tInfo) >= 0])
          expns <- rep(object@MEPerPrem, length.out = projLen)
          inflAdj <- .GetInflAdjVector(object@MEPerPremInflRate, projLen)
          me.PerPrem.Expd <- expns * inflAdj * (prem != 0)

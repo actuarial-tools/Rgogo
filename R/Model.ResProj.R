@@ -50,9 +50,9 @@ setMethod(
             r <- Run(model, cov, list())
             df <- data.frame(
                ValuDate = GetArgValue(argsList[[i]], "ValuDate"),
-               Res.Gross = r$Res.Gross,
-               Res.Rein = r$Res.Rein,
-               Res.Net = r$Res.Net,
+               Res.Gross = r$Res$Res.Gross,
+               Res.Rein = r$Res$Res.Rein,
+               Res.Net = r$Res$Res.Net,
                stringsAsFactors = FALSE
             )
             return(df)

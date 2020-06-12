@@ -57,6 +57,7 @@ Collate:
     'IValidator.R'
     'IntrAssump.R'
     'Job.CfProj.R'
+    'Job.PPM.R'
     'Job.PremSolver.R'
     'Job.ResProj.R'
     'Job.ScnrTest.R'

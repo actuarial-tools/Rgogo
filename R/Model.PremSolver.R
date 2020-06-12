@@ -76,7 +76,7 @@ setMethod(
    SetModPrem(cov) <- premRate * GetFaceAmt(cov) / unitFace * GetModFactor(plan, GetPremMode(cov)) + GetPolFee(plan, GetPremMode(cov))
    model <- Model.DCF(args)
    tmp <- Run(model, cov, result = list())
-   discrepancy <- abs(tmp$Pv.Total.Net / tmp$Pv.Prem - profitMargin)
+   discrepancy <- abs(tmp$PV$Total.Net / tmp$PV$Prem - profitMargin)
    return(discrepancy)
 }
 

@@ -42,9 +42,9 @@ setMethod(
 
 .SumrzResult.Model.UPR <- function(model, cov, result) {
    m <- GetPolMonth(GetIssDate(cov), GetArgValue(model, "ValuDate"))
-   curCV <- ifelse(is.null(result$Proj.CV), 0, result$Proj.CV[m])
-   curDthBen <- ifelse(is.null(result$Proj.Ben.Dth), 0, result$Proj.Ben.Dth[m])
-   curReinDthBen <- ifelse(is.null(result$Proj.Rein.Ben), 0, result$Proj.Rein.Ben[m])
+   curCV <- ifelse(is.null(result$Proj$CV), 0, result$Proj$CV[m])
+   curDthBen <- ifelse(is.null(result$Proj$Ben.Dth), 0, result$Proj$Ben.Dth[m])
+   curReinDthBen <- ifelse(is.null(result$Proj$Rein.Ben), 0, result$Proj$Rein.Ben[m])
    df <- data.frame(
       ModelId = ifelse(length(GetId(model)) > 0, GetId(model), "NA"),
       ArgSetId = ifelse(length(GetId(GetArgs(model))) > 0, GetId(GetArgs(model)), "NA"),

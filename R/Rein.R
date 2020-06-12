@@ -277,13 +277,12 @@ setMethod(
    f = "ProjNaar",
    signature = "Rein",
    definition = function(object, cov, resultContainer) {
-      if(is.null(resultContainer$Proj.CV)){
+      if(is.null(resultContainer$Proj$CV)){
          cv <- 0
       } else {
-         cv <- resultContainer$Proj.CV
+         cv <- resultContainer$Proj$CV
       }
-      resultContainer$Proj.Naar <- (resultContainer$Proj.Ben.Dth - cv)
-      resultContainer %<>% AddProjection(projItem = "Naar", projValue = resultContainer$Proj.Ben.Dth - cv)
+      resultContainer %<>% AddProjection(projItem = "Naar", projValue = resultContainer$Proj$Ben.Dth - cv)
       return(resultContainer)
    }
 )
@@ -301,10 +300,7 @@ setMethod(
       }
       # Project retention and reinsured Naar
       resultContainer <- ProjNaar(object, cov, resultContainer)
-      naar <- resultContainer$Proj.Naar
-      resultContainer$Proj.Rein.Naar <- naar * reinProp
-      resultContainer$Proj.Rein.Retn <- naar * (1 - reinProp)
-      resultContainer$Proj.Rein.Ben <- resultContainer$Proj.Rein.Naar
+      naar <- resultContainer$Proj$Naar
       resultContainer %<>% AddProjection(projItem = "Rein.Naar", projValue = naar * reinProp)
       resultContainer %<>% AddProjection(projItem = "Rein.Retn", projValue = naar * (1 - reinProp))
       resultContainer %<>% AddProjection(projItem = "Rein.Ben", projValue = naar * reinProp)
@@ -318,7 +314,7 @@ setMethod(
    f = "ProjPrem",
    signature = "Rein",
    definition = function(object, cov, resultContainer) {
-      reinNaar <- resultContainer$Proj.Rein.Naar
+      reinNaar <- resultContainer$Proj$Rein.Naar
       if (!all(reinNaar == 0)) {
          covMonths <- GetCovMonths(cov)
          reinPremTable <- GetPremTable(object, cov)
@@ -340,8 +336,6 @@ setMethod(
          } else {
             projReinPremRfnd <- rep(0, length.out = (covMonths + 1))
          }
-         resultContainer$Proj.Rein.Prem <- projReinPrem
-         resultContainer$Proj.Rein.Prem.Rfnd <- projReinPremRfnd
          resultContainer %<>% AddProjection(projItem = "Rein.Prem", projValue = projReinPrem)
          resultContainer %<>% AddProjection(projItem = "Rein.Prem.Rfnd", projValue = projReinPremRfnd)
       }
@@ -357,7 +351,7 @@ setMethod(
       if (resultContainer$.ReinProp != 0) {
          covMonths <- GetCovMonths(cov)
          reinCommSchd <- GetCommSchd(object, cov)
-         projReinPrem <- resultContainer$Proj.Rein.Prem
+         projReinPrem <- resultContainer$Proj$Rein.Prem
          projReinComm <- projReinPrem * reinCommSchd
          # Refund unearned reinsurance commission if applicable
          if (GetRfndUrndCommOnLapse(object)) {
@@ -365,8 +359,6 @@ setMethod(
          } else {
             projReinCommRfnd <- rep(0, length.out = (covMonths + 1))
          }
-         resultContainer$Proj.Rein.Comm <- projReinComm
-         resultContainer$Proj.Rein.Comm.Rfnd <- projReinCommRfnd
          resultContainer %<>% AddProjection(projItem = "Rein.Comm", projValue = projReinComm)
          resultContainer %<>% AddProjection(projItem = "Rein.Comm.Rfnd", projValue = projReinCommRfnd)
          resultContainer$.pctRfnd <- NULL
