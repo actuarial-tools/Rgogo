@@ -392,7 +392,6 @@ setMethod(
    f = "ProjPrem",
    signature = "IPlan.LT",
    definition = function(object, cov, resultContainer) {
-      resultContainer <- NewProjection(resultContainer, cov, object)
       # If cov contains modal premium information (i.e. cov@ModPrem contains a value), use that information to preject premium;
       # otherwise, look up premium table to calculate the modal premium.
       modPrem <- GetModPrem(cov)
@@ -461,6 +460,7 @@ setMethod(
    f = "Project",
    signature = "IPlan.LT",
    definition = function(object, cov, resultContainer = list()) {
+      resultContainer <- NewProjection(resultContainer, cov, object)
       resultContainer <- ProjPrem(object, cov, resultContainer)
       resultContainer <- ProjComm(object, cov, resultContainer)
       resultContainer <- ProjDthBen(object, cov, resultContainer)
