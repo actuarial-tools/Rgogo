@@ -3,11 +3,17 @@ setClass(
    contains = "IJob"
 )
 
-Job.PremSolver <- function(inpVars = list(), dispatcher = character()) {
+Job.PremSolver <- function(inpVars = list(), dispatcher = character(),
+                           exportToRda = FALSE, exportToExcel = FALSE,
+                           id = character(0L), descrip = character(0L)) {
    job <- new(
       Class = "Job.PremSolver",
       InpVars = inpVars,
-      Dispatcher = dispatcher
+      Dispatcher = dispatcher,
+      ExportRda = exportToRda,
+      ExportExcel = exportToExcel,
+      Id = id,
+      Descrip = descrip
    )
    return(job)
 }
