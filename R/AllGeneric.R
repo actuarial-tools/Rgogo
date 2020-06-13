@@ -390,3 +390,8 @@ setGeneric(name = "SetOptmzTolerance<-", def = function(object, value) {standard
 
 setGeneric(name = "GetArgsList", def = function(object) {standardGeneric("GetArgsList")})
 setGeneric(name = "GetValuDates", def = function(object) {standardGeneric("GetValuDates")})
+
+setGeneric(name = "GetCovId", def = function(object) {standardGeneric("GetCovId")})
+setGeneric(name = "SetCovId<-", def = function(object, value) {standardGeneric("SetCovId<-")})
+setGeneric(name = "SetPlan<-", def = function(object, value) {standardGeneric("SetPlan<-")})
+
