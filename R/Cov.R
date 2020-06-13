@@ -20,7 +20,6 @@ setClass(
    )
 )
 
-
 Cov <- function(...) {
    cov <- new(Class = "Cov")
    args <- list(...)
@@ -32,12 +31,6 @@ Cov <- function(...) {
    return(cov)
 }
 
-
-setGeneric(name = "GetCovId", def = function(object) {standardGeneric("GetCovId")})
-setGeneric(name = "SetCovId<-", def = function(object, value) {standardGeneric("SetCovId<-")})
-setGeneric(name = "SetPlan<-", def = function(object, value) {standardGeneric("SetPlan<-")})
-
-
 setMethod(
    f = "GetCovId",
    signature = "Cov",
@@ -45,7 +38,6 @@ setMethod(
       return(object@Id)
    }
 )
-
 
 setMethod(
    f = "SetCovId<-",
@@ -57,7 +49,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetPlan",
    signature = "Cov",
@@ -66,7 +57,6 @@ setMethod(
       return(eval(expr = parse(text = planId)))
    }
 )
-
 
 setMethod(
    f = "SetPlan<-",
@@ -77,7 +67,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "SetPlan<-",
@@ -92,7 +81,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetIssDate",
    signature = "Cov",
@@ -100,7 +88,6 @@ setMethod(
       return(object@IssDate)
    }
 )
-
 
 setMethod(
    f = "SetIssDate<-",
@@ -112,7 +99,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetIssAge",
    signature = "Cov",
@@ -120,7 +106,6 @@ setMethod(
       return(object@IssAge)
    }
 )
-
 
 setMethod(
    f = "SetIssAge<-",
@@ -132,7 +117,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetRiskClass",
    signature = "Cov",
@@ -140,7 +124,6 @@ setMethod(
       return(object@RiskClass)
    }
 )
-
 
 setMethod(
    f = "SetRiskClass<-",
@@ -152,7 +135,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetFaceAmt",
    signature = "Cov",
@@ -160,7 +142,6 @@ setMethod(
       return(object@FaceAmt)
    }
 )
-
 
 setMethod(
    f = "SetFaceAmt<-",
@@ -172,7 +153,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetPremMode",
    signature = "Cov",
@@ -180,7 +160,6 @@ setMethod(
       return(object@PremMode)
    }
 )
-
 
 setMethod(
    f = "SetPremMode<-",
@@ -191,7 +170,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetModPrem",
@@ -205,7 +183,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetModPrem<-",
    signature = "Cov",
@@ -216,19 +193,13 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetReinProp",
    signature = "Cov",
    definition = function(object) {
-      # if (length(object@ReinProp) == 0) {
-      #    return(0)
-      # } else {
       return(object@ReinProp)
-      # }
    }
 )
-
 
 setMethod(
    f = "SetReinProp<-",
@@ -239,7 +210,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetExpnsWeight",
@@ -253,7 +223,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetExpnsWeight<-",
    signature = "Cov",
@@ -264,7 +233,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetPUAAmt",
    signature = "Cov",
@@ -272,7 +240,6 @@ setMethod(
       return(ifelse(HasValue(object@PUAAmt), object@PUAAmt, 0))
    }
 )
-
 
 setMethod(
    f = "SetPUAAmt<-",
@@ -283,8 +250,6 @@ setMethod(
       return(object)
    }
 )
-
-
 
 setMethod(
    f = "GetAccBal",
@@ -297,7 +262,6 @@ setMethod(
       }
    }
 )
-
 setMethod(
    f = "SetAccBal<-",
    signature = "Cov",
@@ -308,7 +272,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetReportClass1",
    signature = "Cov",
@@ -316,7 +279,6 @@ setMethod(
       return(object@ReportClass1)
    }
 )
-
 
 setMethod(
    f = "SetReportClass1<-",
@@ -328,7 +290,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetCovMonths",
    signature = "Cov",
@@ -336,7 +297,6 @@ setMethod(
       return(GetCovMonths(GetPlan(object), object))
    }
 )
-
 
 setMethod(
    f = "GetPremMonths",
@@ -346,7 +306,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetCovYears",
    signature = "Cov",
@@ -354,7 +313,6 @@ setMethod(
       return(GetCovYears(GetPlan(object), object))
    }
 )
-
 
 setMethod(
    f = "GetPremYears",
@@ -364,7 +322,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "Project",
    signature = "Cov",
@@ -372,7 +329,6 @@ setMethod(
       return(Project(GetPlan(object), object, resultContainer))
    }
 )
-
 
 setMethod(
    f = "GetExpiryDate",
@@ -382,7 +338,6 @@ setMethod(
       return(GetExpiryDate(plan, object))
    }
 )
-
 
 # Helper function to convert data.frame to CovData
 as.CovList <- function(dfCov) {
@@ -405,11 +360,16 @@ as.CovList <- function(dfCov) {
          return(cov)
       }
    )
-   # if (length(covList) > 1) {
-   #    return(covList)
-   # } else {
-   #    return(covList[[1]])
-   # }
    return(covList)
+}
+
+GetCovLifeInfo <- function(cov, n) {
+   SetIssAge(cov) <- GetIssAge(cov)[n]
+   SetRiskClass(cov) <- GetRiskClass(cov)[n]
+   return(cov)
+}
+
+IsSingleLife <- function(cov) {
+   return(length(GetIssAge(cov)) == 1 & length(GetRiskClass) == 1)
 }
 
