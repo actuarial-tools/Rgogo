@@ -357,6 +357,12 @@ as.CovList <- function(dfCov) {
                                     dfCov[[r, s]]
             )
          }
+         if (HasValue(dfCov[[r, "IssAge2"]])) {
+            cov@IssAge <- c(cov@IssAge, as.integer(dfCov[[r, "IssAge2"]]))
+         }
+         if (HasValue(dfCov[[r, "RiskClass2"]])) {
+            cov@RiskClass <- c(cov@RiskClass, dfCov[[r, "RiskClass2"]])
+         }
          return(cov)
       }
    )
