@@ -1,7 +1,6 @@
 #' @include IMortAssump.R
 NULL
 
-
 setClass(
    Class = "MortAssump",
    contains = "IMortAssump",
@@ -14,7 +13,6 @@ setClass(
       MortPfad = "numeric"
    )
 )
-
 
 setValidity(
    Class = "MortAssump",
@@ -64,20 +62,28 @@ setValidity(
    }
 )
 
-
 # Consturctor for Mortality Assumption
-MortAssump <- function(id = character()) {
+MortAssump <- function(mortTable = character(0L),
+                       mortTableMult = 1,
+                       extraMortTable = character(0L),
+                       extraMortTableMult = 1,
+                       mortImprovRate = 0,
+                       mortPfad = 0,
+                       id = character(0L),
+                       descrip = character(0L)) {
    assump <- new(
       Class = "MortAssump",
+      MortTable = mortTable,
+      MortTableMult = mortTableMult,
+      ExtraMortTable = extraMortTable,
+      ExtraMortTableMult = extraMortTableMult,
+      MortImprovRate = mortImprovRate,
+      MortPfad = mortPfad,
       Id = as.character(id),
-      MortTableMult = 1,
-      ExtraMortTableMult = 1,
-      MortImprovRate = 0,
-      MortPfad = 0
+      Descrip = as.character(descrip)
    )
    return(assump)
 }
-
 
 setMethod(
    f = "GetMortTable",
@@ -101,7 +107,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetMortTable<-",
    signature = "MortAssump",
@@ -111,7 +116,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetMortTableMult",
@@ -130,7 +134,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetMortTableMult<-",
    signature = "MortAssump",
@@ -140,7 +143,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetExtraMortTable",
@@ -163,7 +165,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetExtraMortTable<-",
    signature = "MortAssump",
@@ -173,7 +174,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetExtraMortTableMult",
@@ -192,7 +192,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetExtraMortTableMult<-",
    signature = "MortAssump",
@@ -202,7 +201,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetMortImprovRate",
@@ -222,7 +220,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetMortImprovRate<-",
    signature = "MortAssump",
@@ -232,7 +229,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetMortPfad",
@@ -251,7 +247,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetMortPfad<-",
    signature = "MortAssump",
@@ -262,16 +257,6 @@ setMethod(
    }
 )
 
-
-# setMethod(
-#    f = "GetRiskClass",
-#    signature = "MortAssump",
-#    definition = function(object, cov) {
-#       return(GetRiskClass(cov))
-#    }
-# )
-
-
 setMethod(
    f = "GetRiskClass",
    signature = "MortAssump",
@@ -279,24 +264,6 @@ setMethod(
       return(GetRiskClass(plan, cov))
    }
 )
-
-
-# setMethod(
-#    f = "GetBaseMortRateVector",
-#    signature = "MortAssump",
-#    definition = function(object, cov, ignoreCovPeriod = FALSE) {
-#       qTable <- GetMortTable(object, cov)
-#       if (!is.null(qTable)) {
-#          qTableRate <- LookUp(qTable, cov, ignoreCovPeriod)
-#       } else {
-#          len <- ifelse(ignoreCovPeriod, Global.MaxProjYears(), ceiling(GetCovYears(cov)))
-#          qTableRate <- rep(0, length.out = len)
-#       }
-#       qMult <- GetMortTableMult(object, cov)
-#       return(qTableRate * qMult)
-#    }
-# )
-
 
 setMethod(
    f = "GetBaseMortRateVector",
@@ -313,24 +280,6 @@ setMethod(
       return(qTableRate * qMult)
    }
 )
-
-
-# setMethod(
-#    f = "GetExtraMortRateVector",
-#    signature = "MortAssump",
-#    definition = function(object, cov, ignoreCovPeriod = FALSE) {
-#       # Extra mortality to be added to base mortality rates
-#       xqTable <- GetExtraMortTable(object, cov)
-#       if (!is.null(xqTable)) {
-#          xqTableRate <- LookUp(xqTable, cov, ignoreCovPeriod)
-#       } else {
-#          xqTableRate <- 0
-#       }
-#       xqMult <- GetExtraMortTableMult(object, cov)
-#       return(xqTableRate * xqMult)
-#    }
-# )
-
 
 setMethod(
    f = "GetExtraMortRateVector",
@@ -349,19 +298,6 @@ setMethod(
    }
 )
 
-
-# setMethod(
-#    f = "GetMortImprovAdjVector",
-#    signature = "MortAssump",
-#    definition = function(object, cov, ignoreCovPeriod = FALSE) {
-#       len <- ifelse(ignoreCovPeriod, Global.MaxProjYears(), ceiling(GetCovYears(cov)))
-#       rate <- GetMortImprovRate(object, cov)
-#       v <- (1 - rate) ^ (1:len)
-#       return(v)
-#    }
-# )
-
-
 setMethod(
    f = "GetMortImprovAdjVector",
    signature = "MortAssump",
@@ -372,7 +308,6 @@ setMethod(
       return(v)
    }
 )
-
 
 setMethod(
    f = "GetExpdAssump",
@@ -387,7 +322,6 @@ setMethod(
       return(assumpInfo)
    }
 )
-
 
 setMethod(
    f = "GetMargin",
@@ -421,7 +355,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetPaddAssump",
    signature = "MortAssump",
@@ -432,7 +365,6 @@ setMethod(
       return(assumpInfo)
    }
 )
-
 
 setMethod(
    f = "GetAssump",
@@ -463,6 +395,18 @@ setMethod(
       qUlt <- LookUp(tbl, list(BirthYear = birthYear, AttAge = (attAge:tbl@MaxAge)))
    }
    return(qUlt)
+}
+
+GetLifeProb <- function(q_x) {
+   p_x <- 1 - q_x
+   t_p_x <- cumprod(p_x)
+   df <- data.frame(
+      q_x = q_x,
+      p_x = p_x,
+      t_p_x = t_p_x,
+      stringsAsFactors = FALSE
+   )
+   return(df)
 }
 
 
