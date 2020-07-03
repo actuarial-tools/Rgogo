@@ -1,4 +1,14 @@
-RepeatTail <- function(v = "vector", len ){
+# RepeatTail <- function(v = "vector", len ){
+#    if (length(v) < len) {
+#       v <- c(v, rep(v[length(v)], length.out = len - length(v)))
+#    } else {
+#       length(v) <- len
+#    }
+#    return(v)
+# }
+
+RepeatTail <- function(..., len) {
+   v <- unlist(list(...))
    if (length(v) < len) {
       v <- c(v, rep(v[length(v)], length.out = len - length(v)))
    } else {
@@ -7,11 +17,9 @@ RepeatTail <- function(v = "vector", len ){
    return(v)
 }
 
-
 HasValue <- function(x){
    return(!(is.null(x) || is.na(x) || (length(x) == 0)))
 }
-
 
 IsEmptyString <- function(x) {
    return(!HasValue(x) || nchar(x)==0)
@@ -24,7 +32,6 @@ FillZeroIfNA <- function(v = "vector", len = NA){
    return(v)
 }
 
-
 FillTail <- function(v, filler, len){
    if (length(v) < len) {
       v <- c(v, rep(filler, length.out = len - length(v)))
@@ -33,7 +40,6 @@ FillTail <- function(v, filler, len){
    }
    return(v)
 }
-
 
 GetMonthDiff <- function(date1, date2){
    date1 <- as.Date(date1)
@@ -49,14 +55,12 @@ GetMonthDiff <- function(date1, date2){
 }
 
 
-
 .UniformDistribution <- function(qx, m) {
    years <- length(qx)
    k <- matrix(data = rep(0:(m-1), times = years), ncol = m, byrow = TRUE)
    qm <- as.vector(t((qx / m) / (1 - k * qx / m)))
    return(qm)
 }
-
 
 .ConstantForceMortality <- function(qx, m) {
    years <- length(qx)
@@ -65,14 +69,12 @@ GetMonthDiff <- function(date1, date2){
    return(qm)
 }
 
-
 .Balducci <- function(qx, m) {
    years <- length(qx)
    k <- matrix(data = rep(0:(m-1), times = years), ncol = m, byrow = TRUE)
    qm <- as.vector(t((qx / m) / (1 - (m - 1 - k) / m * qx)))
    return(qm)
 }
-
 
 Convert_qx <- function(qx, m, method) {
    stopifnot(m >= 1)
@@ -88,7 +90,6 @@ Convert_qx <- function(qx, m, method) {
       return(qm)
    }
 }
-
 
 DeployObject <- function(pkgName, objectType, overwrite = FALSE) {
    # Check if the package has been installed.  Throw error if it is not isntalled.
@@ -117,7 +118,6 @@ DeployObject <- function(pkgName, objectType, overwrite = FALSE) {
    return("Done.  Remember to rebuild the package before using any new Rda files.")
 }
 
-
 DeployProject <- function(pkgName, overwrite = FALSE) {
    devtools::load_all()
    DeployObject(pkgName, "Plan", overwrite)
@@ -133,7 +133,6 @@ DeployProject <- function(pkgName, overwrite = FALSE) {
    devtools::load_all()
 }
 
-
 TidyUpList <- function(lst) {
    stopifnot(is.list(lst))
    toBeDeleted <- names(lst)[startsWith(names(lst), ".")]
@@ -143,11 +142,9 @@ TidyUpList <- function(lst) {
    return(lst)
 }
 
-
 Is.WholeNumber <- function(x) {
    return(as.integer(x) == x & x >= 0)
 }
-
 
 .GetTimeStampString <- function(tm = Sys.time()) {
    s <- paste0(
@@ -161,7 +158,6 @@ Is.WholeNumber <- function(x) {
    return(s)
 }
 
-
 GetPolMonth <- function(issDate, curDate, exact = FALSE, base = 1) {
    stopifnot(base == 1 | base == 0)
    pm <- lubridate::interval(issDate, curDate) / months(1) + base
@@ -171,7 +167,6 @@ GetPolMonth <- function(issDate, curDate, exact = FALSE, base = 1) {
       return(floor(pm))
    }
 }
-
 
 GetPolYear <- function(issDate, curDate, exact = FALSE, base = 1) {
    stopifnot(base == 1 | base == 0)
@@ -183,16 +178,13 @@ GetPolYear <- function(issDate, curDate, exact = FALSE, base = 1) {
    }
 }
 
-
 GetMonthversaryDates <- function(baseDate, monthlyPeriods) {
    return(baseDate %m+% months(monthlyPeriods))
 }
 
-
 GetAnniversaryDates <- function(baseDate, yearlyPeriods) {
    return(baseDate %m+% lubridate::years(yearlyPeriods))
 }
-
 
 Round.data.frame <- function(df, digits) {
    if (!is.data.frame(df)) {
@@ -214,8 +206,6 @@ Round.data.frame <- function(df, digits) {
    return(dfOutput)
 }
 
-
-
 GetYearlyTotal <- function(monthlyAmounts) {
    l <- length(monthlyAmounts)
    len = ceiling(l / 12)
@@ -223,13 +213,10 @@ GetYearlyTotal <- function(monthlyAmounts) {
    return(v)
 }
 
-
-
 GetYearStartValue <- function(monthlyValue) {
    v <- monthlyValue[(1:length(monthlyValue)) %% 12 == 1]
    return(v)
 }
-
 
 Shift <- function(v, positions, filler) {
    # Shift the elements of a vector by specified number of positions (positons).
@@ -242,16 +229,13 @@ Shift <- function(v, positions, filler) {
    }
 }
 
-
 ShiftRight <- function(v, positions, filler) {
    return(Shift(v, positions, filler))
 }
 
-
 ShiftLeft <- function(v, positions, filler) {
    return(Shift(v, -positions, filler))
 }
-
 
 LoanAmort <- function(loanAmt, amortMonths, intRate, intRateType) {
    lstResult <- list()
@@ -278,7 +262,6 @@ LoanAmort <- function(loanAmt, amortMonths, intRate, intRateType) {
    lstResult$LoanBalance <- c(loanAmt, bal)[1:amortMonths]     # Beginning-of-month loan balance
    return(lstResult)
 }
-
 
 CloneS4Object <- function(object){
    newObject <- new(Class = class(object))
