@@ -20,15 +20,50 @@ setClass(
    )
 )
 
-Cov <- function(...) {
-   cov <- new(Class = "Cov")
-   args <- list(...)
-   argNames <- names(args)
-   for (argName in argNames[argNames %in% slotNames(cov)]) {
-      slot(cov, argName) <- args[[argName]]
-   }
-   validObject(cov)
-   return(cov)
+# Cov <- function(...) {
+#    cov <- new(Class = "Cov")
+#    args <- list(...)
+#    argNames <- names(args)
+#    for (argName in argNames[argNames %in% slotNames(cov)]) {
+#       slot(cov, argName) <- args[[argName]]
+#    }
+#    validObject(cov)
+#    return(cov)
+# }
+
+Cov <- function(issDate,
+                issAge,
+                riskClass,
+                faceAmt,
+                premMode,
+                modPrem = NA_real_,
+                reinProp = NA_real_,
+                expnsWeight = 1,
+                puaAmt = 0,
+                accBal = NA_real_,
+                reportClass1 = character(0L),
+                planId = character(0L),
+                id = character(0L),
+                descrip = character(0L)
+                ) {
+   object <- new(
+      Class = "Cov",
+      PlanId = as.character(planId),
+      IssDate = as.Date(issDate),
+      IssAge = as.integer(issAge),
+      RiskClass = riskClass,
+      FaceAmt = faceAmt,
+      PremMode = as.integer(premMode),
+      ModPrem = modPrem,
+      ReinProp = reinProp,
+      ExpnsWeight = expnsWeight,
+      PUAAmt = puaAmt,
+      AccBal = accBal,
+      ReportClass1 = reportClass1,
+      Id = as.character(id),
+      Descrip = as.character(descrip)
+   )
+   return(object)
 }
 
 setMethod(
