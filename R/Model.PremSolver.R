@@ -42,13 +42,13 @@ setMethod(
                X = as.list(ageRange[1]:ageRange[2]),
                FUN = function(age) {
                   cov <- Cov(
-                     PlanId = GetPlanId(plan),
-                     IssDate = issDate,
-                     IssAge = as.integer(age),
-                     RiskClass = rc,
-                     FaceAmt = GetPricFaceAmt(GetArgs(model), rc, age),
-                     PremMode = premMode,
-                     ModPrem = 1     # Set initial value
+                     planId = GetPlanId(plan),
+                     issDate = issDate,
+                     issAge = as.integer(age),
+                     riskClass = rc,
+                     faceAmt = GetPricFaceAmt(GetArgs(model), rc, age),
+                     premMode = premMode,
+                     modPrem = 1     # Set initial value
                   )
                   profitMargin <- GetTargProfitMargin(GetArgs(model), rc, age)
                   tmpResult <- optimize(f = .CalcSolverObjective,
