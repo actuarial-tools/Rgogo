@@ -7,6 +7,28 @@ setClass(Class = "ITable",
          )
 )
 
+setValidity(
+   Class = "ITable",
+   method = function(object) {
+      err <- New.SysMessage()
+      # Validate TBase
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = 0)
+         ),
+         object@TBase
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Invalid table unit base (@TBase)."
+      }
+      if (NoMessage(err)) {
+         return(TRUE)
+      } else {
+         return(GetMessage(err))
+      }
+   }
+)
 
 setMethod(
    f = "GetSource",

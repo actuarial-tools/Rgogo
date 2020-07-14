@@ -1,7 +1,6 @@
 #' @include ITable.R
 NULL
 
-
 setClass(Class = "Table.SU",
          contains = "ITable",
          slots = c(MinSelAge = "integer",
@@ -13,16 +12,74 @@ setClass(Class = "Table.SU",
          )
 )
 
+setValidity(
+   Class = "Table.SU",
+   method = function(object) {
+      err <- New.SysMessage()
+      # Validate @MinSelAge
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = 0)
+         ),
+         object@MinSelAge
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "@MinSelAge: Minimum select age must be an integer and cannot be negative (@MinSelAge)."
+      }
+      # Validate @MaxSelAge
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = object@MinSelAge)
+         ),
+         object@MaxSelAge
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "@MaxSelAge: Maximum select age must be an integer and cannot be less than the minimum age (@MaxSelAge)."
+      }
+      # Validate @SelPeriod
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = 1)
+         ),
+         object@SelPeriod
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "@MaxAttAge: Invalid select period (@SelPeriod).  Must be a positive integer."
+      }
+      # Validate @MaxAttAge
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = object@MaxSelAge)
+         ),
+         object@MaxAttAge
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "@MaxAttAge: Invalid maximum attained age (@MaxAttAge)."
+      }
+      if (NoMessage(err)) {
+         return(TRUE)
+      } else {
+         return(GetMessage(err))
+      }
+   }
+)
 
-Table.SU <- function(minSelAge, maxSelAge, selPeriod, maxAttAge, tBase) {
+Table.SU <- function(minSelAge, maxSelAge, selPeriod, maxAttAge, tBase, tValueSel = NA, fillByAge = TRUE, tValueUlt = NA) {
    tbl <- new(Class = "Table.SU")
-   tbl@TValue <- matrix(nrow = maxSelAge - minSelAge + 1,
+   tbl@TValue <- matrix(data = tValueSel,
+                        nrow = maxSelAge - minSelAge + 1,
                         ncol = selPeriod,
-                        dimnames = list(as.character(minSelAge:maxSelAge), as.character(1:selPeriod))
+                        dimnames = list(as.character(minSelAge:maxSelAge), as.character(1:selPeriod)),
+                        byrow = fillByAge
    )
-   tbl@TValueUlt <- matrix(nrow = maxAttAge - (minSelAge + selPeriod) + 1,
-                          ncol = 1,
-                          dimnames = list((as.character((minSelAge + selPeriod): maxAttAge)), "Ult")
+   tbl@TValueUlt <- matrix(data = tValueUlt,
+                           nrow = maxAttAge - (minSelAge + selPeriod) + 1,
+                           ncol = 1,
+                           dimnames = list((as.character((minSelAge + selPeriod): maxAttAge)), "Ult")
    )
    tbl@MinSelAge <- as.integer(minSelAge)
    tbl@MaxSelAge <- as.integer(maxSelAge)
@@ -33,7 +90,6 @@ Table.SU <- function(minSelAge, maxSelAge, selPeriod, maxAttAge, tBase) {
    return(tbl)
 }
 
-
 setMethod(
    f = "GetMinSelAge",
    signature = "Table.SU",
@@ -41,7 +97,6 @@ setMethod(
       return(object@MinSelAge)
    }
 )
-
 
 setMethod(
    f = "GetMaxSelAge",
@@ -51,7 +106,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetSelPeriod",
    signature = "Table.SU",
@@ -60,7 +114,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetMaxAttAge",
    signature = "Table.SU",
@@ -68,7 +121,6 @@ setMethod(
       return(object@MaxAttAge)
    }
 )
-
 
 setMethod(
    f = "LookUp",
@@ -92,7 +144,6 @@ setMethod(
       return(v)
    }
 )
-
 
 setMethod(
    f = "LookUp",
@@ -120,7 +171,6 @@ setMethod(
    }
 )
 
-
 .LookUpSelUlt <- function(issAge, tbl) {
    maxSelAge <- GetMaxSelAge(tbl)
    selPeriod <- GetSelPeriod(tbl)
@@ -135,7 +185,6 @@ setMethod(
    length(v) <- GetMaxAttAge(tbl) - GetMinSelAge(tbl) + 1
    return(v)
 }
-
 
 setMethod(
    f = "GetUltTable",
@@ -154,7 +203,6 @@ setMethod(
       return(tbl)
    }
 )
-
 
 setMethod(
    f = ".ExportToExcel.TValue",

@@ -395,3 +395,5 @@ setGeneric(name = "GetCovId", def = function(object) {standardGeneric("GetCovId"
 setGeneric(name = "SetCovId<-", def = function(object, value) {standardGeneric("SetCovId<-")})
 setGeneric(name = "SetPlan<-", def = function(object, value) {standardGeneric("SetPlan<-")})
 
+setGeneric(name = "Validate", def = function(object, value) {standardGeneric("Validate")})
+

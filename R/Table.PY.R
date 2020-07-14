@@ -1,7 +1,6 @@
 #' @include ITable.R
 NULL
 
-
 setClass(
    Class = "Table.PY",
    contains = "ITable",
@@ -10,10 +9,33 @@ setClass(
    )
 )
 
+setValidity(
+   Class = "Table.PY",
+   method = function(object) {
+      err <- New.SysMessage()
+      # Validate @MaxPolYear
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = 1)
+         ),
+         object@MaxPolYear
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "@MaxPolYear: Invalid maximum policy year.  It must be an integer value and cannot be less than 1."
+      }
+      if (NoMessage(err)) {
+         return(TRUE)
+      } else {
+         return(GetMessage(err))
+      }
+   }
+)
 
-Table.PY <- function(maxPolYear, tBase) {
+Table.PY <- function(maxPolYear, tBase, tValue = NA) {
    tbl <- new(Class = "Table.PY")
-   tbl@TValue <- matrix(nrow = maxPolYear,
+   tbl@TValue <- matrix(data = tValue,
+                        nrow = maxPolYear,
                         ncol = 1,
                         dimnames = list(as.character(1:maxPolYear), NULL)
    )
@@ -22,7 +44,6 @@ Table.PY <- function(maxPolYear, tBase) {
    tbl@CreatedAt <- Sys.time()
    return(tbl)
 }
-
 
 setMethod(
    f = "LookUp",
@@ -36,7 +57,6 @@ setMethod(
       return(v)
    }
 )
-
 
 setMethod(
    f = "LookUp",
@@ -53,7 +73,6 @@ setMethod(
       return(v)
    }
 )
-
 
 setMethod(
    f = ".ExportToExcel.TValue",

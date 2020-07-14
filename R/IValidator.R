@@ -3,10 +3,6 @@ setClass(
    contains = c("IObject", "VIRTUAL")
 )
 
-
-setGeneric(name = "Validate", def = function(object, value) {standardGeneric("Validate")})
-
-
 setMethod(
    f = "Validate",
    signature = c("IValidator", "ANY"),

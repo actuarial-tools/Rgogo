@@ -1,7 +1,6 @@
 #' @include ITable.R
 NULL
 
-
 setClass(Class = "Table.IA",
          contains = "ITable",
          slots = c(MinAge = "integer",
@@ -10,10 +9,44 @@ setClass(Class = "Table.IA",
          )
 )
 
+setValidity(
+   Class = "Table.IA",
+   method = function(object) {
+      err <- New.SysMessage()
+      # Validate @MinAge
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = 0)
+         ),
+         object@MinAge
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "@MinAge: Minimum age must be an integer and cannot be negative (@MinAge)."
+      }
+      # Validate @MaxAge
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = object@MinAge)
+         ),
+         object@MaxAge
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "@MaxAge: Mmaximum age must be an integer and cannot be less than the minimum age (@MaxAge)."
+      }
+      if (NoMessage(err)) {
+         return(TRUE)
+      } else {
+         return(GetMessage(err))
+      }
+   }
+)
 
-Table.IA <- function(minAge, maxAge, tBase) {
+Table.IA <- function(minAge, maxAge, tBase, tValue = NA) {
    tbl <- new(Class = "Table.IA")
-   tbl@TValue <- matrix(nrow = maxAge - minAge + 1,
+   tbl@TValue <- matrix(data = tValue,
+                        nrow = maxAge - minAge + 1,
                         ncol = 1,
                         dimnames = list(as.character(minAge:maxAge), NULL)
    )
@@ -24,7 +57,6 @@ Table.IA <- function(minAge, maxAge, tBase) {
    return(tbl)
 }
 
-
 setMethod(
    f = "GetMinAge",
    signature = "Table.IA",
@@ -33,7 +65,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetMaxAge",
    signature = "Table.IA",
@@ -41,7 +72,6 @@ setMethod(
       return(object@MaxAge)
    }
 )
-
 
 setMethod(
    f = "LookUp",
@@ -56,7 +86,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "LookUp",
    signature (tbl = "Table.IA", lookUpKey = "Cov"),
@@ -68,7 +97,6 @@ setMethod(
       return(v)
    }
 )
-
 
 setMethod(
    f = ".ExportToExcel.TValue",

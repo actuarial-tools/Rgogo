@@ -1,7 +1,6 @@
 #' @include ITable.R
 NULL
 
-
 setClass(Class = "Table.IAPY",
          contains = "ITable",
          slots = c(MinAge = "integer",
@@ -11,12 +10,58 @@ setClass(Class = "Table.IAPY",
          )
 )
 
+setValidity(
+   Class = "Table.IAPY",
+   method = function(object) {
+      err <- New.SysMessage()
+      # Validate @MinAge
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = 0)
+         ),
+         object@MinAge
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "@MinAge: Minimum age must be an integer and cannot be negative (@MinAge)."
+      }
+      # Validate @MaxAge
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = object@MinAge)
+         ),
+         object@MaxAge
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "@MaxAge: Maximum age must be an integer and cannot be less than the minimum age (@MaxAge)."
+      }
+      # Validate @MaxPolYear
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = 1)
+         ),
+         object@MaxPolYear
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "@MaxPolYear: Invalid maximum policy year.  It must be an integer value and cannot be less than 1."
+      }
+      if (NoMessage(err)) {
+         return(TRUE)
+      } else {
+         return(GetMessage(err))
+      }
+   }
+)
 
-Table.IAPY <- function(minAge, maxAge, maxPolYear, tBase){
+Table.IAPY <- function(minAge, maxAge, maxPolYear, tBase, tValue = NA, fillByAge = TRUE){
    tbl <- new(Class = "Table.IAPY")
-   tbl@TValue <- matrix(nrow = maxAge - minAge + 1,
+   tbl@TValue <- matrix(data = tValue,
+                        nrow = maxAge - minAge + 1,
                         ncol = maxPolYear,
-                        dimnames = list(as.character(minAge:maxAge), as.character(1:maxPolYear))
+                        dimnames = list(as.character(minAge:maxAge), as.character(1:maxPolYear)),
+                        byrow = fillByAge
    )
    tbl@MinAge <- as.integer(minAge)
    tbl@MaxAge <- as.integer(maxAge)
@@ -26,7 +71,6 @@ Table.IAPY <- function(minAge, maxAge, maxPolYear, tBase){
    return(tbl)
 }
 
-
 setMethod(
    f = "GetMinAge",
    signature = "Table.IAPY",
@@ -34,7 +78,6 @@ setMethod(
       return(object@MinAge)
    }
 )
-
 
 setMethod(
    f = "GetMaxAge",
@@ -44,7 +87,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetMaxPolYear",
    signature = "Table.IAPY",
@@ -52,7 +94,6 @@ setMethod(
       return(object@MaxPolYear)
    }
 )
-
 
 setMethod(
    f = "LookUp",
@@ -68,7 +109,6 @@ setMethod(
       return(v)
    }
 )
-
 
 setMethod(
    f = "LookUp",
@@ -87,7 +127,6 @@ setMethod(
       return(v)
    }
 )
-
 
 setMethod(
    f = ".ExportToExcel.TValue",

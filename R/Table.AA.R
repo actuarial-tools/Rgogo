@@ -1,8 +1,6 @@
 #' @include ITable.R
 NULL
 
-
-# Class definition
 setClass(Class = "Table.AA",
          contains = "ITable",
          slots = c(MinAge = "integer",
@@ -11,11 +9,44 @@ setClass(Class = "Table.AA",
          )
 )
 
+setValidity(
+   Class = "Table.AA",
+   method = function(object) {
+      err <- New.SysMessage()
+      # Validate @MinAge
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = 0)
+         ),
+         object@MinAge
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "@MinAge: Minimum age must be an integer and cannot be negative (@MinAge)."
+      }
+      # Validate @MaxAge
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = object@MinAge)
+         ),
+         object@MaxAge
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "@MaxAge: Maximum age must be an integer and cannot be less than the minimum age (@MaxAge)."
+      }
+      if (NoMessage(err)) {
+         return(TRUE)
+      } else {
+         return(GetMessage(err))
+      }
+   }
+)
 
-# Constructor
-Table.AA <- function(minAge, maxAge, tBase) {
+Table.AA <- function(minAge, maxAge, tBase, tValue = NA) {
    tbl <- new(Class = "Table.AA")
-   tbl@TValue <- matrix(nrow = maxAge - minAge + 1,
+   tbl@TValue <- matrix(data = tValue,
+                        nrow = maxAge - minAge + 1,
                         ncol = 1,
                         dimnames = list(as.character(minAge:maxAge), NULL)
    )
@@ -26,7 +57,6 @@ Table.AA <- function(minAge, maxAge, tBase) {
    return(tbl)
 }
 
-
 setMethod(
    f = "GetMinAge",
    signature = "Table.AA",
@@ -35,7 +65,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetMaxAge",
    signature = "Table.AA",
@@ -43,7 +72,6 @@ setMethod(
       return(object@MaxAge)
    }
 )
-
 
 setMethod(
    f = "LookUp",
@@ -57,7 +85,6 @@ setMethod(
       return(v)
    }
 )
-
 
 setMethod(
    f = "LookUp",
@@ -75,7 +102,6 @@ setMethod(
       return(v)
    }
 )
-
 
 setMethod(
    f = ".ExportToExcel.TValue",

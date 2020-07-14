@@ -1,7 +1,6 @@
 #' @include ITable.R
 NULL
 
-
 setClass(Class = "Table.AABY",
          contains = "ITable",
          slots = c(MinAge = "integer",
@@ -12,13 +11,70 @@ setClass(Class = "Table.AABY",
          )
 )
 
+setValidity(
+   Class = "Table.AABY",
+   method = function(object) {
+      err <- New.SysMessage()
+      # Validate @MinAge
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = 0)
+         ),
+         object@MinAge
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "@MinAge: Minimum age must be an integer and cannot be negative (@MinAge)."
+      }
+      # Validate @MaxAge
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = object@MinAge)
+         ),
+         object@MaxAge
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "@MaxAge: Maximum age must be an integer and cannot be less than the minimum age (@MaxAge)."
+      }
+      # Validate @MinYear
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = 1800, maxValue = 9999)
+         ),
+         object@MinYear
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "@MinYear: Minimum year must be an integer between 1800 and 9999 (@MinYear)."
+      }
+      # Validate @MaxYear
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = object@MinYear, maxValue = 9999)
+         ),
+         object@MaxYear
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "@MaxYear: Maximum year must be an integer between minimum year and 9999 (@MinYear)."
+      }
+      if (NoMessage(err)) {
+         return(TRUE)
+      } else {
+         return(GetMessage(err))
+      }
+   }
+)
 
-Table.AABY <- function(minAge, maxAge, minBirthYear, maxBirthYear, tBase){
+Table.AABY <- function(minAge, maxAge, minBirthYear, maxBirthYear, tBase, tValue = NA, fillByAge = TRUE){
    stopifnot(minBirthYear >= 1900, minBirthYear <= 9999, maxBirthYear >= 1900, maxBirthYear <= 9999, minBirthYear <= maxBirthYear)
    tbl <- new(Class = "Table.AABY")
-   tbl@TValue <- matrix(nrow = maxAge - minAge + 1,
+   tbl@TValue <- matrix(data = tValue,
+                        nrow = maxAge - minAge + 1,
                         ncol = maxBirthYear - minBirthYear + 1,
-                        dimnames = list(as.character(minAge:maxAge), as.character(minBirthYear:maxBirthYear))
+                        dimnames = list(as.character(minAge:maxAge), as.character(minBirthYear:maxBirthYear)),
+                        byrow = fillByAge
    )
    tbl@MinAge <- as.integer(minAge)
    tbl@MaxAge <- as.integer(maxAge)
@@ -29,7 +85,6 @@ Table.AABY <- function(minAge, maxAge, minBirthYear, maxBirthYear, tBase){
    return(tbl)
 }
 
-
 setMethod(
    f = "GetMinAge",
    signature = "Table.AABY",
@@ -37,7 +92,6 @@ setMethod(
       return(object@MinAge)
    }
 )
-
 
 setMethod(
    f = "GetMaxAge",
@@ -47,7 +101,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetMinBirthYear",
    signature = "Table.AABY",
@@ -56,7 +109,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetMaxBirthYear",
    signature = "Table.AABY",
@@ -64,7 +116,6 @@ setMethod(
       return(object@MaxYear)
    }
 )
-
 
 setMethod(
    f = "LookUp",
@@ -80,7 +131,6 @@ setMethod(
       return(v)
    }
 )
-
 
 setMethod(
    f = "LookUp",
@@ -100,7 +150,6 @@ setMethod(
       return(v)
    }
 )
-
 
 setMethod(
    f = ".ExportToExcel.TValue",
