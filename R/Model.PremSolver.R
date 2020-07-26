@@ -1,7 +1,8 @@
 setClass(Class = "Model.PremSolver", contains = "IModel")
 
-Model.PremSolver <- function(args = ArgSet.PremSolver()) {
-   model <- new(Class = "Model.PremSolver", Args = args)
+Model.PremSolver <- function(args = ArgSet.PremSolver(), id = character(0L), descrip = character(0L)) {
+   model <- new(Class = "Model.PremSolver", Args = args, Descrip = as.character(descrip))
+   SetModelId(model) <- as.character(id)
    return(model)
 }
 

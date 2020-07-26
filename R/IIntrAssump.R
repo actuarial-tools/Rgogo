@@ -1,8 +1,44 @@
 setClass(Class = "IIntrAssump", contains = c("IObject", "VIRTUAL"))
 
-
 setClassUnion(name = "character_or_IIntrAssump", members = c("character", "IIntrAssump"))
 
+setValidity(
+   Class = "IIntrAssump",
+   method = function(object) {
+      err <- New.SysMessage()
+      if (length(object@Id) > 0) {
+         if (!startsWith(object@Id, "IntrAssump.")) {
+            AddMessage(err) <- "Invalid identifier.  It must contain the prefix 'IntrAssump.'"
+         }
+      }
+      if (NoMessage(err)) {
+         return(TRUE)
+      } else {
+         return(GetMessage(err))
+      }
+   }
+)
+
+setMethod(
+   f = "GetAssumpId",
+   signature = "IIntrAssump",
+   definition = function(object) {
+      return(GetId(object))
+   }
+)
+
+setMethod(
+   f = "SetAssumpId<-",
+   signature = c("IIntrAssump", "character"),
+   definition = function(object, value) {
+      if (length(value) == 0) return(object)
+      if (!startsWith(value, "IntrAssump.")) {
+         value <- paste0("IntrAssump.", value)
+      }
+      SetId(object) <- value
+      return(object)
+   }
+)
 
 setMethod(
    f = "GetExpdAssump",
@@ -12,7 +48,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetPaddAssump",
    signature = "IIntrAssump",
@@ -21,8 +56,6 @@ setMethod(
    }
 )
 
-
-
 setMethod(
    f = "GetAssump",
    signature = "IIntrAssump",
@@ -30,18 +63,6 @@ setMethod(
       assumpInfo <- GetExpdAssump(object, projLen, assumpInfo, ...)
       assumpInfo <- GetPaddAssump(object, projLen, assumpInfo, ...)
       return(assumpInfo)
-   }
-)
-
-
-setMethod(
-   f = "SaveAsRda",
-   signature = "IIntrAssump",
-   definition = function(object, overwrite = FALSE) {
-      stopifnot(HasValue(assumpId <- GetId(object)))
-      rdaName <- paste0(ifelse(startsWith(assumpId, "IntrAssump."), "", "IntrAssump."), assumpId)
-      eval(parse(text = paste(rdaName, "<- object")))
-      eval(parse(text = paste("usethis::use_data(", rdaName, ", overwrite = ", overwrite, ")")))
    }
 )
 

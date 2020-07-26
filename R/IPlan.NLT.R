@@ -21,9 +21,10 @@ setValidity(
 
 IPlan.NLT <- function(covYears = NA, covToAge = NA, premYears = NA, premToAge = NA,
                       premTable = character(0L), modFactor = c("1" = 1, "2" = 0.5, "4" = 0.25, "12" = 1/12),
-                      polFee = numeric(0), commSchd = numeric(0L), ovrdOnPremSchd = numeric(0L), ovrdOnCommSchd = numeric(0L),
-                      premTaxRate = numeric(0L), rein = character(0L), planId = character(0L), descrip = character(0L),
-                      dthBenSchd, dthBenIntraYearMthd = 0L) {
+                      polFee = numeric(0), premTaxRate = numeric(0L),
+                      dthBenSchd, dthBenIntraYearMthd = 0L,
+                      commSchd = numeric(0L), ovrdOnPremSchd = numeric(0L), ovrdOnCommSchd = numeric(0L),
+                      rein = character(0L), planId = character(0L), descrip = character(0L)) {
    stopifnot(any(!is.na(c(covYears, covToAge))))
    covPeriod <- c(CovYears = covYears, CovToAge = as.integer(covToAge))
    covPeriod <- covPeriod[!is.na(covPeriod)]
@@ -39,16 +40,16 @@ IPlan.NLT <- function(covYears = NA, covToAge = NA, premYears = NA, premToAge = 
                PremTable = premTable,
                ModFactor = modFactor,
                PolFee = polFee,
+               PremTaxRate = premTaxRate,
+               DthBenSchd = dthBenSchd,
+               DthBenIntraYearMthd = dthBenIntraYearMthd,
                CommSchd = commSchd,
                OvrdOnPremSchd = ovrdOnPremSchd,
                OvrdOnCommSchd = ovrdOnCommSchd,
-               PremTaxRate = premTaxRate,
                Rein = rein,
-               Id = as.character(planId),
-               Descrip = as.character(descrip),
-               DthBenSchd = dthBenSchd,
-               DthBenIntraYearMthd = dthBenIntraYearMthd
+               Descrip = as.character(descrip)
    )
+   SetPlanId(plan) <- as.character(planId)
    return(plan)
 }
 

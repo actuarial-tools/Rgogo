@@ -1,7 +1,6 @@
 #' @include ILapseAssump.R
 NULL
 
-
 setClass(
    Class = "LapseAssump",
    contains = "ILapseAssump",
@@ -12,7 +11,6 @@ setClass(
       LapsePfad = "numeric"
    )
 )
-
 
 setValidity(
    Class = "LapseAssump",
@@ -60,16 +58,19 @@ setValidity(
    }
 )
 
-
-LapseAssump <- function(id = character()) {
-   assump <- new(Class = "LapseAssump",
-                 Id = as.character(id),
-                 LapseRateMult = 1,
-                 LapseRateFlatExtra = 0,
-                 LapsePfad = 0)
+LapseAssump <- function(lapseRate = numeric(0), lapseRateMult = 1, lapseRateFlatExtra = 0,
+                        lapsePfad = 0, id = character(0), descrip = character(0)) {
+   assump <- new(
+      Class = "LapseAssump",
+      LapseRate = lapseRate,
+      LapseRateMult = lapseRateMult,
+      LapseRateFlatExtra = lapseRateFlatExtra,
+      LapsePfad = lapsePfad,
+      Descrip = as.character(descrip)
+   )
+   SetAssumpId(assump) <- as.character(id)
    return(assump)
 }
-
 
 setMethod(
    f = "GetLapseRate",
@@ -97,7 +98,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetLapseRate<-",
    signature = "LapseAssump",
@@ -107,7 +107,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetLapseRateMult",
@@ -126,7 +125,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetLapseRateMult<-",
    signature = "LapseAssump",
@@ -136,7 +134,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetLapseRateFlatExtra",
@@ -155,7 +152,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetLapseRateFlatExtra<-",
    signature = "LapseAssump",
@@ -165,7 +161,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetLapsePfad",
@@ -184,7 +179,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetLapsePfad<-",
    signature = "LapseAssump",
@@ -195,7 +189,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetRiskClass",
    signature = "LapseAssump",
@@ -203,7 +196,6 @@ setMethod(
       return(GetRiskClass(plan, cov))
    }
 )
-
 
 setMethod(
    f = "GetExpdAssump",
@@ -217,7 +209,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetPaddAssump",
    signature = "LapseAssump",
@@ -230,7 +221,6 @@ setMethod(
       return(assumpInfo)
    }
 )
-
 
 setMethod(
    f = "GetAssump",

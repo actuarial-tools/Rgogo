@@ -38,7 +38,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetSource<-",
    signature = c("ITable", "character"),
@@ -49,7 +48,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetCreatedBy",
    signature = "ITable",
@@ -57,7 +55,6 @@ setMethod(
       return(object@CreatedBy)
    }
 )
-
 
 setMethod(
    f = "SetCreatedBy<-",
@@ -69,7 +66,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetCreatedAt",
    signature = "ITable",
@@ -77,7 +73,6 @@ setMethod(
       return(object@CreatedAt)
    }
 )
-
 
 setMethod(
    f = "SetCreatedAt<-",
@@ -89,7 +84,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetTBase",
    signature = "ITable",
@@ -98,7 +92,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "LookUp",
    signature = "ITable",
@@ -106,7 +99,6 @@ setMethod(
       stop("'LookUp' method must be implemented by a child class of 'ITable'")
    }
 )
-
 
 setMethod(
    f = "SaveAsRda",
@@ -124,7 +116,6 @@ setMethod(
       eval(parse(text = paste("usethis::use_data(", rdaName, ", overwrite = ", overwrite, ")")))
    }
 )
-
 
 setMethod(
    f = "ExportToExcel",
@@ -167,8 +158,6 @@ setMethod(
    }
 )
 
-
-
 # Helper function to read select and ultimate table values from Excel file.
 ImportTableValuesFromExcel.SU <- function(tbl, excelFileName, sheet, selValueRange, ultValueRange, transposeData = FALSE) {
    stopifnot(class(tbl) == "Table.SU", file.exists(excelFileName))
@@ -182,7 +171,6 @@ ImportTableValuesFromExcel.SU <- function(tbl, excelFileName, sheet, selValueRan
    tbl@TValueUlt <- ultTable
    return(tbl)
 }
-
 
 # Helper function to read table values from Excel file.
 ImportTableValuesFromExcel <- function(tbl, excelFileName, sheet, valueRange1, ..., transposeData = FALSE) {

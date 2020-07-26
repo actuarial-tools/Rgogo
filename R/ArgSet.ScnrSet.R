@@ -33,9 +33,15 @@ setValidity(
 )
 
 
-ArgSet.ScnrSet <- function(model, scenarios) {
-   object <- new(Class = "ArgSet.ScnrSet", Model = model, ScnrList = scenarios)
-   return(object)
+ArgSet.ScnrSet <- function(model, scenarios, id = character(0L), descrip = character(0L)) {
+   arg <- new(
+      Class = "ArgSet.ScnrSet",
+      Model = model,
+      ScnrList = scenarios,
+      Descrip = descrip
+   )
+   SetArgSetId(arg) <- as.character(id)
+   return(arg)
 }
 
 

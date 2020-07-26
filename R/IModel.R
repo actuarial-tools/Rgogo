@@ -1,21 +1,23 @@
 #' @include IArgSet.R
 NULL
 
-
 setClass(
    Class = "IModel",
    contains = c("IObject", "VIRTUAL"),
    slots = c(Args = "character_or_IArgSet")
 )
 
-
 setClassUnion(name = "character_or_IModel", members = c("character", "IModel"))
-
 
 setValidity(
    Class = "IModel",
    method = function(object) {
       err <- New.SysMessage()
+      if (length(object@Id) > 0) {
+         if (!startsWith(object@Id, "Model.")) {
+            AddMessage(err) <- "Invalid identifier.  It must contain the prefix 'Model.'"
+         }
+      }
       isValid = Validate(Validator.Length(minLen = 0, maxLen = 1), object@Args)
       if (isValid != TRUE) {
          AddMessage(err) <- "The length of slot value '@Args' cannot be greater than 1."
@@ -28,6 +30,26 @@ setValidity(
    }
 )
 
+setMethod(
+   f = "GetModelId",
+   signature = "IModel",
+   definition = function(object) {
+      return(GetId(object))
+   }
+)
+
+setMethod(
+   f = "SetModelId<-",
+   signature = c("IModel", "character"),
+   definition = function(object, value) {
+      if (length(value) == 0) return(object)
+      if (!startsWith(value, "Model.")) {
+         value <- paste0("Model.", value)
+      }
+      SetId(object) <- value
+      return(object)
+   }
+)
 
 setMethod(
    f = "GetArgs",
@@ -42,7 +64,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetArgs<-",
    signature = "IModel",
@@ -53,7 +74,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetArgValue",
    signature = c("IModel", "character"),
@@ -61,7 +81,6 @@ setMethod(
       return(GetArgValue(GetArgs(object), argName))
    }
 )
-
 
 setMethod(
    f = "SetArgValue",
@@ -73,7 +92,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "Run",
    signature = "IModel",
@@ -82,15 +100,14 @@ setMethod(
    }
 )
 
-
-setMethod(
-   f = "SaveAsRda",
-   signature = "IModel",
-   definition = function(object, overwrite = FALSE) {
-      stopifnot(HasValue(id <- GetId(object)))
-      rdaName <- paste0(ifelse(startsWith(id, "Model."), "", "Model."), id)
-      eval(parse(text = paste(rdaName, "<- object")))
-      eval(parse(text = paste("usethis::use_data(", rdaName, ", overwrite = ", overwrite, ")")))
-   }
-)
-
+# setMethod(
+#    f = "SaveAsRda",
+#    signature = "IModel",
+#    definition = function(object, overwrite = FALSE) {
+#       stopifnot(HasValue(id <- GetId(object)))
+#       rdaName <- paste0(ifelse(startsWith(id, "Model."), "", "Model."), id)
+#       eval(parse(text = paste(rdaName, "<- object")))
+#       eval(parse(text = paste("usethis::use_data(", rdaName, ", overwrite = ", overwrite, ")")))
+#    }
+# )
+#

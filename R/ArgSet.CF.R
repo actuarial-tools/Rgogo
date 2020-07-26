@@ -84,9 +84,9 @@ ArgSet.CF <- function(projStartDate = "1900-01-01", mortAssump = character(0L),
       ApplyMortMargin = as.logical(applyMortMargin),
       ApplyLapseMargin = as.logical(applyLapseMargin),
       ApplyExpnsMargin = as.logical(applyExpnsMargin),
-      Id = as.character(id),
       Descrip = as.character(descrip)
    )
+   SetArgSetId(arg) <- as.character(id)
    return(arg)
 }
 

@@ -1,7 +1,8 @@
 setClass(Class = "Model.PPM", contains = "IModel")
 
-Model.PPM <- function(args = ArgSet.PPM()) {
-   model <- new(Class = "Model.PPM", Id = "PPM", Args = args)
+Model.PPM <- function(args = ArgSet.PPM(), id = character(0L), descrip = character(0L)) {
+   model <- new(Class = "Model.PPM", Args = args, Descrip = as.character(descrip))
+   SetModelId(model) <- as.character(id)
    return(model)
 }
 

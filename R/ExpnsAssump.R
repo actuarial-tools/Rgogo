@@ -1,7 +1,6 @@
 #' @include IExpnsAssump.R
 NULL
 
-
 setClass(
    Class = "ExpnsAssump",
    contains = "IExpnsAssump",
@@ -20,7 +19,6 @@ setClass(
       AEPerFaceAmtPfad = "numeric"
    )
 )
-
 
 setValidity(
    Class = "ExpnsAssump",
@@ -69,11 +67,6 @@ setValidity(
       if (isValid != TRUE) {
          AddMessage(err) <- "Slot '@MEPerPremInflRate in a object of or extending class 'ExpnsAssump' must contain a numeric value of length at least 1."
       }
-      # # Validate @MEPerClaimInflRate
-      # isValid <- Validate(v, object@MEPerClaimInflRate)
-      # if (isValid != TRUE) {
-      #    AddMessage(err) <- "Slot '@MEPerClaimInflRate in a object of or extending class 'ExpnsAssump' must contain a numeric value of length at least 1."
-      # }
       # Validate @MEPerPolPfad
       isValid <- Validate(v, object@MEPerPolPfad)
       if (isValid != TRUE) {
@@ -107,27 +100,32 @@ setValidity(
    }
 )
 
-
-ExpnsAssump <- function(id = character()) {
+ExpnsAssump <- function(mePerPol = 0, mePerPolInflRate = 0, mePerPolPfad = 0,
+                        mePerPrem = 0, mePerPremInflRate = 0, mePerPremPfad = 0,
+                        mePrePremAmt = 0, mePerPremAmtPfad = 0,
+                        aePerPol = 0, aePerPolPfad = 0,
+                        aePerFaceAmt = 0, aePerFaceAmtPfad = 0,
+                        id = character(0L), descrip = character(0L)) {
    assump <- new(
       Class = "ExpnsAssump",
       Id = as.character(id),
-      MEPerPol = 0,
-      MEPerPolInflRate = 0,
-      MEPerPolPfad = 0,
-      MEPerPrem = 0,
-      MEPerPremInflRate = 0,
-      MEPerPremPfad = 0,
-      MEPerPremAmt = 0,
-      MEPerPremAmtPfad = 0,
-      AEPerPol = 0,
-      AEPerPolPfad = 0,
-      AEPerFaceAmt = 0,
-      AEPerFaceAmtPfad = 0
+      MEPerPol = mePerPol,
+      MEPerPolInflRate = mePerPolInflRate,
+      MEPerPolPfad = mePerPolPfad,
+      MEPerPrem = mePerPrem,
+      MEPerPremInflRate = mePerPremInflRate,
+      MEPerPremPfad = mePerPremPfad,
+      MEPerPremAmt = mePrePremAmt,
+      MEPerPremAmtPfad = mePerPremAmtPfad,
+      AEPerPol = aePerPol,
+      AEPerPolPfad = aePerPolPfad,
+      AEPerFaceAmt = aePerFaceAmt,
+      AEPerFaceAmtPfad = aePerFaceAmtPfad,
+      Descrip = as.character(descrip)
    )
+   SetAssumpId(assump) <- as.character(id)
    return(assump)
 }
-
 
 setMethod(
    f = "ProjMntExpnsPerPol",
@@ -142,7 +140,6 @@ setMethod(
       return(assumpInfo)
    }
 )
-
 
 setMethod(
    f = "ProjMntExpnsPerPrem",
@@ -167,7 +164,6 @@ setMethod(
       return(assumpInfo)
    }
 )
-
 
 setMethod(
    f = "ProjAcqExpns",
@@ -196,7 +192,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetExpdAssump",
    signature = "ExpnsAssump",
@@ -209,7 +204,6 @@ setMethod(
       return(assumpInfo)
    }
 )
-
 
 setMethod(
    f = "GetPaddAssump",
@@ -227,7 +221,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetAssump",
    signature = "ExpnsAssump",
@@ -242,7 +235,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetMntExpnsPerPol",
    signature = "ExpnsAssump",
@@ -250,7 +242,6 @@ setMethod(
       return(object@MEPerPol)
    }
 )
-
 
 setMethod(
    f = "SetMntExpnsPerPol<-",
@@ -262,7 +253,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetMntExpnsPerPrem",
    signature = "ExpnsAssump",
@@ -270,7 +260,6 @@ setMethod(
       return(object@MEPerPrem)
    }
 )
-
 
 setMethod(
    f = "SetMntExpnsPerPrem<-",
@@ -291,7 +280,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetMntExpnsPerPremAmt<-",
    signature = "ExpnsAssump",
@@ -302,7 +290,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetAcqExpnsPerPol",
    signature = "ExpnsAssump",
@@ -310,7 +297,6 @@ setMethod(
       return(object@AEPerPol)
    }
 )
-
 
 setMethod(
    f = "SetAcqExpnsPerPol<-",
@@ -322,7 +308,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetAcqExpnsPerFaceAmt",
    signature = "ExpnsAssump",
@@ -330,7 +315,6 @@ setMethod(
       return(object@AEPerFaceAmt)
    }
 )
-
 
 setMethod(
    f = "SetAcqExpnsPerFaceAmt<-",
@@ -342,7 +326,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetMntExpnsPerPolInflRate",
    signature = "ExpnsAssump",
@@ -350,7 +333,6 @@ setMethod(
       return(object@MEPerPolInflRate)
    }
 )
-
 
 setMethod(
    f = "SetMntExpnsPerPolInflRate<-",
@@ -362,7 +344,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetMntExpnsPerPremInflRate",
    signature = "ExpnsAssump",
@@ -370,7 +351,6 @@ setMethod(
       return(object@MEPerPremInflRate)
    }
 )
-
 
 setMethod(
    f = "SetMntExpnsPerPremInflRate<-",
@@ -382,7 +362,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetMntExpnsPerPolPfad",
    signature = "ExpnsAssump",
@@ -390,7 +369,6 @@ setMethod(
       return(object@MEPerPolPfad)
    }
 )
-
 
 setMethod(
    f = "SetMntExpnsPerPolPfad<-",
@@ -402,7 +380,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetMntExpnsPerPremPfad",
    signature = "ExpnsAssump",
@@ -410,7 +387,6 @@ setMethod(
       return(object@MEPerPremPfad)
    }
 )
-
 
 setMethod(
    f = "SetMntExpnsPerPremPfad<-",
@@ -422,7 +398,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetMntExpnsPerPremAmtPfad",
    signature = "ExpnsAssump",
@@ -430,7 +405,6 @@ setMethod(
       return(object@MEPerPremAmtPfad)
    }
 )
-
 
 setMethod(
    f = "SetMntExpnsPerPremAmtPfad<-",
@@ -442,7 +416,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetAcqExpnsPerPolPfad",
    signature = "ExpnsAssump",
@@ -450,7 +423,6 @@ setMethod(
       return(object@AEPerPolPfad)
    }
 )
-
 
 setMethod(
    f = "SetAcqExpnsPerPolPfad<-",
@@ -462,7 +434,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetAcqExpnsPerFaceAmtPfad",
    signature = "ExpnsAssump",
@@ -470,7 +441,6 @@ setMethod(
       return(object@AEPerFaceAmtPfad)
    }
 )
-
 
 setMethod(
    f = "SetAcqExpnsPerFaceAmtPfad<-",
@@ -481,7 +451,6 @@ setMethod(
       return(object)
    }
 )
-
 
 .GetInflAdjVector <- function(inflSlotValue, projLen) {
    l <- ceiling(projLen / 12)   # Number of projection years
@@ -494,7 +463,6 @@ setMethod(
    inflAdj <- cumprod(1 + inflRate)
    return(inflAdj)
 }
-
 
 .GetExpnsPfad <- function(pfadSlotValue, projLen) {
    if (length(pfadSlotValue) == 1) {

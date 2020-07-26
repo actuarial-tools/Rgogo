@@ -1,13 +1,11 @@
 #' @include IPlan.End.R
 NULL
 
-
 setClass(
    Class = "IPlan.End.Par",
    contains = "IPlan.End",
    slots = c(PUA = "character")
 )
-
 
 setValidity(
    Class = "IPlan.End.Par",
@@ -25,8 +23,12 @@ setValidity(
    }
 )
 
-
-IPlan.End.Par <- function(planId = character(), covYears = NA, covToAge = NA, premYears = NA, premToAge = NA) {
+IPlan.End.Par <- function(covYears = NA, covToAge = NA, premYears = NA, premToAge = NA,
+                          premTable = character(0L), modFactor = c("1" = 1, "2" = 0.5, "4" = 0.25, "12" = 1/12),
+                          polFee = numeric(0), premTaxRate = numeric(0L),
+                          cvTable = character(0L), pua = character(0L),
+                          commSchd = numeric(0L), ovrdOnPremSchd = numeric(0L), ovrdOnCommSchd = numeric(0L),
+                          rein = character(0L), planId = character(0L), descrip = character(0L)) {
    stopifnot(any(!is.na(c(covYears, covToAge))))
    covPeriod <- c(CovYears = covYears, CovToAge = as.integer(covToAge))
    covPeriod <- covPeriod[!is.na(covPeriod)]
@@ -37,13 +39,23 @@ IPlan.End.Par <- function(planId = character(), covYears = NA, covToAge = NA, pr
    }
    premPeriod <- premPeriod[!is.na(premPeriod)]
    plan <- new(Class = "IPlan.End.Par",
-               Id = as.character(planId),
                CovPeriod = covPeriod,
-               PremPeriod = premPeriod
+               PremPeriod = premPeriod,
+               PremTable = premTable,
+               ModFactor = modFactor,
+               PolFee = polFee,
+               PremTaxRate = premTaxRate,
+               CVTable = cvTable,
+               PUA = pua,
+               CommSchd = commSchd,
+               OvrdOnPremSchd = ovrdOnPremSchd,
+               OvrdOnCommSchd = ovrdOnCommSchd,
+               Rein = rein,
+               Descrip = as.character(descrip)
    )
+   SetPlanId(plan) <- as.character(planId)
    return(plan)
 }
-
 
 setMethod(
    f = "GetPUA",
@@ -58,7 +70,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetPUA<-",
    signature = "IPlan.End.Par",
@@ -68,7 +79,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "Project",

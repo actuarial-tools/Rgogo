@@ -1,7 +1,8 @@
 setClass(Class = "Model.CF", contains = "IModel")
 
-Model.CF <- function(args = ArgSet.CF()) {
-   model <- new(Class = "Model.CF", Args = args)
+Model.CF <- function(args = ArgSet.CF(), descrip = character(0L), id = character(0L)) {
+   model <- new(Class = "Model.CF", Args = args, Descrip = as.character(descrip))
+   SetModelId(model) <- as.character(id)
    return(model)
 }
 

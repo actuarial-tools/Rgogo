@@ -91,6 +91,33 @@ Convert_qx <- function(qx, m, method) {
    }
 }
 
+# DeployObject <- function(pkgName, objectType, overwrite = FALSE) {
+#    # Check if the package has been installed.  Throw error if it is not isntalled.
+#    if (!(pkgName %in% installed.packages())) return(paste0("Deployment cancelled.  Package '", pkgName, "' is not installed."))
+#    # Check if the package is attached  If not, load the package temporarily.
+#    wasAttached <- pkgName %in% .packages()
+#    if(!wasAttached) eval(expr = parse(text = paste0("require(", pkgName, ")")))
+#    # Identify all objects in the package which match the project type.
+#    objList <- strsplit(eval(expr = parse(text = paste0("ls('package:", pkgName, "', pattern = '", paste0('^New.', objectType, '.'), "')"))), " ")
+#    if (length(objList) == 0) return(paste0(objectType,": nothing to deploy."))
+#    # Save the identified objects as Rda data.
+#    lapply(objList,
+#           function(obj, pkg, ow) {
+#              if (is.function(eval(expr = parse(text = obj)))) {
+#                 objName <- substr(obj, 5, nchar(obj))
+#                 objExists <- objName %in% data(package=pkg)$results[,"Item"]
+#                 if(ow | !objExists) {
+#                    eval(expr = parse(text = paste0(objName, " <- ", obj, "()")))
+#                    eval(expr = parse(text = paste0("SaveAsRda(", objName, ", overwrite = TRUE)")))
+#                 }
+#              }
+#           }, pkgName, overwrite
+#    )
+#    # If the package was not attached originally, unload it.
+#    if(!wasAttached) eval(expr = parse(text = paste0("detach('package:", pkgName, "', unload = TRUE)")))
+#    return("Done.  Remember to rebuild the package before using any new Rda files.")
+# }
+
 DeployObject <- function(pkgName, objectType, overwrite = FALSE) {
    # Check if the package has been installed.  Throw error if it is not isntalled.
    if (!(pkgName %in% installed.packages())) return(paste0("Deployment cancelled.  Package '", pkgName, "' is not installed."))
@@ -98,17 +125,22 @@ DeployObject <- function(pkgName, objectType, overwrite = FALSE) {
    wasAttached <- pkgName %in% .packages()
    if(!wasAttached) eval(expr = parse(text = paste0("require(", pkgName, ")")))
    # Identify all objects in the package which match the project type.
-   objList <- strsplit(eval(expr = parse(text = paste0("ls('package:", pkgName, "', pattern = '", paste0('^New.', objectType, '.'), "')"))), " ")
-   if (length(objList) == 0) return(paste0(objectType,": nothing to deploy."))
+   funcList <- strsplit(eval(expr = parse(text = paste0("ls('package:", pkgName, "', pattern = '", paste0('^New.', objectType, '.'), "')"))), " ")
+   if (length(funcList) == 0) return(paste0(objectType,": nothing to deploy."))
    # Save the identified objects as Rda data.
-   lapply(objList,
-          function(obj, pkg, ow) {
-             if (is.function(eval(expr = parse(text = obj)))) {
-                objName <- substr(obj, 5, nchar(obj))
+   lapply(funcList,
+          function(funcName, pkg, ow) {
+             if (is.function(eval(expr = parse(text = funcName)))) {
+                objName <- substr(funcName, 5, nchar(funcName))
                 objExists <- objName %in% data(package=pkg)$results[,"Item"]
                 if(ow | !objExists) {
-                   eval(expr = parse(text = paste0(objName, " <- ", obj, "()")))
-                   eval(expr = parse(text = paste0("SaveAsRda(", objName, ", overwrite = TRUE)")))
+                   eval(expr = parse(text = paste0("obj <- ", funcName, "()")))
+                   if (length(GetId(obj)) == 0) {
+                      SetId(obj) <- objName
+                   } else if (GetId(obj) != objName) {
+                      stop(paste0("Object deployed by function ", funcName, " has an inconsistent identifier ", GetId(obj)))
+                   }
+                   eval(expr = parse(text = "SaveAsRda(obj, overwrite = TRUE)"))
                 }
              }
           }, pkgName, overwrite

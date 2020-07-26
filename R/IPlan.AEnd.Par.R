@@ -9,14 +9,29 @@ setClass(
 )
 
 
-IPlan.AEnd.Par <- function(planId, covYears, premYears = NA, matBenSchd) {
+IPlan.AEnd.Par <- function(covYears, premYears = NA,
+                           premTable = character(0L), modFactor = c("1" = 1, "2" = 0.5, "4" = 0.25, "12" = 1/12),
+                           polFee = numeric(0), premTaxRate = numeric(0L), matBenSchd, cvTable = character(0L), pua = character(0L),
+                           commSchd = numeric(0L), ovrdOnPremSchd = numeric(0L), ovrdOnCommSchd = numeric(0L),
+                           rein = character(0L), planId = character(0L), descrip = character(0L)) {
    plan <- new(
       Class = "IPlan.AEnd.Par",
-      Id = as.character(planId),
       CovPeriod = c(CovYears = covYears),
       PremPeriod = c(PremYears = ifelse(is.na(premYears), covYears, premYears)),
-      MatBenSchd = matBenSchd
+      PremTable = premTable,
+      ModFactor = modFactor,
+      PolFee = polFee,
+      MatBenSchd = matBenSchd,
+      CVTable = cvTable,
+      PUA = pua,
+      CommSchd = commSchd,
+      OvrdOnPremSchd = ovrdOnPremSchd,
+      OvrdOnCommSchd = ovrdOnCommSchd,
+      PremTaxRate = premTaxRate,
+      Rein = rein,
+      Descrip = as.character(descrip)
    )
+   SetPlanId(plan) <- as.character(planId)
    return(plan)
 }
 

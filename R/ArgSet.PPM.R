@@ -39,7 +39,7 @@ ArgSet.PPM <- function(valuDate = as.Date("1899-12-31"),
                        reserveFloor = -Inf,
                        id = character(0L),
                        descrip = character(0L)) {
-   args <- new(
+   arg <- new(
       Class = "ArgSet.PPM",
       ValuDate = lubridate::as_date(valuDate),
       ProjStartDate = lubridate::as_date(valuDate) + 1,
@@ -52,10 +52,10 @@ ArgSet.PPM <- function(valuDate = as.Date("1899-12-31"),
       ApplyExpnsMargin = as.logical(applyExpnsMargin),
       ApplyIntrMargin = as.logical(applyIntrMargin),
       ResFloor = as.numeric(reserveFloor),
-      Id = as.character(id),
       Descrip = as.character(descrip)
    )
-   return(args)
+   SetArgSetId(arg) <- as.character(id)
+   return(arg)
 }
 
 setMethod(

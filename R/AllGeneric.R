@@ -103,7 +103,7 @@ setGeneric(name = "GetDthBenIntraYearMthd", def = function(object, value) {stand
 setGeneric(name = "SetDthBenIntraYearMthd<-", def = function(object, value) {standardGeneric("SetDthBenIntraYearMthd<-")})
 
 
-setGeneric(name = "GetAssumpID", def = function(object, ...) {standardGeneric("GetAssumpID")})
+setGeneric(name = "GetAssumpId", def = function(object, ...) {standardGeneric("GetAssumpId")})
 setGeneric(name = "GetAssump", def = function(object, ...){standardGeneric("GetAssump")})
 setGeneric(name = "GetExpdAssump", def = function(object, ...){standardGeneric("GetExpdAssump")})
 setGeneric(name = "GetPaddAssump", def = function(object, ...){standardGeneric("GetPaddAssump")})
@@ -116,7 +116,7 @@ setGeneric(name = "GetMortImprovRate", def = function(object, ...) {standardGene
 setGeneric(name = "GetMortPfad", def = function(object, ...) {standardGeneric("GetMortPfad")})
 setGeneric(name = "GetMortTable", def = function(object, ...) {standardGeneric("GetMortTable")})
 setGeneric(name = "GetExtraQTable", def = function(object, ...) {standardGeneric("GetExtraQTable")})
-setGeneric(name = "SetAssumpID<-", def = function(object, value) {standardGeneric("SetAssumpID<-")})
+setGeneric(name = "SetAssumpId<-", def = function(object, value) {standardGeneric("SetAssumpId<-")})
 setGeneric(name = "SetMortTable<-", def = function(object, value) {standardGeneric("SetMortTable<-")})
 setGeneric(name = "SetMortTableMult<-", def = function(object, value) {standardGeneric("SetMortTableMult<-")})
 setGeneric(name = "SetExtraMortTable<-", def = function(object, value) {standardGeneric("SetExtraMortTable<-")})
@@ -267,8 +267,8 @@ setGeneric(name = "GetIntrPfad", def = function(object, ...) {standardGeneric("G
 setGeneric(name = "SetIntrRate<-", def = function(object, ...) {standardGeneric("SetIntrRate<-")})
 setGeneric(name = "SetIntrPfad<-", def = function(object, ...) {standardGeneric("SetIntrPfad<-")})
 
-setGeneric(name = "GetTreatyId", def = function(object) {standardGeneric("GetTreatyId")})
-setGeneric(name = "SetTreatyId<-", def = function(object, ...) {standardGeneric("SetTreatyId<-")})
+setGeneric(name = "GetReinId", def = function(object) {standardGeneric("GetReinId")})
+setGeneric(name = "SetReinId<-", def = function(object, ...) {standardGeneric("SetReinId<-")})
 setGeneric(name = "GetPremTableMult", def = function(object, ...) {standardGeneric("GetPremTableMult")})
 setGeneric(name = "GetRetnProp", def = function(object, ...) {standardGeneric("GetRetnProp")})
 setGeneric(name = "GetRetnLimit", def = function(object, ...) {standardGeneric("GetRetnLimit")})
@@ -396,4 +396,23 @@ setGeneric(name = "SetCovId<-", def = function(object, value) {standardGeneric("
 setGeneric(name = "SetPlan<-", def = function(object, value) {standardGeneric("SetPlan<-")})
 
 setGeneric(name = "Validate", def = function(object, value) {standardGeneric("Validate")})
+
+setGeneric(name = "ProjAcqExpns", def = function(object, ...) {standardGeneric("ProjAcqExpns")})
+setGeneric(name = "ProjMntExpns", def = function(object, ...) {standardGeneric("ProjMntExpns")})
+setGeneric(name = "ProjMntExpnsPerPol", def = function(object, ...) {standardGeneric("ProjMntExpnsPerPol")})
+setGeneric(name = "ProjMntExpnsPerPrem", def = function(object, ...) {standardGeneric("ProjMntExpnsPerPrem")})
+setGeneric(name = "ProjMntExpnsPerClaim", def = function(object, ...) {standardGeneric("ProjMntExpnsPerClaim")})
+
+setGeneric(name = "GetArgSetId", def = function(object) {standardGeneric("GetArgSetId")})
+setGeneric(name = "SetArgSetId<-", def = function(object, value) {standardGeneric("SetArgSetId<-")})
+
+setGeneric(name = "GetModelId", def = function(object) {standardGeneric("GetModelId")})
+setGeneric(name = "SetModelId<-", def = function(object, value) {standardGeneric("SetModelId<-")})
+
+setGeneric(name = "GetJobId", def = function(object) {standardGeneric("GetJobId")})
+setGeneric(name = "SetJobId<-", def = function(object, value) {standardGeneric("SetJobId<-")})
+setGeneric(name = "SetDispatcher<-", def = function(object, func) {standardGeneric("SetDispatcher<-")})
+
+setGeneric(name = "GetPUAId", def = function(object) {standardGeneric("GetPUAId")})
+setGeneric(name = "SetPUAId<-", def = function(object, value) {standardGeneric("SetPUAId<-")})
 

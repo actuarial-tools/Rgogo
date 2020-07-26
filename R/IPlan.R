@@ -3,6 +3,22 @@ setClass(
    contains = c("IObject", "VIRTUAL")
 )
 
+setValidity(
+   Class = "IPlan",
+   method = function(object) {
+      err <- New.SysMessage()
+      if (length(object@Id) > 0) {
+         if (!startsWith(object@Id, "Plan.")) {
+            AddMessage(err) <- "Invalid identifier.  It must contain the prefix 'Plan.'"
+         }
+      }
+      if (NoMessage(err)) {
+         return(TRUE)
+      } else {
+         return(GetMessage(err))
+      }
+   }
+)
 
 setMethod(
    f = "GetPlanId",
@@ -12,16 +28,18 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetPlanId<-",
    signature = c("IPlan", "character"),
    definition = function(object, value) {
+      if (length(value) == 0) return(object)
+      if (!startsWith(value, "Plan.")) {
+         value <- paste0("Plan.", value)
+      }
       SetId(object) <- value
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetRiskClass",
@@ -31,7 +49,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetCovYears",
    signature = "IPlan",
@@ -39,7 +56,6 @@ setMethod(
       stop("Method 'GetCovYears' must be implemented by a child class of 'IPlan'.")
    }
 )
-
 
 setMethod(
    f = "GetPremYears",
@@ -49,7 +65,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetCovMonths",
    signature = "IPlan",
@@ -57,7 +72,6 @@ setMethod(
       return(round(GetCovYears(object, cov) * 12, digits = 0))
    }
 )
-
 
 setMethod(
    f = "GetPremMonths",
@@ -67,7 +81,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetExpiryDate",
    signature = "IPlan",
@@ -75,7 +88,6 @@ setMethod(
       return(GetIssDate(cov) %m+% months(as.integer(GetCovMonths(object, cov))))
    }
 )
-
 
 setMethod(
    f = "Project",
@@ -85,14 +97,13 @@ setMethod(
    }
 )
 
-
-setMethod(
-   f = "SaveAsRda",
-   signature = "IPlan",
-   definition = function(object, overwrite = FALSE) {
-      stopifnot(HasValue(planID <- GetPlanId(object)))
-      rdaName <- paste0("Plan.", planID)
-      eval(parse(text = paste(rdaName, "<- object")))
-      eval(parse(text = paste("usethis::use_data(", rdaName, ", overwrite = ", overwrite, ")")))
-   }
-)
+# setMethod(
+#    f = "SaveAsRda",
+#    signature = "IPlan",
+#    definition = function(object, overwrite = FALSE) {
+#       stopifnot(HasValue(planID <- GetPlanId(object)))
+#       rdaName <- paste0("Plan.", planID)
+#       eval(parse(text = paste(rdaName, "<- object")))
+#       eval(parse(text = paste("usethis::use_data(", rdaName, ", overwrite = ", overwrite, ")")))
+#    }
+# )

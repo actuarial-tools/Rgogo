@@ -14,7 +14,6 @@ setClass(
    )
 )
 
-
 setValidity(
    Class = "Rein",
    method = function(object) {
@@ -57,14 +56,26 @@ setValidity(
    }
 )
 
-
-Rein <- function(treatyId) {
-   rein <- new(Class = "Rein", Id = treatyId)
-   rein@PremTableMult <- 1
-   rein@ MinReinAmt <- 0
+Rein <- function(retnProp, retnLimit, minReinAmt = 0,
+                 premTable = character(0L), premTableMult = 1, premMode,
+                 commSchd = numeric(0L),rfndUrndPremOnLapse, rfndUrndCommOnLapse,
+                 reinId = character(0L), descrip = character(0L)) {
+   rein <- new(
+      Class = "Rein",
+      RetnProp = retnProp,
+      RetnLimit = retnLimit,
+      MinReinAmt = minReinAmt,
+      PremTable = premTable,
+      PremTableMult = premTableMult,
+      PremMode = premMode,
+      CommSchd = commSchd,
+      RfndUrndPremOnLapse = rfndUrndPremOnLapse,
+      RfndUrndCommOnLapse = rfndUrndCommOnLapse,
+      Descrip = as.character(descrip)
+   )
+   SetReinId(rein) <- as.character(reinId)
    return (rein)
 }
-
 
 setMethod(
    f = "GetPremTable",
@@ -82,7 +93,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetPremTableMult",
    signature = "Rein",
@@ -94,7 +104,6 @@ setMethod(
       }
    }
 )
-
 
 setMethod(
    f = "GetCommSchd",
@@ -109,7 +118,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetPremMode",
    signature = "Rein",
@@ -117,7 +125,6 @@ setMethod(
       return(object@PremMode)
    }
 )
-
 
 setMethod(
    f = "GetRetnProp",
@@ -127,7 +134,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetRetnLimit",
    signature = "IRein",
@@ -135,7 +141,6 @@ setMethod(
       return(object@RetnLimit)
    }
 )
-
 
 setMethod(
    f = "GetMinReinAmt",
@@ -145,7 +150,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetRfndUrndPremOnLapse",
    signature = "IRein",
@@ -154,7 +158,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetRfndUrndCommOnLapse",
    signature = "IRein",
@@ -162,7 +165,6 @@ setMethod(
       return(object@RfndUrndCommOnLapse)
    }
 )
-
 
 setMethod(
    f = "SetPremTable<-",
@@ -174,7 +176,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetPremTableMult<-",
    signature = "Rein",
@@ -184,7 +185,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "SetCommSchd<-",
@@ -196,7 +196,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetPremMode<-",
    signature = "Rein",
@@ -206,7 +205,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "SetRetnProp<-",
@@ -218,7 +216,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetRetnLimit<-",
    signature = "Rein",
@@ -228,7 +225,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "SetMinReinAmt<-",
@@ -240,7 +236,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetRfndUrndPremOnLapse<-",
    signature = "Rein",
@@ -250,7 +245,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "SetRfndUrndCommOnLapse<-",
@@ -262,7 +256,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetRiskClass",
    signature = "IRein",
@@ -271,7 +264,6 @@ setMethod(
       return(GetRiskClass(cov))
    }
 )
-
 
 setMethod(
    f = "ProjNaar",
@@ -286,7 +278,6 @@ setMethod(
       return(resultContainer)
    }
 )
-
 
 setMethod(
    f = "ProjReinNaar",
@@ -308,7 +299,6 @@ setMethod(
       return(resultContainer)
    }
 )
-
 
 setMethod(
    f = "ProjPrem",
@@ -343,7 +333,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "ProjComm",
    signature = "Rein",
@@ -366,7 +355,6 @@ setMethod(
       return(resultContainer)
    }
 )
-
 
 setMethod(
    f = "Project",

@@ -1,27 +1,42 @@
 setClass(Class = "IRein", contains = c("IObject", "VIRTUAL"))
 
+setValidity(
+   Class = "IRein",
+   method = function(object) {
+      err <- New.SysMessage()
+      if (length(object@Id) > 0) {
+         if (!startsWith(object@Id, "Rein.")) {
+            AddMessage(err) <- "Invalid identifier.  It must contain the prefix 'Rein.'"
+         }
+      }
+      if (NoMessage(err)) {
+         return(TRUE)
+      } else {
+         return(GetMessage(err))
+      }
+   }
+)
 
-# Wrapper method of GetId
 setMethod(
-   f = "GetTreatyId",
+   f = "GetReinId",
    signature = "IRein",
    definition = function(object) {
       return(object@Id)
    }
 )
 
-
-# Wrapper method of SetId<-
 setMethod(
-   f = "SetTreatyId<-",
+   f = "SetReinId<-",
    signature = "IRein",
    definition = function(object, value) {
-      object@Id <- value
-      validObject(object)
+      if (length(value) == 0) return(object)
+      if (!startsWith(value, "Rein.")) {
+         value <- paste0("Rein.", value)
+      }
+      SetId(object) <- value
       return(object)
    }
 )
-
 
 setMethod(
    f = "ProjPrem",
@@ -31,7 +46,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "ProjComm",
    signature = "IRein",
@@ -39,7 +53,6 @@ setMethod(
       stop("Method 'ProjComm' must be implemented by a class inheriting 'IRein'" )
    }
 )
-
 
 setMethod(
    f = "ProjReinNaar",
@@ -49,7 +62,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "Project",
    signature = "IRein",
@@ -58,14 +70,3 @@ setMethod(
    }
 )
 
-
-setMethod(
-   f = "SaveAsRda",
-   signature = "IRein",
-   definition = function(object, overwrite = FALSE) {
-      stopifnot(HasValue(treatyId <- GetId(object)))
-      rdaName <- paste0(ifelse(startsWith(treatyId, "Rein."), "", "Rein."), treatyId)
-      eval(parse(text = paste(rdaName, "<- object")))
-      eval(parse(text = paste("usethis::use_data(", rdaName, ", overwrite = ", overwrite, ")")))
-   }
-)

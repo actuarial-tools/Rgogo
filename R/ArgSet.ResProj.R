@@ -32,12 +32,15 @@ setValidity(
    }
 )
 
-ArgSet.ResProj <- function(valuModel, valuArgSet) {
-   args <- new(
+ArgSet.ResProj <- function(valuModel, valuArgSet, id = character(0L), descrip = character(0L)) {
+   arg <- new(
       Class = "ArgSet.ResProj",
       ValuModel = valuModel,
-      ValuArgSet = valuArgSet
+      ValuArgSet = valuArgSet,
+      Descrip = as.character(descrip)
    )
+   SetArgSetId(arg) <- as.character(id)
+   return(arg)
 }
 
 setMethod(

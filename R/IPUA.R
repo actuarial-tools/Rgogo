@@ -1,7 +1,6 @@
 #' @include IPlan.End.R
 NULL
 
-
 setClass(
    Class = "IPUA",
    contains = "IPlan.End",
@@ -14,11 +13,15 @@ setClass(
    )
 )
 
-
 setValidity(
    Class = "IPUA",
    method = function(object) {
       err <- New.SysMessage()
+      if (length(object@Id) > 0) {
+         if (!startsWith(object@Id, "PUA.")) {
+            AddMessage(err) <- "Invalid identifier.  It must contain the prefix 'PUA.'"
+         }
+      }
       # '@PUACreditMonth must be between 1 and 12
       isValid <- Validate(
          ValidatorGroup(
@@ -49,23 +52,45 @@ setValidity(
    }
 )
 
-
-IPUA <- function(planId, covYears = NA, covToAge = NA) {
+IPUA <- function(covYears = NA, covToAge = NA,
+                 puaCreditMonth = 1L, puaPaidOnDth = TRUE, puaPaidOnMat = TRUE, puaPaidOnSur = TRUE,
+                 puaId = character(0L), descrip = character(0L)) {
    covPeriod <- c(CovYears = covYears, CovToAge = as.integer(covToAge))
    covPeriod <- covPeriod[!is.na(covPeriod)]
    premPeriod <- c(PremYears = 0)
    pua <- new(
       Class = "IPUA",
-      Id = planId,
       CovPeriod = covPeriod,
       PremPeriod = premPeriod,
-      PUACreditMonth = 1L,
-      PUAPaidOnDth = TRUE,
-      PUAPaidOnMat = TRUE,
-      PUAPaidOnSur = TRUE
+      PUACreditMonth = puaCreditMonth,
+      PUAPaidOnDth = puaPaidOnDth,
+      PUAPaidOnMat = puaPaidOnMat,
+      PUAPaidOnSur = puaPaidOnSur,
+      Descrip = as.character(descrip)
    )
+   SetPUAId(pua) <- as.character(puaId)
 }
 
+setMethod(
+   f = "GetPUAId",
+   signature = "IPUA",
+   definition = function(object) {
+      return(GetId(object))
+   }
+)
+
+setMethod(
+   f = "SetPUAId<-",
+   signature = c("IPUA", "character"),
+   definition = function(object, value) {
+      if (length(value) == 0) return(object)
+      if (!startsWith(value, "PUA.")) {
+         value <- paste0("PUA.", value)
+      }
+      SetId(object) <- value
+      return(object)
+   }
+)
 
 setMethod(
    f = "GetCovYears",
@@ -75,7 +100,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetPremYears",
    signature = "IPUA",
@@ -83,7 +107,6 @@ setMethod(
       return(0)
    }
 )
-
 
 setMethod(
    f = "GetPremTable",
@@ -93,7 +116,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetPremTable<-",
    signature = "IPUA",
@@ -101,7 +123,6 @@ setMethod(
       stop("Method 'SetPremTable<-' cannot be invoked by a class of or extending 'IPlan.UPA' class.")
    }
 )
-
 
 setMethod(
    f = "GetPremRate",
@@ -111,7 +132,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetModFactor",
    signature = "IPUA",
@@ -119,7 +139,6 @@ setMethod(
       return(NA)
    }
 )
-
 
 setMethod(
    f = "SetModFactor<-",
@@ -129,7 +148,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetPolFee",
    signature = "IPUA",
@@ -137,7 +155,6 @@ setMethod(
       return(NA)
    }
 )
-
 
 setMethod(
    f = "SetPolFee<-",
@@ -147,7 +164,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetCommSchd",
    signature = "IPUA",
@@ -155,7 +171,6 @@ setMethod(
       return(NA)
    }
 )
-
 
 setMethod(
    f = "SetCommSchd<-",
@@ -165,7 +180,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetOvrdOnCommSchd",
    signature = "IPUA",
@@ -173,7 +187,6 @@ setMethod(
       return(NA)
    }
 )
-
 
 setMethod(
    f = "SetOvrdOnCommSchd<-",
@@ -183,7 +196,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetOvrdOnPremSchd",
    signature = "IPUA",
@@ -191,7 +203,6 @@ setMethod(
       return(NA)
    }
 )
-
 
 setMethod(
    f = "SetOvrdOnPremSchd<-",
@@ -201,7 +212,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetPremTaxRate",
    signature = "IPUA",
@@ -209,7 +219,6 @@ setMethod(
       return(NA)
    }
 )
-
 
 setMethod(
    f = "SetPremTaxRate<-",
@@ -219,7 +228,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetRein",
    signature = "IPUA",
@@ -228,7 +236,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetRein<-",
    signature = "IPUA",
@@ -236,7 +243,6 @@ setMethod(
       stop("Method 'SetRein<-' cannot be invoked by a class of or extending 'IPlan.UPA' class.")
    }
 )
-
 
 setMethod(
    f = "SetPUASchd<-",
@@ -248,7 +254,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetPUACreditMonth<-",
    signature = "IPUA",
@@ -259,7 +264,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "IsPUAPaidOnDth",
    signature = "IPUA",
@@ -267,7 +271,6 @@ setMethod(
       return(object@PUAPaidOnDth)
    }
 )
-
 
 setMethod(
    f = "IsPUAPaidOnMat",
@@ -277,7 +280,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "IsPUAPaidOnSur",
    signature = "IPUA",
@@ -285,7 +287,6 @@ setMethod(
       return(object@PUAPaidOnSur)
    }
 )
-
 
 setMethod(
    f = "IsPUAPaidOnDth<-",
@@ -297,7 +298,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "IsPUAPaidOnMat<-",
    signature = "IPUA",
@@ -307,7 +307,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "IsPUAPaidOnSur<-",
@@ -319,7 +318,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "ProjPrem",
    signature = "IPUA",
@@ -328,7 +326,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "ProjComm",
    signature = "IPUA",
@@ -336,7 +333,6 @@ setMethod(
       stop("Method 'ProjComm' cannot be invoked by a class of or extending 'IPlan.UPA' class.")
    }
 )
-
 
 setMethod(
    f = "ProjPUA",
@@ -358,7 +354,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "ProjDthBen",
    signature = "IPUA",
@@ -370,7 +365,6 @@ setMethod(
       return(resultContainer)
    }
 )
-
 
 setMethod(
    f = "ProjMatBen",
@@ -386,7 +380,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetCVRateVector",
    signature = "IPUA",
@@ -394,7 +387,6 @@ setMethod(
       callNextMethod()
    }
 )
-
 
 setMethod(
    f = "ProjCV",
@@ -405,7 +397,6 @@ setMethod(
       return(resultContainer)
    }
 )
-
 
 setMethod(
    f = "ProjSurBen",
@@ -419,8 +410,6 @@ setMethod(
    }
 )
 
-
-
 setMethod(
    f = "ProjRein",
    signature = "IPUA",
@@ -428,7 +417,6 @@ setMethod(
       stop("Method 'ProjRein' cannot be invoked by a class of or extending 'IPlan.UPA' class.")
    }
 )
-
 
 setMethod(
    f = "Project",
@@ -442,20 +430,6 @@ setMethod(
       return(resultContainer)
    }
 )
-
-
-setMethod(
-   f = "SaveAsRda",
-   signature = "IPUA",
-   definition = function(object, overwrite = FALSE) {
-      stopifnot(HasValue(id <- GetId(object)))
-      rdaName <- ifelse(startsWith(id, "PUA."), id, paste0("PUA.", id))
-      eval(parse(text = paste(rdaName, "<- object")))
-      eval(parse(text = paste("usethis::use_data(", rdaName, ", overwrite = ", overwrite, ")")))
-   }
-)
-
-
 
 
 

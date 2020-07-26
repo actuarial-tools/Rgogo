@@ -67,7 +67,9 @@ setValidity(
    }
 )
 
-Table.AABY <- function(minAge, maxAge, minBirthYear, maxBirthYear, tBase, tValue = NA, fillByAge = TRUE){
+Table.AABY <- function(minAge, maxAge, minBirthYear, maxBirthYear, tBase, tValue = NA, fillByAge = TRUE,
+                       source = character(0L), createdBy = character(0L),
+                       id = character(0L), descrip = character(0L)) {
    stopifnot(minBirthYear >= 1900, minBirthYear <= 9999, maxBirthYear >= 1900, maxBirthYear <= 9999, minBirthYear <= maxBirthYear)
    tbl <- new(Class = "Table.AABY")
    tbl@TValue <- matrix(data = tValue,
@@ -81,7 +83,12 @@ Table.AABY <- function(minAge, maxAge, minBirthYear, maxBirthYear, tBase, tValue
    tbl@MinYear <- as.integer(minBirthYear)
    tbl@MaxYear <- as.integer(maxBirthYear)
    tbl@TBase <- as.numeric(tBase)
+   tbl@Source <- as.character(source)
+   tbl@CreatedBy <- as.character(createdBy)
    tbl@CreatedAt <- Sys.time()
+   tbl@Id <- as.character(id)
+   tbl@Descrip <- as.character(descrip)
+   validObject(tbl)
    return(tbl)
 }
 

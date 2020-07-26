@@ -2,8 +2,9 @@
 setClass(Class = "Model.UPR", contains = "IModel")
 
 
-Model.UPR <- function(args = ArgSet.UPR()) {
-   model <- new(Class = "Model.UPR", Id = "UPR", Args = args)
+Model.UPR <- function(args = ArgSet.UPR(), id = character(0L), descrip = as.character(0L)) {
+   model <- new(Class = "Model.UPR", Args = args, Descrip = as.character(descrip))
+   SetModelId(model) <- as.character(id)
    return(model)
 }
 

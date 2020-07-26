@@ -3,9 +3,9 @@
 NULL
 setClass(Class = "Model.ScnrSet", contains = c("IModel"))
 
-
-Model.ScnrSet <- function(args) {
-   model <- new(Class = "Model.ScnrSet", Id = character(0L), Args = args)
+Model.ScnrSet <- function(args, id = character(0L), descrip = character(0L)) {
+   model <- new(Class = "Model.ScnrSet", Args = args, Descrip = as.character(descrip))
+   SetModelId(model) <- as.character(id)
    return(model)
 }
 

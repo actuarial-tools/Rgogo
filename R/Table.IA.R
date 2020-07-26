@@ -43,7 +43,9 @@ setValidity(
    }
 )
 
-Table.IA <- function(minAge, maxAge, tBase, tValue = NA) {
+Table.IA <- function(minAge, maxAge, tBase, tValue = NA,
+                     source = character(0L), createdBy = character(0L),
+                     id = character(0L), descrip = character(0L)) {
    tbl <- new(Class = "Table.IA")
    tbl@TValue <- matrix(data = tValue,
                         nrow = maxAge - minAge + 1,
@@ -53,7 +55,12 @@ Table.IA <- function(minAge, maxAge, tBase, tValue = NA) {
    tbl@MinAge <- as.integer(minAge)
    tbl@MaxAge <- as.integer(maxAge)
    tbl@TBase <- as.numeric(tBase)
+   tbl@Source <- as.character(source)
+   tbl@CreatedBy <- as.character(createdBy)
    tbl@CreatedAt <- Sys.time()
+   tbl@Id <- as.character(id)
+   tbl@Descrip <- as.character(descrip)
+   validObject(tbl)
    return(tbl)
 }
 

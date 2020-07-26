@@ -4,8 +4,9 @@ setClass(
    slots = (Args = "IArgSet.ResProj")
 )
 
-Model.ResProj <- function(args) {
-   model <- new(Class = "Model.ResProj", Args = args)
+Model.ResProj <- function(args, id = character(0L), descrip = character(0L)) {
+   model <- new(Class = "Model.ResProj", Args = args, Descrip = as.character(descrip))
+   SetModelId(model) <- as.character(id)
    return(model)
 }
 

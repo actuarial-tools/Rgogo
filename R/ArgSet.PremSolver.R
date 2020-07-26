@@ -99,7 +99,7 @@ ArgSet.PremSolver <- function(projStartDate,
                               tolerance = 10^-4,
                               id = character(0L),
                               descrip = character(0L)) {
-   args <- new(
+   arg <- new(
       Class = "ArgSet.PremSolver",
       ProjStartDate = lubridate::as_date(projStartDate),
       PricIssAge = pricIssAge,
@@ -118,10 +118,10 @@ ArgSet.PremSolver <- function(projStartDate,
       ApplyIntrMargin = applyIntrMargin,
       Interval = c(min(interval), max(interval)),
       Tolerance = tolerance,
-      Id = id,
-      Descrip = descrip
+      Descrip = as.character(descrip)
    )
-   return(args)
+   SetArgSetId(arg) <- as.character(id)
+   return(arg)
 }
 
 setMethod(

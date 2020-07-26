@@ -8,6 +8,44 @@ setClass(
 
 setClassUnion(name = "character_or_IArgSet", members = c("character", "IArgSet"))
 
+setValidity(
+   Class = "IArgSet",
+   method = function(object) {
+      err <- New.SysMessage()
+      if (length(object@Id) > 0) {
+         if (!startsWith(object@Id, "ArgSet.")) {
+            AddMessage(err) <- "Invalid identifier.  It must contain the prefix 'ArgSet.'"
+         }
+      }
+      if (NoMessage(err)) {
+         return(TRUE)
+      } else {
+         return(GetMessage(err))
+      }
+   }
+)
+
+setMethod(
+   f = "GetArgSetId",
+   signature = "IArgSet",
+   definition = function(object) {
+      return(GetId(object))
+   }
+)
+
+setMethod(
+   f = "SetArgSetId<-",
+   signature = c("IArgSet", "character"),
+   definition = function(object, value) {
+      if (length(value) == 0) return(object)
+      if (!startsWith(value, "ArgSet.")) {
+         value <- paste0("ArgSet.", value)
+      }
+      SetId(object) <- value
+      return(object)
+   }
+)
+
 setMethod(
    f = "GetArgNames",
    signature = "IArgSet",

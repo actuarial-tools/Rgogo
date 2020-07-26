@@ -49,9 +49,9 @@ ArgSet.DCF <- function(projStartDate = "1900-01-01",
       ApplyLapseMargin = as.logical(applyLapseMargin),
       ApplyExpnsMargin = as.logical(applyExpnsMargin),
       ApplyIntrMargin = as.logical(applyIntrMargin),
-      Id = as.character(id),
       Descrip = as.character(descrip)
    )
+   SetArgSetId(arg) <- as.character(id)
    return(arg)
 }
 

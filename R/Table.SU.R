@@ -68,7 +68,9 @@ setValidity(
    }
 )
 
-Table.SU <- function(minSelAge, maxSelAge, selPeriod, maxAttAge, tBase, tValueSel = NA, fillByAge = TRUE, tValueUlt = NA) {
+Table.SU <- function(minSelAge, maxSelAge, selPeriod, maxAttAge, tBase, tValueSel = NA, fillByAge = TRUE, tValueUlt = NA,
+                     source = character(0L), createdBy = character(0L),
+                     id = character(0L), descrip = character(0L)) {
    tbl <- new(Class = "Table.SU")
    tbl@TValue <- matrix(data = tValueSel,
                         nrow = maxSelAge - minSelAge + 1,
@@ -86,7 +88,12 @@ Table.SU <- function(minSelAge, maxSelAge, selPeriod, maxAttAge, tBase, tValueSe
    tbl@SelPeriod <- as.integer(selPeriod)
    tbl@MaxAttAge <- as.integer(maxAttAge)
    tbl@TBase <- as.numeric(tBase)
+   tbl@Source <- as.character(source)
+   tbl@CreatedBy <- as.character(createdBy)
    tbl@CreatedAt <- Sys.time()
+   tbl@Id <- as.character(id)
+   tbl@Descrip <- as.character(descrip)
+   validObject(tbl)
    return(tbl)
 }
 

@@ -9,7 +9,6 @@ setClass(
    )
 )
 
-
 setValidity(
    Class = "IPlan.End",
    method = function(object) {
@@ -27,8 +26,11 @@ setValidity(
    }
 )
 
-
-IPlan.End <- function(planId = character(), covYears = NA, covToAge = NA, premYears = NA, premToAge = NA) {
+IPlan.End <- function(covYears = NA, covToAge = NA, premYears = NA, premToAge = NA,
+                      premTable = character(0L), modFactor = c("1" = 1, "2" = 0.5, "4" = 0.25, "12" = 1/12),
+                      polFee = numeric(0), premTaxRate = numeric(0L), cvTable = character(0L),
+                      commSchd = numeric(0L), ovrdOnPremSchd = numeric(0L), ovrdOnCommSchd = numeric(0L),
+                      rein = character(0L), planId = character(0L), descrip = character(0L)) {
    stopifnot(any(!is.na(c(covYears, covToAge))))
    covPeriod <- c(CovYears = covYears, CovToAge = as.integer(covToAge))
    covPeriod <- covPeriod[!is.na(covPeriod)]
@@ -39,13 +41,22 @@ IPlan.End <- function(planId = character(), covYears = NA, covToAge = NA, premYe
    }
    premPeriod <- premPeriod[!is.na(premPeriod)]
    plan <- new(Class = "IPlan.End",
-               Id = as.character(planId),
                CovPeriod = covPeriod,
-               PremPeriod = premPeriod
+               PremPeriod = premPeriod,
+               PremTable = premTable,
+               ModFactor = modFactor,
+               PolFee = polFee,
+               CVTable = cvTable,
+               CommSchd = commSchd,
+               OvrdOnPremSchd = ovrdOnPremSchd,
+               OvrdOnCommSchd = ovrdOnCommSchd,
+               PremTaxRate = premTaxRate,
+               Rein = rein,
+               Descrip = as.character(descrip)
    )
+   SetPlanId(plan) <- as.character(planId)
    return(plan)
 }
-
 
 setMethod(
    f = "GetCVTable",
@@ -64,7 +75,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetCVTable<-",
    signature = "IPlan.End",
@@ -74,7 +84,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetCVRateVector",
@@ -94,7 +103,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "ProjMatBen",
    signature = "IPlan.End",
@@ -106,7 +114,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "ProjCV",
    signature = "IPlan.End",
@@ -117,7 +124,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "ProjSurBen",
    signature = "IPlan.End",
@@ -127,7 +133,6 @@ setMethod(
       return(resultContainer)
    }
 )
-
 
 setMethod(
    f = "Project",

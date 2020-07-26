@@ -10,13 +10,13 @@ setGeneric(name = "SetTestItem<-", def = function(object, value) {standardGeneri
 setClass(Class = "Model.ScnrTest", contains = c("IModel"))
 
 
-Model.ScnrTest <- function(args) {
+Model.ScnrTest <- function(args, id = character(0L), descrip = character(0L)) {
    model <- new(
       Class = "Model.ScnrTest",
       Args = args,
-      id = character(0L),
-      descrip = character(0L)
+      descrip = as.character(descrip)
    )
+   SetModelId(model) <- as.character(id)
    return(model)
 }
 

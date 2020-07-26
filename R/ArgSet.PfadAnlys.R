@@ -24,13 +24,13 @@ setValidity(
 )
 
 ArgSet.PfadAnlys <- function(valuModel, id = character(0L), descrip = character(0L)) {
-   args <- new(
+   arg <- new(
       Class = "ArgSet.PfadAnlys",
       ValuModel = valuModel,
-      Id = as.character(id),
       Descrip = as.character(descrip)
    )
-   return(args)
+   SetArgSetId(arg) <- as.character(id)
+   return(arg)
 }
 
 setMethod(

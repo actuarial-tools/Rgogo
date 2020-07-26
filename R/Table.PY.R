@@ -32,7 +32,9 @@ setValidity(
    }
 )
 
-Table.PY <- function(maxPolYear, tBase, tValue = NA) {
+Table.PY <- function(maxPolYear, tBase, tValue = NA,
+                     source = character(0L), createdBy = character(0L),
+                     id = character(0L), descrip = character(0L)) {
    tbl <- new(Class = "Table.PY")
    tbl@TValue <- matrix(data = tValue,
                         nrow = maxPolYear,
@@ -41,7 +43,12 @@ Table.PY <- function(maxPolYear, tBase, tValue = NA) {
    )
    tbl@MaxPolYear <- as.integer(maxPolYear)
    tbl@TBase <- as.numeric(tBase)
+   tbl@Source <- as.character(source)
+   tbl@CreatedBy <- as.character(createdBy)
    tbl@CreatedAt <- Sys.time()
+   tbl@Id <- as.character(id)
+   tbl@Descrip <- as.character(descrip)
+   validObject(tbl)
    return(tbl)
 }
 

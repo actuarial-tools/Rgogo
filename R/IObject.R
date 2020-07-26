@@ -63,10 +63,21 @@ setMethod(
    }
 )
 
+# setMethod(
+#    f = "SaveAsRda",
+#    signature = "IObject",
+#    definition = function(object, overwrite = FALSE) {
+#       stop("Method 'SaveAsRda' must be implemented by class that extends 'IObject'.")
+#    }
+# )
+
 setMethod(
    f = "SaveAsRda",
    signature = "IObject",
    definition = function(object, overwrite = FALSE) {
-      stop("Method 'SaveAsRda' must be implemented by class that extends 'IObject'.")
+      stopifnot(HasValue(rda <- GetId(object)))
+      eval(parse(text = paste(rda, "<- object")))
+      eval(parse(text = paste("usethis::use_data(", rda, ", overwrite = ", overwrite, ")")))
+      return(paste0(rda, " is deployed successfully."))
    }
 )

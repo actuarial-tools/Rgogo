@@ -12,8 +12,14 @@ setClass(
 )
 
 
-IntrAssump <- function(id = character(), rate = 0, pfad = 0) {
-   assump <- new(Class = "IntrAssump", Id = id, IntrRate = rate, IntrPfad = pfad)
+IntrAssump <- function(rate = 0, pfad = 0, id = character(0), descrip = character()) {
+   assump <- new(
+      Class = "IntrAssump",
+      IntrRate = rate,
+      IntrPfad = pfad,
+      Descrip = as.character(descrip)
+   )
+   SetAssumpId(assump) <- as.character(id)
    return(assump)
 }
 

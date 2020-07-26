@@ -3,8 +3,9 @@ NULL
 
 setClass(Class = "Model.DCF", contains = "IModel")
 
-Model.DCF <- function(args = ArgSet.DCF()) {
-   model <- new(Class = "Model.DCF", Id = "DCF", Args = args)
+Model.DCF <- function(args = ArgSet.DCF(), id = character(0L), descrip = character(0L)) {
+   model <- new(Class = "Model.DCF", Args = args, Descrip = as.character(descrip))
+   SetModelId(model) <- as.character(id)
    return(model)
 }
 

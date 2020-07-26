@@ -1,8 +1,9 @@
 setClass(Class = "Model.PfadAnlys", contains = "IModel")
 
 
-Model.PfadAnlys <- function(id, args) {
-   model <- new(Class = "Model.PfadAnlys", Id = id, Args = args)
+Model.PfadAnlys <- function(args, id = character(0L), descrip = character(0L)) {
+   model <- new(Class = "Model.PfadAnlys", Args = args, Descrip = as.character(descrip))
+   SetModelId(model) <- as.character(id)
    return(model)
 }
 

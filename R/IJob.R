@@ -1,11 +1,8 @@
 #' @include IModel.R
 NULL
 
-
 setClassUnion(name = "function_or_character", members = c("function", "character"))
 setClassUnion(name = "logical_or_character", members = c("logical", "character"))
-setGeneric(name = "SetDispatcher<-", def = function(object, func) {standardGeneric("SetDispatcher<-")})
-
 
 setClass(
    Class = "IJob",
@@ -18,6 +15,43 @@ setClass(
    )
 )
 
+setValidity(
+   Class = "IJob",
+   method = function(object) {
+      err <- New.SysMessage()
+      if (length(object@Id) > 0) {
+         if (!startsWith(object@Id, "Job.")) {
+            AddMessage(err) <- "Invalid identifier.  It must contain the prefix 'Job.'"
+         }
+      }
+      if (NoMessage(err)) {
+         return(TRUE)
+      } else {
+         return(GetMessage(err))
+      }
+   }
+)
+
+setMethod(
+   f = "GetJobId",
+   signature = "IJob",
+   definition = function(object) {
+      return(GetId(object))
+   }
+)
+
+setMethod(
+   f = "SetJobId<-",
+   signature = c("IJob", "character"),
+   definition = function(object, value) {
+      if (length(value) == 0) return(object)
+      if (!startsWith(value, "Job.")) {
+         value <- paste0("Job.", value)
+      }
+      SetId(object) <- value
+      return(object)
+   }
+)
 
 setMethod(
    f = "GetInpVars",
@@ -26,7 +60,6 @@ setMethod(
       return(object@InpVars)
    }
 )
-
 
 setMethod(
    f = "SetInpVars<-",
@@ -38,7 +71,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "SetDispatcher<-",
    signature = "IJob",
@@ -47,7 +79,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "ExportToRda<-",
@@ -58,7 +89,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "ExportToRda",
@@ -71,7 +101,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "ExportToExcel<-",
    signature = "IJob",
@@ -81,7 +110,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "ExportToExcel",
@@ -94,7 +122,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "Initialize",
    signature = "IJob",
@@ -104,7 +131,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "Dispatch",
    signature = "IJob",
@@ -112,7 +138,6 @@ setMethod(
       return(do.call(object@Dispatcher, list(inpVar)))
    }
 )
-
 
 setMethod(
    f = "Run",
@@ -140,7 +165,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "Finalize",
    signature = "IJob",
@@ -149,7 +173,6 @@ setMethod(
       return(jobResult)
    }
 )
-
 
 setMethod(
    f = "RunParallel",
@@ -192,15 +215,4 @@ setMethod(
    }
 )
 
-
-setMethod(
-   f = "SaveAsRda",
-   signature = "IJob",
-   definition = function(object, overwrite = FALSE) {
-      stopifnot(HasValue(id <- GetId(object)))
-      rdaName <- paste0("Job", id)
-      eval(parse(text = paste(rdaName, "<- object")))
-      eval(parse(text = paste("usethis::use_data(", rdaName, ", overwrite = ", overwrite, ")")))
-   }
-)
 
