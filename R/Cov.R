@@ -20,17 +20,6 @@ setClass(
    )
 )
 
-# Cov <- function(...) {
-#    cov <- new(Class = "Cov")
-#    args <- list(...)
-#    argNames <- names(args)
-#    for (argName in argNames[argNames %in% slotNames(cov)]) {
-#       slot(cov, argName) <- args[[argName]]
-#    }
-#    validObject(cov)
-#    return(cov)
-# }
-
 Cov <- function(issDate,
                 issAge,
                 riskClass,
