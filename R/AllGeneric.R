@@ -416,3 +416,6 @@ setGeneric(name = "SetDispatcher<-", def = function(object, func) {standardGener
 setGeneric(name = "GetPUAId", def = function(object) {standardGeneric("GetPUAId")})
 setGeneric(name = "SetPUAId<-", def = function(object, value) {standardGeneric("SetPUAId<-")})
 
+setGeneric(name = "GetDthTiming", def = function(object) {standardGeneric("GetDthTiming")})
+setGeneric(name = "SetDthTiming<-", def = function(object, value) {standardGeneric("SetDthTiming<-")})
+
