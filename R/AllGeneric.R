@@ -419,3 +419,8 @@ setGeneric(name = "SetPUAId<-", def = function(object, value) {standardGeneric("
 setGeneric(name = "GetDthTiming", def = function(object) {standardGeneric("GetDthTiming")})
 setGeneric(name = "SetDthTiming<-", def = function(object, value) {standardGeneric("SetDthTiming<-")})
 
+
+setGeneric(name = "GetMessage", def = function(object) {standardGeneric("GetMessage")})
+setGeneric(name = "AddMessage<-", def = function(object, value) {standardGeneric("AddMessage<-")})
+setGeneric(name = "NoMessage", def = function(object) {standardGeneric("NoMessage")})
+
