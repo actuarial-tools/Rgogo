@@ -30,7 +30,7 @@ setMethod(
       t <- covProjTimeIndex[covProjTimeIndex >= 0]
       s <- t %% 1
       j <- ShiftRight(i, positions = 1, filler = 0)
-      v <- cumprod((1 + j) ^ (-1 / 12)) * (1 + i) ^ (-s)
+      v <- cumprod((1 + j) ^ (-1 / 12)) * (1 + i) ^ (-s / 12)
       cf <- result$Cf
       result$PV <- data.frame(
          CovId = ifelse(length(GetId(var)) > 0, GetId(var), NA),
