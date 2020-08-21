@@ -1,17 +1,17 @@
 #' @include IObject.R
 NULL
 
-setClass(Class = "IMortAssump", contains = c("IObject", "VIRTUAL"))
+setClass(Class = "IPremAssump", contains = c("IObject", "VIRTUAL"))
 
-setClassUnion(name = "character_or_IMortAssump", members = c("character", "IMortAssump"))
+setClassUnion(name = "character_or_IPremAssump", members = c("character", "IPremAssump"))
 
 setValidity(
-   Class = "IMortAssump",
+   Class = "IPremAssump",
    method = function(object) {
       err <- New.SysMessage()
       if (length(object@Id) > 0) {
-         if (!startsWith(object@Id, "MortAssump.")) {
-            AddMessage(err) <- "Invalid identifier.  It must contain the prefix 'MortAssump.'"
+         if (!startsWith(object@Id, "PremAssump.")) {
+            AddMessage(err) <- "Invalid identifier.  It must contain the prefix 'PremAssump.'"
          }
       }
       if (NoMessage(err)) {
@@ -24,7 +24,7 @@ setValidity(
 
 setMethod(
    f = "GetAssumpId",
-   signature = "IMortAssump",
+   signature = "IPremAssump",
    definition = function(object) {
       return(GetId(object))
    }
@@ -32,11 +32,11 @@ setMethod(
 
 setMethod(
    f = "SetAssumpId<-",
-   signature = c("IMortAssump", "character"),
+   signature = c("IPremAssump", "character"),
    definition = function(object, value) {
       if (length(value) == 0) return(object)
-      if (!startsWith(value, "MortAssump.")) {
-         value <- paste0("MortAssump.", value)
+      if (!startsWith(value, "PremAssump.")) {
+         value <- paste0("PremAssump.", value)
       }
       SetId(object) <- value
       return(object)
@@ -45,25 +45,26 @@ setMethod(
 
 setMethod(
    f = "GetExpdAssump",
-   signature = "IMortAssump",
+   signature = "IPremAssump",
    definition = function(object, cov, plan, assumpInfo, ...) {
-      stop("Method 'GetExpdAssump' must be implemented by a class extending 'IMortAssump'.")
+      stop("Method 'GetExpdAssump' must be implemented by a class extending 'IPremAssump'.")
    }
 )
 
 setMethod(
    f = "GetPaddAssump",
-   signature = "IMortAssump",
+   signature = "IPremAssump",
    definition = function(object, cov, plan, assumpInfo, ...) {
-      stop("Method 'GetPaddAssump' must be implemented by a class extending 'IMortAssump'.")
+      stop("Method 'GetPaddAssump' must be implemented by a class extending 'IPremAssump'.")
    }
 )
 
 setMethod(
    f = "GetAssump",
-   signature = "IMortAssump",
+   signature = "IPremAssump",
    definition = function(object, cov, plan, assumpInfo, ...) {
-      stop("Method 'GetAssump' must be implemented by a class extending 'IMortAssump'.")
+      stop("Method 'GetAssump' must be implemented by a class extending 'IPremAssump'.")
    }
 )
+
 

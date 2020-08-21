@@ -424,3 +424,15 @@ setGeneric(name = "GetMessage", def = function(object) {standardGeneric("GetMess
 setGeneric(name = "AddMessage<-", def = function(object, value) {standardGeneric("AddMessage<-")})
 setGeneric(name = "NoMessage", def = function(object) {standardGeneric("NoMessage")})
 
+setGeneric(name = "GetPremAdj", def = function(object, ...) {standardGeneric("GetPremAdj")})
+setGeneric(name = "SetPremAdj<-", def = function(object, value) {standardGeneric("SetPremAdj<-")})
+setGeneric(name = "GetPremPfad", def = function(object, ...) {standardGeneric("GetPremPfad")})
+setGeneric(name = "SetPremPfad<-", def = function(object, value) {standardGeneric("SetPremPfad<-")})
+
+setGeneric(name = "SetLoanIntrRate<-", def = function(object, value) {standardGeneric("SetLoanIntrRate<-")})
+setGeneric(name = "SetLoanIntrRateType<-", def = function(object, value) {standardGeneric("SetLoanIntrRateType<-")})
+
+setGeneric(name = "GetSurvAnuBenPct", def = function(object) {standardGeneric("GetSurvAnuBenPct")})
+setGeneric(name = "SetSurvAnuBenPct<-", def = function(object, value) {standardGeneric("SetSurvAnuBenPct<-")})
+
+

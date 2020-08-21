@@ -79,9 +79,9 @@ MortAssump <- function(mortTable = character(0L),
       ExtraMortTableMult = extraMortTableMult,
       MortImprovRate = mortImprovRate,
       MortPfad = mortPfad,
-      Id = as.character(id),
       Descrip = as.character(descrip)
    )
+   SetAssumpId(assump) <- as.character(id)
    return(assump)
 }
 

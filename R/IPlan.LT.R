@@ -96,7 +96,7 @@ setValidity(
          AddMessage(err) <- "Invaid premium tax rate.  Tax rate must be between 0 and 1."
       }
       #Validate @Rein
-      vg <- Validator.Names(hasNames = (length(object@Rein) > 1))
+      vg <- Validator.Names(hasNames = (length(object@Rein) >= 1))
       if (Validate(vg, object@Rein) != TRUE) {
          AddMessage(err) <- "Invalid reinsurance setting."
       }
@@ -112,7 +112,7 @@ IPlan.LT <- function(covYears = NA, covToAge = NA, premYears = NA, premToAge = N
                      premTable = character(0L), modFactor = c("1" = 1, "2" = 0.5, "4" = 0.25, "12" = 1/12),
                      polFee = numeric(0), premTaxRate = numeric(0L),
                      commSchd = numeric(0L), ovrdOnPremSchd = numeric(0L), ovrdOnCommSchd = numeric(0L),
-                     rein = character(0L), planId = character(0L), descrip = character(0L)) {
+                     rein = character(0L), id = character(0L), descrip = character(0L)) {
    stopifnot(any(!is.na(c(covYears, covToAge))))
    covPeriod <- c(CovYears = covYears, CovToAge = as.integer(covToAge))
    covPeriod <- covPeriod[!is.na(covPeriod)]
@@ -135,7 +135,7 @@ IPlan.LT <- function(covYears = NA, covToAge = NA, premYears = NA, premToAge = N
                Rein = rein,
                Descrip = as.character(descrip)
    )
-   SetPlanId(plan) <- as.character(planId)
+   SetPlanId(plan) <- as.character(id)
    return(plan)
 }
 

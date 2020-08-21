@@ -11,20 +11,28 @@ setValidity(
    Class = "IPlan.NLT",
    method = function(object) {
       err <- New.SysMessage()
-      isValid <- Validate(Validator.InList(c(0, 1)), object@DthBenIntraYearMthd)
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 0, maxLen = 1),
+            Validator.InList(c(0, 1))
+         ),
+         object@DthBenIntraYearMthd
+      )
       if (isValid != TRUE) {
-         AddMessage(err) <- "@DthBenIntraYearMthd slot value is invalid.  It must be 0L (death benefit stays constant during a policy year) or 1L (mid-year death benefit is interpolated by policy month)."
+         AddMessage(err) <- "@DthBenIntraYearMthd slot value is invalid.  It must be 0L or 1L."
+         # 0L: death benefit stays constant during a policy year
+         # 1L: mid-year death benefit is interpolated by policy month
       }
       if (NoMessage(err)) return(TRUE) else return(GetMessage(err))
    }
 )
 
 IPlan.NLT <- function(covYears = NA, covToAge = NA, premYears = NA, premToAge = NA,
+                      dthBenSchd, dthBenIntraYearMthd = 0L,
                       premTable = character(0L), modFactor = c("1" = 1, "2" = 0.5, "4" = 0.25, "12" = 1/12),
                       polFee = numeric(0), premTaxRate = numeric(0L),
-                      dthBenSchd, dthBenIntraYearMthd = 0L,
                       commSchd = numeric(0L), ovrdOnPremSchd = numeric(0L), ovrdOnCommSchd = numeric(0L),
-                      rein = character(0L), planId = character(0L), descrip = character(0L)) {
+                      rein = character(0L), id = character(0L), descrip = character(0L)) {
    stopifnot(any(!is.na(c(covYears, covToAge))))
    covPeriod <- c(CovYears = covYears, CovToAge = as.integer(covToAge))
    covPeriod <- covPeriod[!is.na(covPeriod)]
@@ -37,28 +45,29 @@ IPlan.NLT <- function(covYears = NA, covToAge = NA, premYears = NA, premToAge = 
    plan <- new(Class = "IPlan.NLT",
                CovPeriod = covPeriod,
                PremPeriod = premPeriod,
+               DthBenSchd = dthBenSchd,
+               DthBenIntraYearMthd = dthBenIntraYearMthd,
                PremTable = premTable,
                ModFactor = modFactor,
                PolFee = polFee,
                PremTaxRate = premTaxRate,
-               DthBenSchd = dthBenSchd,
-               DthBenIntraYearMthd = dthBenIntraYearMthd,
                CommSchd = commSchd,
                OvrdOnPremSchd = ovrdOnPremSchd,
                OvrdOnCommSchd = ovrdOnCommSchd,
                Rein = rein,
                Descrip = as.character(descrip)
    )
-   SetPlanId(plan) <- as.character(planId)
+   SetPlanId(plan) <- as.character(id)
    return(plan)
 }
-
 
 setMethod(
    f = "GetDthBenSchd",
    signature = "IPlan.NLT",
    definition = function(object, cov = NULL) {
-      if (is.null(cov)) {return(object@DthBenSchd)}
+      if (is.null(cov)) {
+         return(object@DthBenSchd)
+      }
       covMonths <- GetCovMonths(object, cov)
       dthBenSchd <- GetDthBenSchd(object)
       intraYearMthd <- GetDthBenIntraYearMthd(object)
@@ -76,10 +85,9 @@ setMethod(
       } else {
          stop("DthBenIntraYearMthd has an invalid value.")
       }
-      return(c(d, 0))
+      return(c(0, d))
    }
 )
-
 
 setMethod(
    f = "SetDthBenSchd<-",
@@ -91,7 +99,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetDthBenIntraYearMthd",
    signature = "IPlan.NLT",
@@ -99,7 +106,6 @@ setMethod(
       return(object@DthBenIntraYearMthd)
    }
 )
-
 
 setMethod(
    f = "SetDthBenIntraYearMthd<-",
@@ -110,7 +116,6 @@ setMethod(
       return(object)
    }
 )
-
 
 setMethod(
    f = "ProjDthBen",

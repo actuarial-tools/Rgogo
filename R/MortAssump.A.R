@@ -1,26 +1,31 @@
 #' @include MortAssump.R
 NULL
 
-
 # MortAssump.A differs from MortAssump in how margin is applied when determining the padded assumption.
 # Margin is applied as an multiple extra to the expected assumption; i.e. q.Padd = q.Expd * (1 + pfad).
 setClass(Class = "MortAssump.A", contains = c("MortAssump"))
 
-
-# Consturctor for Mortality Assumption
-MortAssump.A <- function(id = character()) {
+MortAssump.A <- function(mortTable = character(0L),
+                         mortTableMult = 1,
+                         extraMortTable = character(0L),
+                         extraMortTableMult = 1,
+                         mortImprovRate = 0,
+                         mortPfad = 0,
+                         id = character(0L),
+                         descrip = character(0L)) {
    assump <- new(
       Class = "MortAssump.A",
-      Id = as.character(id),
-      MortTableMult = 1,
-      ExtraMortTableMult = 1,
-      MortImprovRate = 0,
-      MortPfad = 0
+      MortTable = mortTable,
+      MortTableMult = mortTableMult,
+      ExtraMortTable = extraMortTable,
+      ExtraMortTableMult = extraMortTableMult,
+      MortImprovRate = mortImprovRate,
+      MortPfad = mortPfad,
+      Descrip = as.character(descrip)
    )
+   SetAssumpId(assump) <- as.character(id)
    return(assump)
 }
-
-
 
 setMethod(
    f = "GetMargin",
