@@ -435,4 +435,11 @@ setGeneric(name = "SetLoanIntrRateType<-", def = function(object, value) {standa
 setGeneric(name = "GetSurvAnuBenPct", def = function(object) {standardGeneric("GetSurvAnuBenPct")})
 setGeneric(name = "SetSurvAnuBenPct<-", def = function(object, value) {standardGeneric("SetSurvAnuBenPct<-")})
 
+setGeneric(name = "Create", def = function(object, ...) {standardGeneric("Create")})
+setGeneric(name = "GetPath", def = function(object) {standardGeneric("GetPath")})
+setGeneric(name = "ReadDescripFile", def = function(object) {standardGeneric("ReadDescripFile")})
+setGeneric(name = "ReadNamespaceFile", def = function(object) {standardGeneric("ReadNamespaceFile")})
+setGeneric(name = "WriteDescripFile", def = function(object, descripFields) {standardGeneric("WriteDescripFile")})
+setGeneric(name = "WriteNamespaceFile", def = function(object, content) {standardGeneric("WriteNamespaceFile")})
+
 
