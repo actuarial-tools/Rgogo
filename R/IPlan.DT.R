@@ -121,7 +121,7 @@ setMethod(
          intrRate = GetLoanIntrRate(object),
          intrRateType = GetLoanIntrRateType(object)
       )
-      return(c(0, loanAmortInfo$LoanBalance))
+      return(loanAmortInfo$LoanBalance)
    }
 )
 

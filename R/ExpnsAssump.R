@@ -132,8 +132,10 @@ setMethod(
    signature = "ExpnsAssump",
    definition = function(object, cov, plan, assumpInfo, projStartDate) {
       tInfo <- assumpInfo$Timeline
-      expns <- c(rep(object@MEPerPol / 12, length.out = GetProjLen(tInfo) - 1), 0)
-      inflAdj <- .GetInflAdjVector(object@MEPerPolInflRate, GetProjLen(tInfo))
+      # expns <- c(rep(object@MEPerPol / 12, length.out = GetProjLen(tInfo) - 1), 0)
+      projLen <- GetProjLen(tInfo)
+      expns <- rep(object@MEPerPol / 12, length.out = projLen)
+      inflAdj <- .GetInflAdjVector(object@MEPerPolInflRate, projLen)
       me.PerPol.Expd <- expns * inflAdj * (GetProjTimeline(tInfo) >= GetIssDate(cov))
       names(me.PerPol.Expd) <- NULL
       assumpInfo$me.PerPol.Expd <- me.PerPol.Expd
@@ -148,7 +150,8 @@ setMethod(
       tInfo <- assumpInfo$Timeline
       projLen <- GetProjLen(tInfo)
       if (!is.null(assumpInfo$Proj$Prem)) {
-         prem <- c(rep(0, length.out = projLen - GetCovProjLen(tInfo)), assumpInfo$Proj$Prem[GetCovProjTimeIndex(tInfo) >= 0])
+         # prem <- c(rep(0, length.out = projLen - GetCovProjLen(tInfo)), assumpInfo$Proj$Prem[GetCovProjTimeIndex(tInfo) >= 0])
+         prem <- c(rep(0, length.out = projLen - GetCovProjLen(tInfo)), assumpInfo$Proj$Prem[GetProjPolMonths(tInfo)])
          expns <- rep(object@MEPerPrem, length.out = projLen)
          inflAdj <- .GetInflAdjVector(object@MEPerPremInflRate, projLen)
          me.PerPrem.Expd <- expns * inflAdj * (prem != 0)

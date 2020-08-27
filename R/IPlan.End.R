@@ -92,13 +92,13 @@ setMethod(
       covMonths <- GetCovMonths(object, cov)
       covYears <- ceiling(covMonths / 12)
       cvTable <- GetCVTable(object, cov)
-      if (is.null(cvTable)) {return(rep(0, covMonths + 1))}
+      if (is.null(cvTable)) {return(rep(0, covMonths))}
       cvFactor <- LookUp(cvTable, cov)[1:covYears]     # Cash value factors at the end of policy years
       cv1 <- matrix(data = cvFactor, nrow = covYears)     # Cash value factors at the end of policy years, in 1 by N matrix
       cv0 <- matrix(data = c(0, cvFactor)[1:covYears], nrow = covYears)     # Cash value factors at the beginning of policy years, in 1 by N matrix
       s <- matrix(data = seq(from = 1/12, to = 1, length.out = 12), ncol = 12)
       m <- cv0 %*% (1-s) + cv1 %*% s
-      cvRate <- c(0, as.vector(t(m))[1:covMonths])
+      cvRate <- as.vector(t(m))[1:covMonths]
       return(cvRate)
    }
 )
@@ -108,7 +108,7 @@ setMethod(
    signature = "IPlan.End",
    definition = function(object, cov, resultContainer) {
       covMonths <- GetCovMonths(object, cov)
-      matBen <- c(rep(0, covMonths), GetFaceAmt(cov))
+      matBen <- c(rep(0, covMonths - 1), GetFaceAmt(cov))
       resultContainer %<>% AddProjection(projItem = "Ben.Mat", projValue = matBen)
       return(resultContainer)
    }
@@ -138,6 +138,7 @@ setMethod(
    f = "Project",
    signature = "IPlan.End",
    definition = function(object, cov, resultContainer) {
+      resultContainer <- NewProjection(resultContainer, cov, object)
       resultContainer <- ProjPrem(object, cov, resultContainer)
       resultContainer <- ProjComm(object, cov, resultContainer)
       resultContainer <- ProjDthBen(object, cov, resultContainer)

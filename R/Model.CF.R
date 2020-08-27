@@ -27,9 +27,10 @@ setMethod(
       covMonths <- GetCovMonths(plan, cov)
       projStartDate <- GetArgValue(object, "ProjStartDate")
       result$Timeline <- GetProjTimelineInfo(projStartDate, cov, plan)
-      projPolMonths <- (1:(covMonths + 1))[GetCovProjTimeIndex(result$Timeline) >= 0]
+      # projPolMonths <- (1:(covMonths + 1))[GetCovProjTimeIndex(result$Timeline) >= 0]
       projLen <- GetProjLen(result$Timeline)
       covProjLen <- GetCovProjLen(result$Timeline)
+      projPolMonths <- GetProjPolMonths(result$Timeline)
 
       # Project policy values
       result <- Project(plan, cov, result)
@@ -43,7 +44,7 @@ setMethod(
       } else {
          qRate <- result$q.Expd
       }
-      q <- c(0, Convert_qx(qRate, 12L, "ud"))[1:(covMonths + 1)]
+      q <- Convert_qx(qRate, 12L, "ud")[1:covMonths]
 
       # Get lapse assumption information
       lapseAssump <- GetArgValue(object, "LapseAssump")
@@ -55,14 +56,14 @@ setMethod(
       }
       lapseMode <- ifelse(length(GetPremMode(cov)) == 0, 12L, GetPremMode(cov))
       wRate <- Convert_qx(wRate, lapseMode, "ud")
-      w <- c(0,unlist(lapply(as.list(wRate), function(x){return(c(rep(0, length.out = 12/lapseMode - 1), x))})))
-      w[(covMonths + 1):length(w)] <- 0
+      w <- unlist(lapply(as.list(wRate), function(x){return(c(rep(0, length.out = 12/lapseMode - 1), x))}))
+      w <- w[1:covMonths]
 
       # Get expense assumption information
       expnsAssump <- GetArgValue(object, "ExpnsAssump")
       result <- GetAssump(expnsAssump, cov, plan, result, projStartDate)
-      ae <- rep(0, length.out = GetProjLen(result$Timeline))
-      me <- rep(0, length.out = GetProjLen(result$Timeline))
+      ae <- rep(0, length.out = projLen)
+      me <- rep(0, length.out = projLen)
       if (GetArgValue(object, "ApplyExpnsMargin")) {
          if (!is.null(result$ae.PerPol.Padd)) {
             ae <- ae + result$ae.PerPol.Padd
@@ -99,46 +100,56 @@ setMethod(
 
       # Probability of survival and cashflow projection
       p <- 1 - q - w
-      np <- ShiftRight(cumprod(p), positions = 1, filler = 1)
-      np <- np / np[projPolMonths[1]]
+      pn <- ShiftRight(cumprod(p), positions = 1, filler = 1)
+      pn <- pn / pn[projPolMonths[1]]
       zeroCf <- rep(0, length.out = projLen - covProjLen)
+      IsBegPolMonth <- Is.WholeNumber(GetCovProjTimeIndex(result$Timeline)[projPolMonths[1]])
+
       if (!is.null(proj$Prem)) {
-         cfPrem <- proj$Prem[projPolMonths] * np[projPolMonths] * p[projPolMonths]
+         cfPrem <- proj$Prem[projPolMonths] * pn[projPolMonths]
          if (projLen > covProjLen) {
             cfPrem <- c(zeroCf, cfPrem)
+         } else if (!IsBegPolMonth) {
+            cfPrem[1] <- 0
          }
       } else {
          cfPrem <- rep(0, length.out = projLen)
       }
       # Premium tax cash flow
       if (!is.null(proj$Prem.Tax)) {
-         cfPremTax <- -proj$Prem.Tax[projPolMonths] * np[projPolMonths] * p[projPolMonths]
+         cfPremTax <- -proj$Prem.Tax[projPolMonths] * pn[projPolMonths]
          if (projLen > covProjLen) {
             cfPremTax <- c(zeroCf, cfPremTax)
+         } else if (!IsBegPolMonth) {
+            cfPremTax[1] <- 0
          }
       } else {
          cfPremTax <- rep(0, length.out = projLen)
       }
       # Commission and manager override cash flows
       if (!is.null(proj$Comm)) {
-         cfComm <- -proj$Comm[projPolMonths] * np[projPolMonths] * p[projPolMonths]
+         cfComm <- -proj$Comm[projPolMonths] * pn[projPolMonths]
          if (projLen > covProjLen) {
             cfComm <- c(zeroCf, cfComm)
+         } else if (!IsBegPolMonth) {
+            cfComm[1] <- 0
          }
       } else {
          cfComm <- rep(0, length.out = projLen)
       }
       if (!is.null(proj$Comm.Ovrd)) {
-         cfOvrd <- -proj$Comm.Ovrd[projPolMonths] * np[projPolMonths] * p[projPolMonths]
+         cfOvrd <- -proj$Comm.Ovrd[projPolMonths] * pn[projPolMonths]
          if (projLen > covProjLen) {
             cfOvrd <- c(zeroCf, cfOvrd)
+         } else if (!IsBegPolMonth) {
+            cfOvrd[1] <- 0
          }
       } else {
          cfOvrd <- rep(0, length.out = projLen)
       }
       # Death benefit cash flow
       if (!is.null(proj$Ben.Dth)) {
-         cfDthBen <- -proj$Ben.Dth[projPolMonths] * np[projPolMonths] * q[projPolMonths]
+         cfDthBen <- -proj$Ben.Dth[projPolMonths] * pn[projPolMonths] * q[projPolMonths]
          if (projLen > covProjLen) {
             cfDthBen <- c(zeroCf, cfDthBen)
          }
@@ -147,7 +158,7 @@ setMethod(
       }
       # PUA Death benefit cash flow
       if (!is.null(proj$Ben.Dth.PUA)) {
-         cfDthBenPUA <- -proj$Ben.Dth.PUA[projPolMonths] * np[projPolMonths] * q[projPolMonths]
+         cfDthBenPUA <- -proj$Ben.Dth.PUA[projPolMonths] * pn[projPolMonths] * q[projPolMonths]
          if (projLen > covProjLen) {
             cfDthBenPUA <- c(zeroCf, cfDthBenPUA)
          }
@@ -156,7 +167,7 @@ setMethod(
       }
       # Maturity benefit cash flow
       if (!is.null(proj$Ben.Mat)) {
-         cfMatBen <- -proj$Ben.Mat[projPolMonths] * np[projPolMonths] * p[projPolMonths]
+         cfMatBen <- -proj$Ben.Mat[projPolMonths] * pn[projPolMonths] * p[projPolMonths]
          if (projLen > covProjLen) {
             cfMatBen <- c(zeroCf, cfMatBen)
          }
@@ -165,7 +176,7 @@ setMethod(
       }
       # PUA Maturity benefit cash flow
       if (!is.null(proj$Ben.Mat.PUA)) {
-         cfMatBenPUA <- -proj$Ben.Mat.PUA[projPolMonths] * np[projPolMonths] * p[projPolMonths]
+         cfMatBenPUA <- -proj$Ben.Mat.PUA[projPolMonths] * pn[projPolMonths] * p[projPolMonths]
          if (projLen > covProjLen) {
             cfMatBenPUA <- c(zeroCf, cfMatBenPUA)
          }
@@ -174,7 +185,7 @@ setMethod(
       }
       # Surrender benefit cash flow
       if (!is.null(proj$Ben.Sur)) {
-         cfSurBen <- -proj$Ben.Sur[projPolMonths] * np[projPolMonths] * w[projPolMonths]
+         cfSurBen <- -proj$Ben.Sur[projPolMonths] * pn[projPolMonths] * w[projPolMonths]
          if (projLen > covProjLen) {
             cfSurBen <- c(zeroCf, cfSurBen)
          }
@@ -183,7 +194,7 @@ setMethod(
       }
       # PUA Surrender benefit cash flow
       if (!is.null(proj$Ben.Sur.PUA)) {
-         cfSurBenPUA <- -proj$Ben.Sur.PUA[projPolMonths] * np[projPolMonths] * w[projPolMonths]
+         cfSurBenPUA <- -proj$Ben.Sur.PUA[projPolMonths] * pn[projPolMonths] * w[projPolMonths]
          if (projLen > covProjLen) {
             cfSurBenPUA <- c(zeroCf, cfSurBenPUA)
          }
@@ -192,7 +203,7 @@ setMethod(
       }
       # Reinsurance cash flows.  Current reinsurance implementation is only for insurance only.  No reinsurance is assumed for annuity.
       if (!is.null(proj$Rein.Ben) & is.null(proj$Ben.Anu)) {
-         cfReinBen <- proj$Rein.Ben[projPolMonths] * np[projPolMonths] * q[projPolMonths]
+         cfReinBen <- proj$Rein.Ben[projPolMonths] * pn[projPolMonths] * q[projPolMonths]
          if (projLen > covProjLen) {
             cfReinBen <- c(zeroCf, cfReinBen)
          }
@@ -200,23 +211,27 @@ setMethod(
          cfReinBen <- rep(0, length.out = projLen)
       }
       if (!is.null(proj$Rein.Prem) & is.null(proj$Ben.Anu)) {
-         cfReinPrem <- -proj$Rein.Prem[projPolMonths] * np[projPolMonths] * p[projPolMonths]
+         cfReinPrem <- -proj$Rein.Prem[projPolMonths] * pn[projPolMonths]
          if (projLen > covProjLen) {
             cfReinPrem <- c(zeroCf, cfReinPrem)
+         } else if (!IsBegPolMonth) {
+            cfReinPrem[1] <- 0
          }
       } else {
          cfReinPrem <- rep(0, length.out = projLen)
       }
       if (!is.null(proj$Rein.Comm) & is.null(proj$Ben.Anu)) {
-         cfReinComm <- proj$Rein.Comm[projPolMonths] * np[projPolMonths] * p[projPolMonths]
+         cfReinComm <- proj$Rein.Comm[projPolMonths] * pn[projPolMonths]
          if (projLen > covProjLen) {
             cfReinComm <- c(zeroCf, cfReinComm)
+         } else if (!IsBegPolMonth) {
+            cfReinComm[1] <- 0
          }
       } else {
          cfReinComm <- rep(0, length.out = projLen)
       }
       if (!is.null(proj$Rein.Prem.Rfnd) & is.null(proj$Ben.Anu)) {
-         cfReinPremRfnd <- proj$Rein.Prem.Rfnd[projPolMonths] * np[projPolMonths] * w[projPolMonths]
+         cfReinPremRfnd <- proj$Rein.Prem.Rfnd[projPolMonths] * pn[projPolMonths] * w[projPolMonths]
          if (projLen > covProjLen) {
             cfReinPremRfnd <- c(zeroCf, cfReinPremRfnd)
          }
@@ -224,39 +239,52 @@ setMethod(
          cfReinPremRfnd <- rep(0, length.out = projLen)
       }
       if (!is.null(proj$Rein.Comm.Rfnd) & is.null(proj$Ben.Anu)) {
-         cfReinCommRfnd <- -proj$Rein.Comm.Rfnd[projPolMonths] * np[projPolMonths] * w[projPolMonths]
+         cfReinCommRfnd <- -proj$Rein.Comm.Rfnd[projPolMonths] * pn[projPolMonths] * w[projPolMonths]
          if (projLen > covProjLen) {
             cfReinCommRfnd <- c(zeroCf, cfReinCommRfnd)
          }
       } else {
          cfReinCommRfnd <- rep(0, length.out = projLen)
       }
-      # Annuity benefit cashflow
-      if (!is.null(proj$Ben.Anu)) {
-         cfAnuBen <- -proj$Ben.Anu[projPolMonths] * np[projPolMonths] * p[projPolMonths]
+      # Annuity due benefit cashflow
+      if (!is.null(proj$Ben.AnuDue)) {
          crtnMonths <- GetAnuCrtnMonths(plan)
-         if (crtnMonths > 0) {
-            crtnPrdEnd <- ifelse(GetAnuTiming(plan) == 0, crtnMonths, crtnMonths + 1)
-            if (crtnPrdEnd >= projPolMonths[1]) {
-               cfAnuBen[1:(crtnPrdEnd - projPolMonths[1] + 1)] <- -proj$Ben.Anu[projPolMonths[1]:crtnPrdEnd]
-            }
+         cfAnuDueBen <- -proj$Ben.AnuDue[projPolMonths] * pn[projPolMonths]
+         if (GetAnuCrtnMonths(plan) >= projPolMonths[1]) {
+            cfAnuDueBen[1:(crtnPrdEnd - projPolMonths[1] + 1)] <- -proj$Ben.AnuDue[projPolMonths[1]:crtnMonths]
          }
          if (projLen > covProjLen) {
-            cfAnuBen <- c(zeroCf, cfAnuBen)
+            cfAnuDueBen <- c(zeroCf, cfAnuDueBen)
+         } else if (!IsBegPolMonth) {
+            cfAnuDueBen[1] <- 0
          }
       } else {
-         cfAnuBen <- rep(0, length.out = projLen)
+         cfAnuDueBen <- rep(0, length.out = projLen)
+      }
+      # Annuity immediate benefit cashflow
+      if (!is.null(proj$Ben.AnuImm)) {
+         crtnMonths <- GetAnuCrtnMonths(plan)
+         cfAnuImmBen <- -proj$Ben.AnuImm[projPolMonths] * pn[projPolMonths] * p[projPolMonths]
+         if (crtnMonths >= projPolMonths[1]) {
+            cfAnuImmBen[1:(crtnPrdEnd - projPolMonths[1] + 1)] <- -proj$Ben.AnuImm[projPolMonths[1]:crtnMonths]
+         }
+         if (projLen > covProjLen) {
+            cfAnuImmBen <- c(zeroCf, cfAnuImmBen)
+         }
+      } else {
+         cfAnuImmBen <- rep(0, length.out = projLen)
       }
       result$Proj <- proj[projPolMonths,]
 
       # Projected expenses and projected expense cashflows
       result %<>% AddProjection(projItem = "Expns.Acq", projValue = ae[(projLen - covProjLen + 1):projLen])
       result %<>% AddProjection(projItem = "Expns.Man", projValue = me[(projLen - covProjLen + 1):projLen])
-      cfAcqExpns <- -ae * c(rep(0, length.out = projLen - covProjLen), np[projPolMonths] * p[projPolMonths])
-      cfMntExpns <- -me * c(rep(0, length.out = projLen - covProjLen), np[projPolMonths] * p[projPolMonths])
-
-      cfTotalGross <- cfPrem + cfPremTax + cfComm + cfOvrd + cfDthBen + cfMatBen + cfSurBen + cfDthBenPUA + cfMatBenPUA + cfSurBenPUA + cfAnuBen + cfAcqExpns + cfMntExpns
-      cfTotalRein <- cfReinBen + cfReinPrem + cfReinComm + cfReinPremRfnd + cfReinCommRfnd
+      cfAcqExpns <- -ae * c(rep(0, length.out = projLen - covProjLen), pn[projPolMonths])
+      cfMntExpns <- -me * c(rep(0, length.out = projLen - covProjLen), pn[projPolMonths])
+      if (projLen == covProjLen & !IsBegPolMonth) {
+         cfAcqExpns[1] <- 0
+         cfMntExpns[1] <- 0
+      }
       result$Cf <- data.frame(
          Timeline = GetProjTimeLabel(result$Timeline),
          Prem = cfPrem,
@@ -269,17 +297,21 @@ setMethod(
          Ben.Mat.PUA = cfMatBenPUA,
          Ben.Sur = cfSurBen,
          Ben.Sur.PUA = cfSurBenPUA,
-         Ben.Anu = cfAnuBen,
+         Ben.AnuDue = cfAnuDueBen,
+         Ben.AnuImm = cfAnuImmBen,
          Expns.Acq = cfAcqExpns,
          Expns.Mnt = cfMntExpns,
-         Total.Gross = cfTotalGross,
+         Rein.Ben = cfReinBen,
          Rein.Prem = cfReinPrem,
          Rein.Comm = cfReinComm,
          Rein.Prem.Rfnd = cfReinPremRfnd,
          Rein.Comm.Rfnd = cfReinCommRfnd,
-         Total.Rein = cfTotalRein,
-         Total.Net = cfTotalGross + cfTotalRein,
          stringsAsFactors = FALSE
+      ) %>% dplyr::mutate(
+         Total.Gross = Prem + Prem.Tax + Comm + Comm.Ovrd + Ben.Dth + Ben.Mat + Ben.Sur + Ben.Dth.PUA + Ben.Mat.PUA + Ben.Sur.PUA + Ben.AnuDue + Ben.AnuImm + Expns.Acq + Expns.Mnt,
+         Total.Rein = Rein.Ben + Rein.Prem + Rein.Comm + Rein.Prem.Rfnd + Rein.Comm.Rfnd
+      ) %>% dplyr::mutate(
+         Total.Net = Total.Gross + Total.Rein
       )
 
       # Export assumption information
@@ -288,7 +320,7 @@ setMethod(
          q = q[projPolMonths],
          w = w[projPolMonths],
          p = p[projPolMonths],
-         np = np[projPolMonths],
+         pn = pn[projPolMonths],
          stringsAsFactors = FALSE
       )
       return(result)

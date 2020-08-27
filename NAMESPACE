@@ -7,4 +7,5 @@ importFrom(lubridate, "month")
 export("%>%")
 export("%<>%")
 export("%m+%")
+import("RSQLite")
 

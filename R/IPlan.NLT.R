@@ -85,7 +85,7 @@ setMethod(
       } else {
          stop("DthBenIntraYearMthd has an invalid value.")
       }
-      return(c(0, d))
+      return(d)
    }
 )
 

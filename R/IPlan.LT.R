@@ -267,7 +267,7 @@ setMethod(
       } else {
          comm <- rep(0, len = GetCovMonths(object, cov))
       }
-      return(c(comm, 0))
+      return(comm)
    }
 )
 
@@ -290,7 +290,7 @@ setMethod(
       } else {
          ovrd <- rep(0, len = GetCovMonths(object, cov))
       }
-      return(c(ovrd, 0))
+      return(ovrd)
    }
 )
 
@@ -313,7 +313,7 @@ setMethod(
       } else {
          ovrd <- rep(0, len = GetCovMonths(object, cov))
       }
-      return(c(ovrd, 0))
+      return(ovrd)
    }
 )
 
@@ -400,7 +400,7 @@ setMethod(
       if (!HasValue(modPrem)) {
          modPrem <- GetModPrem(object, cov)
       }
-      prem <- FillZeroIfNA(rep(c(modPrem, rep(0, times = (12 / premMode - 1))), length.out = GetPremMonths(object, cov)), len = GetCovMonths(object, cov) + 1)
+      prem <- FillZeroIfNA(rep(c(modPrem, rep(0, times = (12 / premMode - 1))), length.out = GetPremMonths(object, cov)), len = GetCovMonths(object, cov))
       premTax <- prem * GetPremTaxRate(object, cov)
       if (!all(prem == 0)) {
          resultContainer %<>% AddProjection(projItem = "Prem", projValue = prem)
@@ -440,7 +440,8 @@ setMethod(
       faceAmt <- GetFaceAmt(cov)
       if (faceAmt != 0) {
          covMonths <- GetCovMonths(object, cov)
-         benDth <- c(rep(faceAmt, covMonths + 1))
+         # benDth <- c(rep(faceAmt, covMonths + 1))
+         benDth <- rep(faceAmt, covMonths)
          resultContainer %<>% AddProjection(projItem = "Ben.Dth", projValue = benDth)
       }
       return(resultContainer)
@@ -473,7 +474,7 @@ setMethod(
 # A function to create an instance of data.frame to store projection information in result container.
 NewProjection <- function(resultContainer, cov, plan) {
    stopifnot(is.list(resultContainer), is.null(resultContainer$Proj))
-   timeline <- GetIssDate(cov) %m+% months(0:GetCovMonths(plan, cov))
+   timeline <- GetIssDate(cov) %m+% months(0:(GetCovMonths(plan, cov) - 1))
    resultContainer$Proj <- data.frame(
       Timeline = paste0(year(timeline), "-", sprintf("%02d",month(timeline))),
       stringsAsFactors = FALSE

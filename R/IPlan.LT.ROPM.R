@@ -125,8 +125,8 @@ setMethod(
       covMonths <- GetCovMonths(object, cov)
       premMode <- GetPremMode(cov)
       ropBasis <- GetROPBasis(object)
-      totalPrem <- sum(resultContainer$Proj.Prem)
-      totalPolFee <- sum((resultContainer$Proj.Prem != 0) * GetPolFee(object, premMode))
+      totalPrem <- sum(resultContainer$Proj$Prem)
+      totalPolFee <- sum((resultContainer$Proj$Prem != 0) * GetPolFee(object, premMode))
       if (ropBasis == 1L || ropBasis == 3L) {
          # 1L: ROP is calculated based on total annualized premium (i.e. total premium payable).
          # 3L: ROP is calculated based on total annualized premium excluding policy fee
@@ -142,7 +142,7 @@ setMethod(
       }
       # Refund occurs at the end of coverage period.
       if (ropAmt != 0) {
-         matBen <- c(rep(0, covMonths), ropAmt)
+         matBen <- c(rep(0, covMonths - 1), ropAmt)
          resultContainer %<>% AddProjection(projItem = "Ben.Mat", projValue = matBen)
       }
       return(resultContainer)

@@ -3,7 +3,10 @@ setClass(
    slots = c(
       ProjTimeline = "Date",
       CovTimeline = "Date",
-      CovProjTimeIndex = "numeric"
+      CovProjTimeIndex = "numeric",
+      CovProjLen = "numeric",
+      ProjLen = "numeric",
+      ProjPolMonths = "numeric"
    )
 )
 
@@ -13,16 +16,24 @@ ProjTimelineInfo <- function(projStartDate, cov, plan = GetPlan(cov)) {
    if (projStartDate > GetExpiryDate(plan, cov)){
       return(NULL)
    }
-   covTimeline <- GetIssDate(cov) %m+% months(0:GetCovMonths(plan, cov))
+   covMonths <- GetCovMonths(plan, cov)
+   covTimeline <- GetIssDate(cov) %m+% months(0:(covMonths))
    covProjTimeIndex <- lubridate::interval(projStartDate, covTimeline) / months(1)
-   covProjLen <- sum(covProjTimeIndex >= 0)
-   projLen <- covProjLen + ifelse(GetIssDate(cov) > projStartDate, floor(covProjTimeIndex[1]), 0)
+   # covProjLen <- sum(covProjTimeIndex >= 0)
+   # projLen <- covProjLen + ifelse(GetIssDate(cov) > projStartDate, floor(covProjTimeIndex[1]), 0)
+   # projTimeline <- projStartDate %m+% months(0:(projLen - 1))
+   covProjLen <- sum(covProjTimeIndex > -1) - 1
+   projLen <- covProjLen + ifelse(GetIssDate(cov) > projStartDate, ceiling(covProjTimeIndex[1]), 0)
    projTimeline <- projStartDate %m+% months(0:(projLen - 1))
+   projPolMonths = rev((covMonths:1)[1:covProjLen])
    info <- new(
       Class = "ProjTimelineInfo",
       CovTimeline = covTimeline,
       CovProjTimeIndex = covProjTimeIndex,
-      ProjTimeline = projTimeline
+      ProjTimeline = projTimeline,
+      CovProjLen = covProjLen,
+      ProjLen = projLen,
+      ProjPolMonths = projPolMonths
    )
    return(info)
 }
@@ -84,7 +95,8 @@ setMethod(
    f = "GetProjLen",
    signature = "ProjTimelineInfo",
    definition = function(object) {
-      return(length(object@ProjTimeline))
+      #return(length(object@ProjTimeline))
+      return(object@ProjLen)
    }
 )
 
@@ -93,7 +105,8 @@ setMethod(
    f = "GetCovProjLen",
    signature = "ProjTimelineInfo",
    definition = function(object) {
-      return(sum(object@CovProjTimeIndex >= 0))
+      # return(sum(object@CovProjTimeIndex >= 0))
+      return(object@CovProjLen)
    }
 )
 
@@ -119,4 +132,12 @@ setMethod(
    }
 )
 
+setGeneric(name = "GetProjPolMonths", def = function(object, ...) {standardGeneric("GetProjPolMonths")})
 
+setMethod(
+   f = "GetProjPolMonths",
+   signature = "ProjTimelineInfo",
+   definition = function(object) {
+      return(object@ProjPolMonths)
+   }
+)
