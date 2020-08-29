@@ -103,7 +103,9 @@ setMethod(
       pn <- ShiftRight(cumprod(p), positions = 1, filler = 1)
       pn <- pn / pn[projPolMonths[1]]
       zeroCf <- rep(0, length.out = projLen - covProjLen)
-      IsBegPolMonth <- Is.WholeNumber(GetCovProjTimeIndex(result$Timeline)[projPolMonths[1]])
+      # IsBegPolMonth <- Is.WholeNumber(GetCovProjTimeIndex(result$Timeline)[projPolMonths[1]])
+      covProjTimeIndex <- GetCovProjTimeIndex(result$Timeline)[1:covMonths]
+      IsBegPolMonth <- Is.WholeNumber(covProjTimeIndex[projPolMonths[1]])
 
       if (!is.null(proj$Prem)) {
          cfPrem <- proj$Prem[projPolMonths] * pn[projPolMonths]
@@ -321,6 +323,7 @@ setMethod(
          w = w[projPolMonths],
          p = p[projPolMonths],
          pn = pn[projPolMonths],
+         t = covProjTimeIndex,
          stringsAsFactors = FALSE
       )
       return(result)
