@@ -62,7 +62,6 @@ setValidity(
    }
 )
 
-
 IPlan.IA <- function(anuYears = NA, anuToAge = NA,
                      anuMode = 12L, anuTiming = 0L, crtnMonths = 0L,
                      premTable = character(0L), polFee = numeric(0), premTaxRate = numeric(0L),
@@ -186,7 +185,7 @@ setMethod(
          stopifnot(!is.na(premRate))
          singlePrem <- premRate[1] * GetFaceAmt(cov) + GetPolFee(object, premMode)
       }
-      prem <- c(singlePrem, rep(0, length.out = GetCovMonths(object, cov)))
+      prem <- c(singlePrem, rep(0, length.out = GetCovMonths(object, cov) - 1))
       premTax <- prem * GetPremTaxRate(object, cov)
       if (!all(prem == 0)) {
          resultContainer %<>% AddProjection(projItem = "Prem", projValue = prem)
@@ -232,8 +231,8 @@ setMethod(
       covMonths <- GetCovMonths(object, cov)
       a <- rep(GetFaceAmt(cov) / object@AnuMode, length.out = covMonths)   # Face amount of coverage contrains annualized annuity benefit information.
       m <- (seq(from = 1, to = length(a)) - 1) %% (12 / object@AnuMode) == 0
-      if (object@AnuTiming == 0) v <- c(a * m, 0) else v <- c(0, a * m)
-      resultContainer %<>% AddProjection(projItem = "Ben.Anu", projValue = v)
+      # if (object@AnuTiming == 0) v <- c(a * m, 0) else v <- c(0, a * m)
+      resultContainer %<>% AddProjection(projItem = "Ben.Anu", projValue = a * m)
       return(resultContainer)
    }
 )
@@ -246,7 +245,6 @@ setMethod(
       return(resultContainer)
    }
 )
-
 
 setMethod(
    f = "ProjSurBen",

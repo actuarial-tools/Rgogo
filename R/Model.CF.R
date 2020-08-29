@@ -103,10 +103,8 @@ setMethod(
       pn <- ShiftRight(cumprod(p), positions = 1, filler = 1)
       pn <- pn / pn[projPolMonths[1]]
       zeroCf <- rep(0, length.out = projLen - covProjLen)
-      # IsBegPolMonth <- Is.WholeNumber(GetCovProjTimeIndex(result$Timeline)[projPolMonths[1]])
       covProjTimeIndex <- GetCovProjTimeIndex(result$Timeline)[1:covMonths]
       IsBegPolMonth <- Is.WholeNumber(covProjTimeIndex[projPolMonths[1]])
-
       if (!is.null(proj$Prem)) {
          cfPrem <- proj$Prem[projPolMonths] * pn[projPolMonths]
          if (projLen > covProjLen) {
@@ -248,37 +246,27 @@ setMethod(
       } else {
          cfReinCommRfnd <- rep(0, length.out = projLen)
       }
-      # Annuity due benefit cashflow
-      if (!is.null(proj$Ben.AnuDue)) {
+      # Annuity benefit cashflow
+      if (!is.null(proj$Ben.Anu)) {
          crtnMonths <- GetAnuCrtnMonths(plan)
-         cfAnuDueBen <- -proj$Ben.AnuDue[projPolMonths] * pn[projPolMonths]
-         if (GetAnuCrtnMonths(plan) >= projPolMonths[1]) {
-            cfAnuDueBen[1:(crtnPrdEnd - projPolMonths[1] + 1)] <- -proj$Ben.AnuDue[projPolMonths[1]:crtnMonths]
+         if (GetAnuTiming(plan) == 0L) {
+            cfAnuBen <- -proj$Ben.Anu[projPolMonths] * pn[projPolMonths]    # Annuity benefit payable at the beginning of period
+         } else {
+            cfAnuBen <- -proj$Ben.Anu[projPolMonths] * pn[projPolMonths] * p[projPolMonths]    # Annuity benefit payable at the end of period
          }
-         if (projLen > covProjLen) {
-            cfAnuDueBen <- c(zeroCf, cfAnuDueBen)
-         } else if (!IsBegPolMonth) {
-            cfAnuDueBen[1] <- 0
-         }
-      } else {
-         cfAnuDueBen <- rep(0, length.out = projLen)
-      }
-      # Annuity immediate benefit cashflow
-      if (!is.null(proj$Ben.AnuImm)) {
-         crtnMonths <- GetAnuCrtnMonths(plan)
-         cfAnuImmBen <- -proj$Ben.AnuImm[projPolMonths] * pn[projPolMonths] * p[projPolMonths]
          if (crtnMonths >= projPolMonths[1]) {
-            cfAnuImmBen[1:(crtnPrdEnd - projPolMonths[1] + 1)] <- -proj$Ben.AnuImm[projPolMonths[1]:crtnMonths]
+            cfAnuBen[1:(crtnMonths - projPolMonths[1] + 1)] <- -proj$Ben.Anu[projPolMonths[1]:crtnMonths]
          }
          if (projLen > covProjLen) {
-            cfAnuImmBen <- c(zeroCf, cfAnuImmBen)
+            cfAnuBen <- c(zeroCf, cfAnuBen)
+         } else if (!IsBegPolMonth) {
+            cfAnuBen[1] <- 0
          }
       } else {
-         cfAnuImmBen <- rep(0, length.out = projLen)
+         cfAnuBen <- rep(0, length.out = projLen)
       }
-      result$Proj <- proj[projPolMonths,]
-
       # Projected expenses and projected expense cashflows
+      result$Proj <- proj[projPolMonths,]
       result %<>% AddProjection(projItem = "Expns.Acq", projValue = ae[(projLen - covProjLen + 1):projLen])
       result %<>% AddProjection(projItem = "Expns.Man", projValue = me[(projLen - covProjLen + 1):projLen])
       cfAcqExpns <- -ae * c(rep(0, length.out = projLen - covProjLen), pn[projPolMonths])
@@ -299,8 +287,7 @@ setMethod(
          Ben.Mat.PUA = cfMatBenPUA,
          Ben.Sur = cfSurBen,
          Ben.Sur.PUA = cfSurBenPUA,
-         Ben.AnuDue = cfAnuDueBen,
-         Ben.AnuImm = cfAnuImmBen,
+         Ben.Anu = cfAnuBen,
          Expns.Acq = cfAcqExpns,
          Expns.Mnt = cfMntExpns,
          Rein.Ben = cfReinBen,
@@ -310,7 +297,7 @@ setMethod(
          Rein.Comm.Rfnd = cfReinCommRfnd,
          stringsAsFactors = FALSE
       ) %>% dplyr::mutate(
-         Total.Gross = Prem + Prem.Tax + Comm + Comm.Ovrd + Ben.Dth + Ben.Mat + Ben.Sur + Ben.Dth.PUA + Ben.Mat.PUA + Ben.Sur.PUA + Ben.AnuDue + Ben.AnuImm + Expns.Acq + Expns.Mnt,
+         Total.Gross = Prem + Prem.Tax + Comm + Comm.Ovrd + Ben.Dth + Ben.Mat + Ben.Sur + Ben.Dth.PUA + Ben.Mat.PUA + Ben.Sur.PUA + Ben.Anu + Expns.Acq + Expns.Mnt,
          Total.Rein = Rein.Ben + Rein.Prem + Rein.Comm + Rein.Prem.Rfnd + Rein.Comm.Rfnd
       ) %>% dplyr::mutate(
          Total.Net = Total.Gross + Total.Rein
@@ -323,7 +310,7 @@ setMethod(
          w = w[projPolMonths],
          p = p[projPolMonths],
          pn = pn[projPolMonths],
-         t = covProjTimeIndex,
+         t = covProjTimeIndex[ceiling(covProjTimeIndex) >= 0],
          stringsAsFactors = FALSE
       )
       return(result)

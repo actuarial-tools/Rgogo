@@ -15,6 +15,7 @@ setMethod(
    definition = function(object, var, result = list()) {
       args <- GetArgs(object)
       projStartDate <- GetArgValue(args, "ProjStartDate")
+      plan <- GetPlan(var)
       # Run cash flow projection
       modelCF <- Model.CF(args)
       result <- Run(modelCF, var, result = result)
@@ -45,9 +46,7 @@ setMethod(
          Ben.Dth.PUA = ifelse(is.null(cf$Ben.Dth.PUA), 0, sum(cf$Ben.Dth.PUA * v1)),
          Ben.Mat.PUA = ifelse(is.null(cf$Ben.Mat.PUA), 0, sum(cf$Ben.Mat.PUA * v1)),
          Ben.Sur.PUA = ifelse(is.null(cf$Ben.Sur.PUA), 0, sum(cf$Ben.Sur.PUA * v1)),
-         # Ben.Anu = ifelse(is.null(cf$Ben.Anu), 0, sum(cf$Ben.Anu * v)),
-         Ben.AnuDue = ifelse(is.null(cf$Ben.Anu), 0, sum(cf$Ben.Anu * v0)),
-         Ben.AnuImm = ifelse(is.null(cf$Ben.Anu), 0, sum(cf$Ben.Anu * v1)),
+         Ben.Anu = ifelse(is.null(cf$Ben.Anu), 0, sum(cf$Ben.Anu * dplyr::case_when(GetAnuTiming(plan) == 0L ~ v0, TRUE ~ v1))),
          Expns.Acq = ifelse(is.null(cf$Expns.Acq), 0, sum(cf$Expns.Acq * v0)),
          Expns.Mnt = ifelse(is.null(cf$Expns.Mnt), 0, sum(cf$Expns.Mnt * v0)),
          Rein.Ben = ifelse(is.null(cf$Rein.Ben), 0, sum(cf$Rein.Ben * v1)),
@@ -57,7 +56,7 @@ setMethod(
          Rein.Comm.Rfnd = ifelse(is.null(cf$Rein.Comm.Rfnd), 0, sum(cf$Rein.Comm.Rfnd * v1)),
          stringsAsFactors = FALSE
       ) %>% dplyr::mutate(
-         Total.Gross = Prem + Prem.Tax + Comm + Comm.Ovrd + Ben.Dth + Ben.Mat + Ben.Sur + Ben.Dth.PUA + Ben.Mat.PUA + Ben.Sur.PUA + Ben.AnuDue + Ben.AnuImm + Expns.Acq + Expns.Mnt,
+         Total.Gross = Prem + Prem.Tax + Comm + Comm.Ovrd + Ben.Dth + Ben.Mat + Ben.Sur + Ben.Dth.PUA + Ben.Mat.PUA + Ben.Sur.PUA + Ben.Anu + Expns.Acq + Expns.Mnt,
          Total.Rein = Rein.Ben + Rein.Prem + Rein.Comm + Rein.Prem.Rfnd + Rein.Comm.Rfnd
       ) %>% dplyr::mutate(
          Total.Net = Total.Gross + Total.Rein
