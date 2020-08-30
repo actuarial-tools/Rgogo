@@ -354,7 +354,8 @@ setMethod(
    signature = "IPlan.LT",
    definition = function(object, cov) {
       if (HasValue(object@Rein)) {
-         treatyID <- object@Rein[GetIssDate(cov) >= as.Date(names(object@Rein))][1]
+         rein <- object@Rein[sort(names(object@Rein), decreasing = TRUE)]
+         treatyID <- rein[GetIssDate(cov) >= as.Date(names(rein))][1]
          if (!is.na(treatyID)) {
             treaty <- eval(parse(text = paste0(ifelse(startsWith(treatyID, "Rein."),"","Rein."), treatyID)))
             return(treaty)
