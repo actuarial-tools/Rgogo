@@ -34,6 +34,15 @@ setMethod(
       v1 <- cumprod(v) * (v ^ ifelse(s == 0, 0, s - 1))    # Discount factors for cashflows at the end of policy month
       v0 <- ShiftRight(v1, positions = 1, filler = 1)    # Discount for cashflows at the beginning of policy month
       cf <- result$Cf
+      if (!is.null(result$Ben.Anu)) {
+         if (GetAnuTiming(plan) == 0L) {
+            vAnuBen <- v0
+         } else {
+            vAnuBen <- v1
+         }
+      } else {
+         vAnuBen <- 0
+      }
       result$PV <- data.frame(
          CovId = ifelse(length(GetId(var)) > 0, GetId(var), NA),
          Prem = ifelse(is.null(cf$Prem), 0, sum(cf$Prem * v0)),
@@ -46,7 +55,7 @@ setMethod(
          Ben.Dth.PUA = ifelse(is.null(cf$Ben.Dth.PUA), 0, sum(cf$Ben.Dth.PUA * v1)),
          Ben.Mat.PUA = ifelse(is.null(cf$Ben.Mat.PUA), 0, sum(cf$Ben.Mat.PUA * v1)),
          Ben.Sur.PUA = ifelse(is.null(cf$Ben.Sur.PUA), 0, sum(cf$Ben.Sur.PUA * v1)),
-         Ben.Anu = ifelse(is.null(cf$Ben.Anu), 0, sum(cf$Ben.Anu * dplyr::case_when(GetAnuTiming(plan) == 0L ~ v0, TRUE ~ v1))),
+         Ben.Anu = ifelse(is.null(cf$Ben.Anu), 0, sum(cf$Ben.Anu * vAnuBen)),
          Expns.Acq = ifelse(is.null(cf$Expns.Acq), 0, sum(cf$Expns.Acq * v0)),
          Expns.Mnt = ifelse(is.null(cf$Expns.Mnt), 0, sum(cf$Expns.Mnt * v0)),
          Rein.Ben = ifelse(is.null(cf$Rein.Ben), 0, sum(cf$Rein.Ben * v1)),

@@ -59,8 +59,8 @@ setValidity(
 Rein <- function(retnProp, retnLimit, minReinAmt = 0,
                  premTable = character(0L), premTableMult = 1, premMode,
                  commSchd = numeric(0L),rfndUrndPremOnLapse, rfndUrndCommOnLapse,
-                 reinId = character(0L), descrip = character(0L)) {
-   rein <- new(
+                 id = character(0L), descrip = character(0L)) {
+   object <- new(
       Class = "Rein",
       RetnProp = retnProp,
       RetnLimit = retnLimit,
@@ -73,8 +73,8 @@ Rein <- function(retnProp, retnLimit, minReinAmt = 0,
       RfndUrndCommOnLapse = rfndUrndCommOnLapse,
       Descrip = as.character(descrip)
    )
-   SetReinId(rein) <- as.character(reinId)
-   return (rein)
+   SetId(object) <- as.character(id)
+   return (object)
 }
 
 setMethod(
@@ -114,7 +114,7 @@ setMethod(
       } else {
          comm <- rep(0, len = GetCovMonths(cov))
       }
-      return(c(comm, 0))
+      return(comm)
    }
 )
 
@@ -272,7 +272,7 @@ setMethod(
       if(is.null(resultContainer$Proj$CV)){
          cv <- 0
       } else {
-         cv <- resultContainer$Proj$CV
+         cv <- ShiftRight(resultContainer$Proj$CV, positions = 1, filler = 0)
       }
       resultContainer %<>% AddProjection(projItem = "Naar", projValue = resultContainer$Proj$Ben.Dth - cv)
       return(resultContainer)
@@ -318,13 +318,13 @@ setMethod(
          reinPremMode <- GetPremMode(object)
          vReinPremRate <- rep((tableRate * reinPremTableMult), each = 12, length.out = covMonths)
          vReinPremPayable <- rep(ifelse((1:12-1) %% (12/reinPremMode) == 0, 1, 0) / reinPremMode, length.out = covMonths)
-         projReinPrem <- c(vReinPremRate * vReinPremPayable, 0) * reinNaar
+         projReinPrem <- vReinPremRate * vReinPremPayable * reinNaar
          if(GetRfndUrndPremOnLapse(object)) {
             pctRfnd <- rep(seq(from=1,to=reinPremMode/12,length=(12/reinPremMode)),length=covMonths) * ((1:covMonths - 1) %% (12/reinPremMode) != 0)
-            projReinPremRfnd <- c(projReinPrem[((1:covMonths)-1) %/% 12 * 12 + 1] * pctRfnd, 0)
+            projReinPremRfnd <- projReinPrem[((1:covMonths)-1) %/% 12 * 12 + 1] * pctRfnd
             resultContainer$.pctRfnd <- pctRfnd
          } else {
-            projReinPremRfnd <- rep(0, length.out = (covMonths + 1))
+            projReinPremRfnd <- rep(0, length.out = covMonths)
          }
          resultContainer %<>% AddProjection(projItem = "Rein.Prem", projValue = projReinPrem)
          resultContainer %<>% AddProjection(projItem = "Rein.Prem.Rfnd", projValue = projReinPremRfnd)
@@ -344,9 +344,9 @@ setMethod(
          projReinComm <- projReinPrem * reinCommSchd
          # Refund unearned reinsurance commission if applicable
          if (GetRfndUrndCommOnLapse(object)) {
-            projReinCommRfnd <- c(projReinComm[((1:covMonths)-1) %/% 12 * 12 + 1] * resultContainer$.pctRfnd, 0)
+            projReinCommRfnd <- projReinComm[((1:covMonths)-1) %/% 12 * 12 + 1] * resultContainer$.pctRfnd
          } else {
-            projReinCommRfnd <- rep(0, length.out = (covMonths + 1))
+            projReinCommRfnd <- rep(0, length.out = covMonths)
          }
          resultContainer %<>% AddProjection(projItem = "Rein.Comm", projValue = projReinComm)
          resultContainer %<>% AddProjection(projItem = "Rein.Comm.Rfnd", projValue = projReinCommRfnd)
