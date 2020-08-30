@@ -207,6 +207,16 @@ GenCode.Model <- function(objectId, constructor, jsonMsgPath = NA_character_, ar
    )
 }
 
+GenCode.Rein <- function(objectId, constructor, jsonMsgPath = NA_character_, ...) {
+   GenCode(
+      objectId = objectId,
+      objectType = "Rein",
+      constructor = constructor,
+      jsonMsgPath = jsonMsgPath,
+      ...
+   )
+}
+
 InspectFuncArgs <- function(func, jsonPath = NA_character_) {
    stopifnot(is.function(func) | is.character(func))
    if (is.function(func)) {
