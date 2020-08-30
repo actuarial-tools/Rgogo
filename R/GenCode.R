@@ -1,5 +1,5 @@
-GenCode <- function(objectId, objectType, constructor, 
-                    fileName = NA_character_, folder = "R", jsonMsgPath = NA_character_, 
+GenCode <- function(objectId, objectType, constructor,
+                    fileName = NA_character_, folder = "R", jsonMsgPath = NA_character_,
                     successMsg = NA_character_, warningMsg = NA_character_, errorMsg = NA_character_, ...) {
    objectType <- ifelse(endsWith(objectType, "."), objectType, paste0(objectType, "."))
    objectId <- ifelse(startsWith(objectId, objectType), objectId, paste0(objectType, objectId))
@@ -30,21 +30,21 @@ GenCode <- function(objectId, objectType, constructor,
             successMsg <- paste0("File '", path, "' is created successfully.")
          }
          AddHandler.GenCode.Success(
-            successMsg, jsonMsgPath, 
+            successMsg, jsonMsgPath,
             ObjectId = objectId, ObjectType = objectType, FileName = fileName, Folder = folder
          )
          NULL
       },
       message = function(cond){
          AddHandler.GenCode.Message(
-            cond, msg = cond$message, jsonMsgPath, 
+            cond, msg = cond$message, jsonMsgPath,
             ObjectId = objectId, ObjectType = objectType, FileName = fileName, Folder = folder
          )
          return(cond)
       },
       warning = function(cond) {
          AddHandler.GenCode.Message(
-            cond, msg = ifelse(is.na(warningMsg), cond$message, warningMsg), jsonMsgPath, 
+            cond, msg = ifelse(is.na(warningMsg), cond$message, warningMsg), jsonMsgPath,
             ObjectId = objectId, ObjectType = objectType, FileName = fileName, Folder = folder
          )
          unlink(path)
@@ -52,7 +52,7 @@ GenCode <- function(objectId, objectType, constructor,
       },
       error = function(cond) {
          AddHandler.GenCode.Message(
-            cond, msg = ifelse(is.na(errorMsg), cond$message, errorMsg), jsonMsgPath, 
+            cond, msg = ifelse(is.na(errorMsg), cond$message, errorMsg), jsonMsgPath,
             ObjectId = objectId, ObjectType = objectType, FileName = fileName, Folder = folder
          )
          unlink(path)
@@ -207,5 +207,24 @@ GenCode.Model <- function(objectId, constructor, jsonMsgPath = NA_character_, ar
    )
 }
 
+InspectFuncArgs <- function(func, jsonPath = NA_character_) {
+   stopifnot(is.function(func) | is.character(func))
+   if (is.function(func)) {
+      argList <- formals(func)
+   } else {
+      argList <- formals(eval(expr = parse(text = func)))
+   }
+   argName <- names(argList)
+   argDescrip <- Rgogo::Translate(argName, lang = "en", strCase = "title")
+   defaultValue <- unlist(lapply(argList, function(x) {deparse1(x)}))
+   df <- data.frame(ArgName = argName, ArgDescrip = argDescrip, DefaultValue = defaultValue, stringsAsFactors = FALSE)
+   rownames(df) <- NULL
+   if (is.na(jsonPath)) {
+      return(df)
+   } else {
+      jsonlite::write_json(df, jsonPath, pretty = TRUE)
+      return(path.expand(jsonPath))
+   }
+}
 
 
