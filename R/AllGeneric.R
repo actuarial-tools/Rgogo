@@ -3,22 +3,15 @@ setClassUnion(name = "character_or_numeric", members = c("character", "numeric")
 setClassUnion(name = "integer_or_list", members = c("integer", "list"))
 setClassUnion(name = "numeric_or_list", members = c("numeric", "list"))
 
-
-# IObject
+# Definition of generic functions
 setGeneric(name = "GetId", def = function(object) {standardGeneric("GetId")})
 setGeneric(name = "SetId<-", def = function(object, value) {standardGeneric("SetId<-")})
 setGeneric(name = "GetDescrip", def = function(object, ...) {standardGeneric("GetDescrip")})
 setGeneric(name = "SetDescrip<-", def = function(object, value) {standardGeneric("SetDescrip<-")})
 setGeneric(name = "SaveAsRda", def = function(object, ...) {standardGeneric("SaveAsRda")})
-
-
-#IPlan
 setGeneric(name = "GetPlanId", def = function(object, ...) {standardGeneric("GetPlanId")})
 setGeneric(name = "SetPlanId<-", def = function(object, value) {standardGeneric("SetPlanId<-")})
-
-
 setGeneric(name = "GetAccBal", def = function(object, ...) {standardGeneric("GetAccBal")})
-
 setGeneric(name = "GetAnuBen", def = function(object, ...) {standardGeneric("GetAnuBen")})
 setGeneric(name = "GetAnuMatAge", def = function(object, ...) {standardGeneric("GetAnuMatAge")})
 setGeneric(name = "GetExpnsWeight", def = function(object, ...) {standardGeneric("GetExpnsWeight")})
@@ -30,7 +23,6 @@ setGeneric(name = "GetLifeStatus", def = function(object, ...) {standardGeneric(
 setGeneric(name = "GetLifeStatus2", def = function(object, ...) {standardGeneric("GetLifeStatus2")})
 setGeneric(name = "GetModPrem", def = function(object, ...) {standardGeneric("GetModPrem")})
 setGeneric(name = "GetPlan", def = function(object, ...) {standardGeneric("GetPlan")})
-#setGeneric(name = "GetPlanDescrip", def = function(object, ...) {standardGeneric("GetPlanDescrip")})
 setGeneric(name = "GetPremMode", def = function(object, ...) {standardGeneric("GetPremMode")})
 setGeneric(name = "GetPUAAmt", def = function(object, ...) {standardGeneric("GetPUAAmt")})
 setGeneric(name = "GetReinProp", def = function(object, ...) {standardGeneric("GetReinProp")})
@@ -40,15 +32,6 @@ setGeneric(name = "GetRiskClass2", def = function(object, ...) {standardGeneric(
 setGeneric(name = "HasLife2", def = function(object, ...) {standardGeneric("HasLife2")})
 setGeneric(name = "GetLife2Cov", def = function(object, ...) {standardGeneric("GetLife2Cov")})
 setGeneric(name = "GetExpiryDate", def = function(object, ...) {standardGeneric("GetExpiryDate")})
-
-
-
-
-
-
-
-
-
 setGeneric(name = "GetCovMonths", def = function(object, ...) {standardGeneric("GetCovMonths")})
 setGeneric(name = "GetPremMonths", def = function(object, ...) {standardGeneric("GetPremMonths")})
 setGeneric(name = "GetPremTable", def = function(object, ...) {standardGeneric("GetPremTable")})
@@ -79,13 +62,10 @@ setGeneric(name = "ProjSurBen", def = function(object, ...) {standardGeneric("Pr
 setGeneric(name = "ProjRein", def = function(object, ...) {standardGeneric("ProjRein")})
 setGeneric(name = "ProjAnuBen", def = function(object, ...) {standardGeneric("ProjAnuBen")})
 setGeneric(name = "Project", def = function(object, ...) {standardGeneric("Project")})
-
-#setGeneric(name = "GetPremTableID", def = function(object, ...) {standardGeneric("GetPremTableID")})
 setGeneric(name = "GetCovYears", def = function(object, ...) {standardGeneric("GetCovYears")})
 setGeneric(name = "GetPremYears", def = function(object, ...) {standardGeneric("GetPremYears")})
 setGeneric(name = "SetCovPeriod", def = function(object, ...) {standardGeneric("SetCovPeriod")})
 setGeneric(name = "SetPremPeriod", def = function(object, ...) {standardGeneric("SetPremPeriod")})
-#setGeneric(name = "SetPlanDescrip<-", def = function(object, value) {standardGeneric("SetPlanDescrip<-")})
 setGeneric(name = "SetCommSchd<-", def = function(object, value) {standardGeneric("SetCommSchd<-")})
 setGeneric(name = "SetOvrdOnCommSchd<-", def = function(object, value) {standardGeneric("SetOvrdOnCommSchd<-")})
 setGeneric(name = "SetOvrdOnPremSchd<-", def = function(object, value) {standardGeneric("SetOvrdOnPremSchd<-")})
@@ -97,12 +77,9 @@ setGeneric(name = "SetROPMat<-", def = function(object, ...) {standardGeneric("S
 setGeneric(name = "SetROPBasis<-", def = function(object, ...) {standardGeneric("SetROPBasis<-")})
 setGeneric(name = "SetCVTable<-", def = function(object, value) {standardGeneric("SetCVTable<-")})
 setGeneric(name = "SetSurChrgSchd<-", def = function(object, value) {standardGeneric("SetSurChrgSchd<-")})
-
 setGeneric(name = "SetDthBenSchd<-", def = function(object, value) {standardGeneric("SetDthBenSchd<-")})
 setGeneric(name = "GetDthBenIntraYearMthd", def = function(object, value) {standardGeneric("GetDthBenIntraYearMthd")})
 setGeneric(name = "SetDthBenIntraYearMthd<-", def = function(object, value) {standardGeneric("SetDthBenIntraYearMthd<-")})
-
-
 setGeneric(name = "GetAssumpId", def = function(object, ...) {standardGeneric("GetAssumpId")})
 setGeneric(name = "GetAssump", def = function(object, ...){standardGeneric("GetAssump")})
 setGeneric(name = "GetExpdAssump", def = function(object, ...){standardGeneric("GetExpdAssump")})
@@ -127,11 +104,8 @@ setGeneric(name = "GetMortAssump1", def = function(object) {standardGeneric("Get
 setGeneric(name = "GetMortAssump2", def = function(object) {standardGeneric("GetMortAssump2")})
 setGeneric(name = "SetMortAssump1<-", def = function(object, value) {standardGeneric("SetMortAssump1<-")})
 setGeneric(name = "SetMortAssump2<-", def = function(object, value) {standardGeneric("SetMortAssump2<-")})
-
-
 setGeneric(name = "GetPUA", def = function(object, ...) {standardGeneric("GetPUA")})
 setGeneric(name = "SetPUA<-", def = function(object, value) {standardGeneric("SetPUA<-")})
-# setGeneric(name = "GetPUAID", def = function(object) {standardGeneric("GetPUAID")})
 setGeneric(name = "ProjPUA", def = function(object, ...) {standardGeneric("ProjPUA")})
 setGeneric(name = "IsPUAPaidOnDth", def = function(object) {standardGeneric("IsPUAPaidOnDth")})
 setGeneric(name = "IsPUAPaidOnMat", def = function(object) {standardGeneric("IsPUAPaidOnMat")})
@@ -139,18 +113,10 @@ setGeneric(name = "IsPUAPaidOnSur", def = function(object) {standardGeneric("IsP
 setGeneric(name = "IsPUAPaidOnDth<-", def = function(object, value) {standardGeneric("IsPUAPaidOnDth<-")})
 setGeneric(name = "IsPUAPaidOnMat<-", def = function(object, value) {standardGeneric("IsPUAPaidOnMat<-")})
 setGeneric(name = "IsPUAPaidOnSur<-", def = function(object, value) {standardGeneric("IsPUAPaidOnSur<-")})
-# setGeneric(name = "GetPUACVRateVector", def = function(object, ...) {standardGeneric("GetPUACVRateVector")})
-# setGeneric(name = "GetPUACVTable", def = function(object, ...) {standardGeneric("GetPUACVTable")})
-# setGeneric(name = "GetPUATable", def = function(object, ...) {standardGeneric("GetPUATable")})
 setGeneric(name = "SetPUASchd<-", def = function(object, value) {standardGeneric("SetPUASchd<-")})
 setGeneric(name = "SetPUACreditMonth<-", def = function(object, value) {standardGeneric("SetPUACreditMonth<-")})
-
-
-
 setGeneric(name = "ProjPremLoad", def = function(object, ...) {standardGeneric("ProjPremLoad")})
 setGeneric(name = "ProjAccBal", def = function(object, ...) {standardGeneric("ProjAccBal")})
-
-# Table-related Methods
 setGeneric(name = "LookUp", def = function(tbl, lookUpKey, ...) {standardGeneric("LookUp")})
 setGeneric(name = "GetSource", def = function(object) {standardGeneric("GetSource")})
 setGeneric(name = "SetSource<-", def = function(object, value) {standardGeneric("SetSource<-")})
@@ -171,8 +137,6 @@ setGeneric(name = "GetSelPeriod", def = function(object) {standardGeneric("GetSe
 setGeneric(name = "GetMaxAttAge", def = function(object) {standardGeneric("GetMaxAttAge")})
 setGeneric(name = "GetMinCalYear", def = function(object) {standardGeneric("GetMinCalYear")})
 setGeneric(name = "GetMaxCalYear", def = function(object) {standardGeneric("GetMaxCalYear")})
-
-
 setGeneric(name = "GetCovID", def = function(object, value) {standardGeneric("GetCovID")})
 setGeneric(name = "SetCovID<-", def = function(object, value) {standardGeneric("SetCovID<-")})
 setGeneric(name = "SetIssDate<-", def = function(object, value) {standardGeneric("SetIssDate<-")})
@@ -192,18 +156,11 @@ setGeneric(name = "SetReinProp<-", def = function(object, value) {standardGeneri
 setGeneric(name = "SetExpnsWeight<-", def = function(object, value) {standardGeneric("SetExpnsWeight<-")})
 setGeneric(name = "SetPUAAmt<-", def = function(object, value) {standardGeneric("SetPUAAmt<-")})
 setGeneric(name = "SetAccBal<-", def = function(object, value) {standardGeneric("SetAccBal<-")})
-
-
-
-
 setGeneric(name = "GetBaseMortRateVector", def = function(object, cov, ...) {standardGeneric("GetBaseMortRateVector")})
 setGeneric(name = "GetExtraMortRateVector", def = function(object, cov, ...) {standardGeneric("GetExtraMortRateVector")})
 setGeneric(name = "GetMortImprovAdjVector", def = function(object, cov, ...) {standardGeneric("GetMortImprovAdjVector")})
-#setGeneric(name = "GetMortMarginVector", def = function(object, cov, ...) {standardGeneric("GetMortMarginVector")})
 setGeneric(name = "GetMargin", def = function(object, cov, ...) {standardGeneric("GetMargin")})
-
 setGeneric(name = "Run", def = function(object, var, result, ...){standardGeneric("Run")})
-
 setGeneric(name = "GetRunId", def = function(object) {standardGeneric("GetRunId")})
 setGeneric(name = "SetRunId<-", def = function(object, value) {standardGeneric("SetRunId<-")})
 setGeneric(name = "GetArgsId", def = function(object) {standardGeneric("GetArgsId")})
@@ -213,8 +170,6 @@ setGeneric(name = "Contains", def = function(object, itemName) {standardGeneric(
 setGeneric(name = "GetArgClass", def = function(object, argName) {standardGeneric("GetArgClass")})
 setGeneric(name = "GetArgValue", def = function(object, argName) {standardGeneric("GetArgValue")})
 setGeneric(name = "SetArgValue", def = function(object, ...) {standardGeneric("SetArgValue")})
-
-
 setGeneric(name = "GetLapseRate", def = function(object, ...) {standardGeneric("GetLapseRate")})
 setGeneric(name = "GetLapseRateMult", def = function(object, ...) {standardGeneric("GetLapseRateMult")})
 setGeneric(name = "GetLapseRateFlatExtra", def = function(object, ...) {standardGeneric("GetLapseRateFlatExtra")})
@@ -224,49 +179,40 @@ setGeneric(name = "SetLapseRateMult<-", def = function(object, value) {standardG
 setGeneric(name = "SetLapseRateFlatExtra<-", def = function(object, value) {standardGeneric("SetLapseRateFlatExtra<-")})
 setGeneric(name = "SetLapsePfad<-", def = function(object, value) {standardGeneric("SetLapsePfad<-")})
 setGeneric(name = "GetLapseRateVector", def = function(object, cov) {standardGeneric("GetLapseRateVector")})
-
-
 setGeneric(name = "GetAcqExpnsPerPol", def = function(object, ...) {standardGeneric("GetAcqExpnsPerPol")})
 setGeneric(name = "GetAcqExpnsPerFaceAmt", def = function(object, ...) {standardGeneric("GetAcqExpnsPerFaceAmt")})
 setGeneric(name = "GetMntExpnsPerPol", def = function(object, ...) {standardGeneric("GetMntExpnsPerPol")})
 setGeneric(name = "GetMntExpnsPerPrem", def = function(object, ...) {standardGeneric("GetMntExpnsPerPrem")})
 setGeneric(name = "GetMntExpnsPerPremAmt", def = function(object, ...) {standardGeneric("GetMntExpnsPerPremAmt")})
 setGeneric(name = "GetMntExpnsPerClaim", def = function(object, ...) {standardGeneric("GetMntExpnsPerClaim")})
-
 setGeneric(name = "SetAcqExpnsPerPol<-", def = function(object, value) {standardGeneric("SetAcqExpnsPerPol<-")})
 setGeneric(name = "SetAcqExpnsPerFaceAmt<-", def = function(object, value) {standardGeneric("SetAcqExpnsPerFaceAmt<-")})
 setGeneric(name = "SetMntExpnsPerPol<-", def = function(object, value) {standardGeneric("SetMntExpnsPerPol<-")})
 setGeneric(name = "SetMntExpnsPerPrem<-", def = function(object, value) {standardGeneric("SetMntExpnsPerPrem<-")})
 setGeneric(name = "SetMntExpnsPerPremAmt<-", def = function(object, value) {standardGeneric("SetMntExpnsPerPremAmt<-")})
 setGeneric(name = "SetMntExpnsPerClaim<-", def = function(object, value) {standardGeneric("SetMntExpnsPerClaim<-")})
-
 setGeneric(name = "GetAcqExpnsPerPolPfad", def = function(object, ...) {standardGeneric("GetAcqExpnsPerPolPfad")})
 setGeneric(name = "GetAcqExpnsPerFaceAmtPfad", def = function(object, ...) {standardGeneric("GetAcqExpnsPerFaceAmtPfad")})
 setGeneric(name = "GetMntExpnsPerPolPfad", def = function(object, ...) {standardGeneric("GetMntExpnsPerPolPfad")})
 setGeneric(name = "GetMntExpnsPerPremPfad", def = function(object, ...) {standardGeneric("GetMntExpnsPerPremPfad")})
 setGeneric(name = "GetMntExpnsPerPremAmtPfad", def = function(object, ...) {standardGeneric("GetMntExpnsPerPremAmtPfad")})
-
 setGeneric(name = "SetAcqExpnsPerPolPfad<-", def = function(object, value) {standardGeneric("SetAcqExpnsPerPolPfad<-")})
 setGeneric(name = "SetAcqExpnsPerFaceAmtPfad<-", def = function(object, value) {standardGeneric("SetAcqExpnsPerFaceAmtPfad<-")})
 setGeneric(name = "SetMntExpnsPerPolPfad<-", def = function(object, value) {standardGeneric("SetMntExpnsPerPolPfad<-")})
 setGeneric(name = "SetMntExpnsPerPremPfad<-", def = function(object, value) {standardGeneric("SetMntExpnsPerPremPfad<-")})
 setGeneric(name = "SetMntExpnsPerPremAmtPfad<-", def = function(object, value) {standardGeneric("SetMntExpnsPerPremAmtPfad<-")})
 setGeneric(name = "SetMntExpnsPerClaimPfad<-", def = function(object, value) {standardGeneric("SetMntExpnsPerClaimPfad<-")})
-
 setGeneric(name = "GetAcqExpnsPerPolInflRate", def = function(object, ...) {standardGeneric("GetAcqExpnsPerPolInflRate")})
 setGeneric(name = "GetMntExpnsPerPolInflRate", def = function(object, ...) {standardGeneric("GetMntExpnsPerPolInflRate")})
 setGeneric(name = "GetMntExpnsPerPremInflRate", def = function(object, ...) {standardGeneric("GetMntExpnsPerPremInflRate")})
-
 setGeneric(name = "SetAcqExpnsPerPolInflRate<-", def = function(object, value) {standardGeneric("SetAcqExpnsPerPolInflRate<-")})
 setGeneric(name = "SetMntExpnsPerPolInflRate<-", def = function(object, value) {standardGeneric("SetMntExpnsPerPolInflRate<-")})
 setGeneric(name = "SetMntExpnsPerPremInflRate<-", def = function(object, value) {standardGeneric("SetMntExpnsPerPremInflRate<-")})
 setGeneric(name = "SetMntExpnsPerClaimInflRate<-", def = function(object, value) {standardGeneric("SetMntExpnsPerClaimInflRate<-")})
-
 setGeneric(name = "GetIntrRate", def = function(object, ...) {standardGeneric("GetIntrRate")})
 setGeneric(name = "GetIntrPfad", def = function(object, ...) {standardGeneric("GetIntrPfad")})
 setGeneric(name = "SetIntrRate<-", def = function(object, ...) {standardGeneric("SetIntrRate<-")})
 setGeneric(name = "SetIntrPfad<-", def = function(object, ...) {standardGeneric("SetIntrPfad<-")})
-
 setGeneric(name = "GetReinId", def = function(object) {standardGeneric("GetReinId")})
 setGeneric(name = "SetReinId<-", def = function(object, ...) {standardGeneric("SetReinId<-")})
 setGeneric(name = "GetPremTableMult", def = function(object, ...) {standardGeneric("GetPremTableMult")})
@@ -283,52 +229,34 @@ setGeneric(name = "SetRfndUrndPremOnLapse<-", def = function(object, ...) {stand
 setGeneric(name = "SetRfndUrndCommOnLapse<-", def = function(object, ...) {standardGeneric("SetRfndUrndCommOnLapse<-")})
 setGeneric(name = "ProjNaar", def = function(object, ...) {standardGeneric("ProjNaar")})
 setGeneric(name = "ProjReinNaar", def = function(object, ...) {standardGeneric("ProjReinNaar")})
-
-# setGeneric(name = "GetModel", def = function(object) {standardGeneric("GetModel")})
-# setGeneric(name = "SetModel<-", def = function(object, value) {standardGeneric("SetModel<-")})
 setGeneric(name = "GetInpVars", def = function(object) {standardGeneric("GetInpVars")})
 setGeneric(name = "SetInpVars<-", def = function(object, value) {standardGeneric("SetInpVars<-")})
 setGeneric(name = "Initialize", def = function(object, ...) {standardGeneric("Initialize")})
 setGeneric(name = "Finalize", def = function(object, ...) {standardGeneric("Finalize")})
 setGeneric(name = "Dispatch", def = function(object, inpVar) {standardGeneric("Dispatch")})
-
 setGeneric(name = "GetLoanIntrRate", def = function(object) {standardGeneric("GetLoanIntrRate")})
 setGeneric(name = "GetLoanIntrRateType", def = function(object) {standardGeneric("GetLoanIntrRateType")})
-
-
 setGeneric(name = "Deploy", def = function(object, overwrite) {standardGeneric("Deploy")})
-
-
-#ArgSet
 setGeneric(name = "GetMortAssump", def = function(object) {standardGeneric("GetMortAssump")})
 setGeneric(name = "GetLapseAssump", def = function(object) {standardGeneric("GetLapseAssump")})
 setGeneric(name = "GetExpnsAssump", def = function(object) {standardGeneric("GetExpnsAssump")})
 setGeneric(name = "GetIntrAssump", def = function(object) {standardGeneric("GetIntrAssump")})
-
-
 setGeneric(name = "GetArgs", def = function(object, ...) {standardGeneric("GetArgs")})
 setGeneric(name = "SetArgs<-", def = function(object, value) {standardGeneric("SetArgs<-")})
 setGeneric(name = "RunParallel", def = function(object, ...) {standardGeneric("RunParallel")})
-
-#IPlan.IA
 setGeneric(name = "GetAnuMode", def = function(object) {standardGeneric("GetAnuMode")})
 setGeneric(name = "SetAnuMode<-", def = function(object, value) {standardGeneric("SetAnuMode<-")})
 setGeneric(name = "GetAnuTiming", def = function(object) {standardGeneric("GetAnuTiming")})
 setGeneric(name = "SetAnuTiming<-", def = function(object, value) {standardGeneric("SetAnuTiming<-")})
 setGeneric(name = "GetAnuCrtnMonths", def = function(object) {standardGeneric("GetAnuCrtnMonths")})
 setGeneric(name = "SetAnuCrtnMonths<-", def = function(object, value) {standardGeneric("SetAnuCrtnMonths<-")})
-
 setGeneric(name = "Run.CF", def = function(object, plan, cov, ...) {standardGeneric("Run.CF")})
-
 setGeneric(name = "GetReportClass1", def = function(object) {standardGeneric("GetReportClass1")})
 setGeneric(name = "SetReportClass1<-", def = function(object, value) {standardGeneric("SetReportClass1<-")})
-
 setGeneric(name = "GetModel", def = function(object, ...) {standardGeneric("GetModel")})
 setGeneric(name = "SetModel<-", def = function(object, value) {standardGeneric("SetModel<-")})
 setGeneric(name = "GetScnrList", def = function(object) {standardGeneric("GetScnrList")})
 setGeneric(name = "SetScnrList<-", def = function(object, value) {standardGeneric("SetScnrList<-")})
-
-
 setGeneric(name = "GetProjStartDate", def = function(object) {standardGeneric("GetProjStartDate")})
 setGeneric(name = "SetProjStartDate<-", def = function(object, value) {standardGeneric("SetProjStartDate<-")})
 setGeneric(name = "GetProjYears", def = function(object) {standardGeneric("GetProjYears")})
@@ -336,10 +264,8 @@ setGeneric(name = "SetProjYears<-", def = function(object, value) {standardGener
 setGeneric(name = "GetProjMonths", def = function(object) {standardGeneric("GetProjMonths")})
 setGeneric(name = "IsAnnualized", def = function(object) {standardGeneric("IsAnnualized")})
 setGeneric(name = "IsAnnualized<-", def = function(object, value) {standardGeneric("IsAnnualized<-")})
-
 setGeneric(name = "ExportToExcel", def = function(object, ...) {standardGeneric("ExportToExcel")})
 setGeneric(name = ".ExportToExcel.TValue", def = function(object, wb, sheet, startRow, startCol, ...) {standardGeneric(".ExportToExcel.TValue")})
-
 setGeneric(name = "GetCovTimeline", def = function(object) {standardGeneric("GetCovTimeline")})
 setGeneric(name = "GetCovProjTimeline", def = function(object) {standardGeneric("GetCovProjTimeline")})
 setGeneric(name = "GetProjTimeline", def = function(object) {standardGeneric("GetProjTimeline")})
@@ -348,11 +274,9 @@ setGeneric(name = "GetProjLen", def = function(object) {standardGeneric("GetProj
 setGeneric(name = "GetCovProjLen", def = function(object) {standardGeneric("GetCovProjLen")})
 setGeneric(name = "GetProjTimeLabel", def = function(object) {standardGeneric("GetProjTimeLabel")})
 setGeneric(name = "GetCovProjTimeLabel", def = function(object) {standardGeneric("GetCovProjTimeLabel")})
-
 setGeneric(name = "ExportToExcel<-", def = function(object, value) {standardGeneric("ExportToExcel<-")})
 setGeneric(name = "ExportToRda", def = function(object, ...) {standardGeneric("ExportToRda")})
 setGeneric(name = "ExportToRda<-", def = function(object, value) {standardGeneric("ExportToRda<-")})
-
 setGeneric(name = "SetMortAssump<-", def = function(object, value) {standardGeneric("SetMortAssump<-")})
 setGeneric(name = "SetLapseAssump<-", def = function(object, value) {standardGeneric("SetLapseAssump<-")})
 setGeneric(name = "SetExpnsAssump<-", def = function(object, value) {standardGeneric("SetExpnsAssump<-")})
@@ -369,7 +293,6 @@ setGeneric(name = "GetValuDate", def = function(object) {standardGeneric("GetVal
 setGeneric(name = "SetValuDate<-", def = function(object, value) {standardGeneric("SetValuDate<-")})
 setGeneric(name = "GetResFloor", def = function(object) {standardGeneric("GetResFloor")})
 setGeneric(name = "SetResFloor<-", def = function(object, value) {standardGeneric("SetResFloor<-")})
-
 setGeneric(name = "GetPricIssAge", def = function(object, ...) {standardGeneric("GetPricIssAge")})
 setGeneric(name = "GetPricFaceAmt", def = function(object, ...) {standardGeneric("GetPricFaceAmt")})
 setGeneric(name = "GetPricPremMode", def = function(object) {standardGeneric("GetPricPremMode")})
@@ -378,7 +301,6 @@ setGeneric(name = "GetTargProfitMargin", def = function(object, ...) {standardGe
 setGeneric(name = "GetRndDigits", def = function(object) {standardGeneric("GetRndDigits")})
 setGeneric(name = "GetOptmzInterval", def = function(object) {standardGeneric("GetOptmzInterval")})
 setGeneric(name = "GetOptmzTolerance", def = function(object) {standardGeneric("GetOptmzTolerance")})
-
 setGeneric(name = "SetPricIssAge<-", def = function(object, value) {standardGeneric("SetPricIssAge<-")})
 setGeneric(name = "SetPricFaceAmt<-", def = function(object, value) {standardGeneric("SetPricFaceAmt<-")})
 setGeneric(name = "SetPricPremMode<-", def = function(object, value) {standardGeneric("SetPricPremMode<-")})
@@ -387,61 +309,39 @@ setGeneric(name = "SetTargProfitMargin<-", def = function(object, value) {standa
 setGeneric(name = "SetRndDigits<-", def = function(object, value) {standardGeneric("SetRndDigits<-")})
 setGeneric(name = "SetOptmzInterval<-", def = function(object, value) {standardGeneric("SetOptmzInterval<-")})
 setGeneric(name = "SetOptmzTolerance<-", def = function(object, value) {standardGeneric("SetOptmzTolerance<-")})
-
 setGeneric(name = "GetArgsList", def = function(object) {standardGeneric("GetArgsList")})
 setGeneric(name = "GetValuDates", def = function(object) {standardGeneric("GetValuDates")})
-
 setGeneric(name = "GetCovId", def = function(object) {standardGeneric("GetCovId")})
 setGeneric(name = "SetCovId<-", def = function(object, value) {standardGeneric("SetCovId<-")})
 setGeneric(name = "SetPlan<-", def = function(object, value) {standardGeneric("SetPlan<-")})
-
 setGeneric(name = "Validate", def = function(object, value) {standardGeneric("Validate")})
-
 setGeneric(name = "ProjAcqExpns", def = function(object, ...) {standardGeneric("ProjAcqExpns")})
 setGeneric(name = "ProjMntExpns", def = function(object, ...) {standardGeneric("ProjMntExpns")})
 setGeneric(name = "ProjMntExpnsPerPol", def = function(object, ...) {standardGeneric("ProjMntExpnsPerPol")})
 setGeneric(name = "ProjMntExpnsPerPrem", def = function(object, ...) {standardGeneric("ProjMntExpnsPerPrem")})
 setGeneric(name = "ProjMntExpnsPerClaim", def = function(object, ...) {standardGeneric("ProjMntExpnsPerClaim")})
-
 setGeneric(name = "GetArgSetId", def = function(object) {standardGeneric("GetArgSetId")})
 setGeneric(name = "SetArgSetId<-", def = function(object, value) {standardGeneric("SetArgSetId<-")})
-
 setGeneric(name = "GetModelId", def = function(object) {standardGeneric("GetModelId")})
 setGeneric(name = "SetModelId<-", def = function(object, value) {standardGeneric("SetModelId<-")})
-
 setGeneric(name = "GetJobId", def = function(object) {standardGeneric("GetJobId")})
 setGeneric(name = "SetJobId<-", def = function(object, value) {standardGeneric("SetJobId<-")})
 setGeneric(name = "SetDispatcher<-", def = function(object, func) {standardGeneric("SetDispatcher<-")})
-
 setGeneric(name = "GetPUAId", def = function(object) {standardGeneric("GetPUAId")})
 setGeneric(name = "SetPUAId<-", def = function(object, value) {standardGeneric("SetPUAId<-")})
-
 setGeneric(name = "GetDthTiming", def = function(object) {standardGeneric("GetDthTiming")})
 setGeneric(name = "SetDthTiming<-", def = function(object, value) {standardGeneric("SetDthTiming<-")})
-
-
 setGeneric(name = "GetMessage", def = function(object) {standardGeneric("GetMessage")})
 setGeneric(name = "AddMessage<-", def = function(object, value) {standardGeneric("AddMessage<-")})
 setGeneric(name = "NoMessage", def = function(object) {standardGeneric("NoMessage")})
-
 setGeneric(name = "GetPremAdj", def = function(object, ...) {standardGeneric("GetPremAdj")})
 setGeneric(name = "SetPremAdj<-", def = function(object, value) {standardGeneric("SetPremAdj<-")})
 setGeneric(name = "GetPremPfad", def = function(object, ...) {standardGeneric("GetPremPfad")})
 setGeneric(name = "SetPremPfad<-", def = function(object, value) {standardGeneric("SetPremPfad<-")})
-
 setGeneric(name = "SetLoanIntrRate<-", def = function(object, value) {standardGeneric("SetLoanIntrRate<-")})
 setGeneric(name = "SetLoanIntrRateType<-", def = function(object, value) {standardGeneric("SetLoanIntrRateType<-")})
-
 setGeneric(name = "GetSurvAnuBenPct", def = function(object) {standardGeneric("GetSurvAnuBenPct")})
 setGeneric(name = "SetSurvAnuBenPct<-", def = function(object, value) {standardGeneric("SetSurvAnuBenPct<-")})
-
-# setGeneric(name = "Create", def = function(object, ...) {standardGeneric("Create")})
-# setGeneric(name = "GetPath", def = function(object) {standardGeneric("GetPath")})
-# setGeneric(name = "ReadDescripFile", def = function(object) {standardGeneric("ReadDescripFile")})
-# setGeneric(name = "ReadNamespaceFile", def = function(object) {standardGeneric("ReadNamespaceFile")})
-# setGeneric(name = "WriteDescripFile", def = function(object, descripFields) {standardGeneric("WriteDescripFile")})
-# setGeneric(name = "WriteNamespaceFile", def = function(object, content) {standardGeneric("WriteNamespaceFile")})
-
 setGeneric(name = "TableExists", def = function(conn, tableName) {standardGeneric("TableExists")})
 setGeneric(name = "CreateTable", def = function(conn, tableName, dbColSpec, ...) {standardGeneric("CreateTable")})
 setGeneric(name = "CreateIndex", def = function(conn, tableName, indexCol, ...) {standardGeneric("CreateIndex")})
