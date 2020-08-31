@@ -9,7 +9,6 @@ setClass(
     )
 )
 
-
 IPlan.AEnd <- function(covYears, premYears = NA,
                        premTable = character(0L), modFactor = c("1" = 1, "2" = 0.5, "4" = 0.25, "12" = 1/12),
                        polFee = numeric(0), premTaxRate = numeric(0L), matBenSchd, cvTable = character(0L),
@@ -35,7 +34,6 @@ IPlan.AEnd <- function(covYears, premYears = NA,
    return(plan)
 }
 
-
 setValidity(
    Class = "IPlan.AEnd",
    method = function(object) {
@@ -58,7 +56,6 @@ setValidity(
    }
 )
 
-
 setMethod(
    f = "GetMatBenSchd",
    signature = "IPlan.AEnd",
@@ -66,11 +63,10 @@ setMethod(
       covMonths <- GetCovMonths(object, cov)
       m1 <- matrix(data = object@MatBenSchd, nrow = length(object@MatBenSchd), ncol = 1)
       m2 <- matrix(data = c(rep(0, 11), 1), nrow = 1, ncol = 12)
-      unitMatBen <- c(0, FillZeroIfNA(as.vector(t(m1 %*% m2)), covMonths))
+      unitMatBen <- FillZeroIfNA(as.vector(t(m1 %*% m2)), covMonths)
       return(unitMatBen)
    }
 )
-
 
 setMethod(
    f = "SetMatBenSchd<-",
@@ -82,7 +78,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetCVRateVector",
    signature = "IPlan.AEnd",
@@ -91,32 +86,31 @@ setMethod(
       covMonths <- GetCovMonths(object, cov)
       covYears <- ceiling(covMonths / 12)
       cvTable <- GetCVTable(object, cov)
-      if (is.null(cvTable)) {return(rep(0, covMonths + 1))}
+      if (is.null(cvTable)) {return(rep(0, covMonths))}
       # Get partial maturity benefit schedule
       mb <- GetMatBenSchd(object, cov)
       mb[length(mb)] <- 0   # Set final maturity benefit to zero for cash value calculation purpose
-      cvFactor1 <- LookUp(cvTable, cov)[1:covYears]
+      cvFactor1 <- LookUp(cvTable, cov)[1:covYears]   # cvFactor1 is the unit cash value before payout of partial maturity benefit.
       # Calculate cash value rate vector before paying partial maturity benefit
       cv1 <- matrix(data = cvFactor1, nrow = covYears)
       cv0 <- matrix(data = c(0, cvFactor1)[1:covYears], nrow = covYears)
       s <- matrix(data = seq(from = 1/12, to = 1, length.out = 12), ncol = 12)
       m <- cv0 %*% (1-s) + cv1 %*% s
-      cvRate1 <- c(0, as.vector(t(m)))
+      cvRate1 <- as.vector(t(m))
       # Calculate cash value rate vector after paying partial maturity benefit
-      cvFactor2 <- cvFactor1 - mb[seq(from = 13, to = length(mb), by = 12)]
+      cvFactor2 <- cvFactor1 - mb[seq(from = 12, to = length(mb), by = 12)]    # cvFactor2 is the unit cash value after payout of partial maturity benefit.
       cv1 <- matrix(data = cvFactor2, nrow = covYears)
       cv0 <- matrix(data = c(0, cvFactor2)[1:covYears], nrow = covYears)
       m <- cv0 %*% (1-s) + cv1 %*% s
-      cvRate2 <- c(0, as.vector(t(m)))
+      cvRate2 <- as.vector(t(m))
       # Adjust cash value rates during the year immediately following the payment of partial maturity
       for (mm in (1:length(mb))[mb > 0]) {
-         idx <- (mm + 1):(mm + 12)
+         idx <- (mm + 1):(mm + 11)
          cvRate1[idx] <- cvRate2[idx]
       }
       return(cvRate1)
    }
 )
-
 
 setMethod(
    f = "ProjMatBen",
