@@ -1,15 +1,10 @@
 CreateProj <- function(projId, loc, msgPath = character(0L)) {
    cond <- tryCatch(
       {
-         # Check project id naming rule
-         # Project id should contain only (ASCII) letters, numbers and dot, have at least two characters and start with a letter and not end in a dot.
-         # ......
-         # ......
-         # if (projId is invalid) {
-         #    message("The project Id is invlid.", appendLF = FALSE)
-         # }
-
-
+         # Check project id naming rule: should contain only (ASCII) letters, numbers and dot, have at least two characters and start with a letter and not end in a dot.
+         if (!grepl("^[a-zA-Z][a-zA-Z0-9.]{0,}[^-_.]$", projId)) {
+            message("The project identifier is invlid.", appendLF = FALSE)
+         }
          # Check if the location where the project is to be created exists.
          if (!dir.exists(loc)) {
             message("The location for the project does not exist.", appendLF = FALSE)
