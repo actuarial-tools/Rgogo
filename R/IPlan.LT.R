@@ -92,8 +92,12 @@ setValidity(
          AddMessage(err) <- "Invaid override on commission schedule. Rates must be between 0 and 1."
       }
       # Validate @PremTaxRate
+      vg <- ValidatorGroup(
+         Validator.Length(minLen = 0, maxLen = 1),
+         Validator.Range(minValue = 0, maxValue = 1, allowNA = FALSE)
+      )
       if (Validate(vg, object@PremTaxRate) != TRUE) {
-         AddMessage(err) <- "Invaid premium tax rate.  Tax rate must be between 0 and 1."
+         AddMessage(err) <- "Invaid premium tax rate.  Tax rate must be a numeric scalar between 0 and 1."
       }
       #Validate @Rein
       vg <- Validator.Names(hasNames = (length(object@Rein) >= 1))
