@@ -63,14 +63,6 @@ setMethod(
    }
 )
 
-# setMethod(
-#    f = "SaveAsRda",
-#    signature = "IObject",
-#    definition = function(object, overwrite = FALSE) {
-#       stop("Method 'SaveAsRda' must be implemented by class that extends 'IObject'.")
-#    }
-# )
-
 setMethod(
    f = "SaveAsRda",
    signature = "IObject",
