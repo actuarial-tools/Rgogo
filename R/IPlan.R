@@ -97,13 +97,3 @@ setMethod(
    }
 )
 
-# setMethod(
-#    f = "SaveAsRda",
-#    signature = "IPlan",
-#    definition = function(object, overwrite = FALSE) {
-#       stopifnot(HasValue(planID <- GetPlanId(object)))
-#       rdaName <- paste0("Plan.", planID)
-#       eval(parse(text = paste(rdaName, "<- object")))
-#       eval(parse(text = paste("usethis::use_data(", rdaName, ", overwrite = ", overwrite, ")")))
-#    }
-# )
