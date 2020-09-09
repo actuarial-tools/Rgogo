@@ -351,4 +351,6 @@ setGeneric(name = "ReadTable", def = function(conn, tableName, ...) {standardGen
 setGeneric(name = "CreateTable.Cov", def = function(conn) {standardGeneric("CreateTable.Cov")})
 setGeneric(name = "WriteTable.Cov", def = function(conn, data, ...) {standardGeneric("WriteTable.Cov")})
 setGeneric(name = "ReadTable.Cov", def = function(conn, ...) {standardGeneric("ReadTable.Cov")})
+setGeneric(name = "GetConn", def = function(object) {standardGeneric("GetConn")})
+
 

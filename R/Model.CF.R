@@ -276,6 +276,7 @@ setMethod(
          cfMntExpns[1] <- 0
       }
       result$Cf <- data.frame(
+         CovId = ifelse(length(GetId(cov)) > 0, GetId(cov), NA),
          Timeline = GetProjTimeLabel(result$Timeline),
          Prem = cfPrem,
          Prem.Tax = cfPremTax,

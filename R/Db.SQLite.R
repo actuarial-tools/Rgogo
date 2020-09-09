@@ -129,7 +129,7 @@ setMethod(
       for (colName in colnames(df)) {
          if(endsWith(colName, "Date")) {
             col <- df[, colName]
-            eval(expr = parse(text = paste0("df$", colName, " <- as.Date(col)")))
+            eval(expr = parse(text = paste0("df$", colName, " <- as.Date('1970-01-01') + lubridate::dseconds(df$", colName, ")")))
          }
       }
       return(df)

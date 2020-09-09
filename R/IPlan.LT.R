@@ -43,7 +43,6 @@ setValidity(
       # Validate premium table
       if (length(object@PremTable) > 1){
          vg <- ValidatorGroup(
-            # Validator.OfClass(c("character", "ITable")),
             Validator.Names(hasNames = TRUE)
          )
       } else {

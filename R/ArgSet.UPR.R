@@ -6,11 +6,10 @@ setClass(
    )
 )
 
-
 ArgSet.UPR <- function(valuDate, id = character(0L), descrip = character(0L)) {
    arg <- new(
       Class = "ArgSet.UPR",
-      ValuDate = valuDate,
+      ValuDate = lubridate::as_date(valuDate),
       Descrip = as.character(descrip)
    )
    SetArgSetId(arg) <- as.character(id)

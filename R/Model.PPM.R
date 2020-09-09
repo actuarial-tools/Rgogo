@@ -43,24 +43,23 @@ setMethod(
       } else {
          result <- result1
       }
-
-      # Reserve projection
-      np <- result$Assump$np
-      v <- result$Assump$v
-      dcfGross <- result$Cf$Total.Gross * v
-      dcfRein <- result$Cf$Total.Rein * v
-      dcfNet <- result$Cf$Total.Net * v
-      projResGross <- -rev(cumsum(rev(dcfGross))) / v / np
-      projResRein <- -rev(cumsum(rev(dcfRein))) / v / np
-      projResNet <- -rev(cumsum(rev(dcfNet))) / v / np
-      projResNet <- ifelse(projResNet <= resFloor, resFloor, projResNet)
-      result$ProjRes <- data.frame(
-         Timeline = GetCovProjTimeLabel(result$Timeline),
-         ProjRes.Gross = projResGross,
-         ProjRes.Rein = projResRein,
-         ProjRes.Net = projResNet,
-         stringsAsFactors = FALSE
-      )
+      # # Reserve projection
+      # np <- result$Assump$np
+      # v <- result$Assump$v
+      # dcfGross <- result$Cf$Total.Gross * v
+      # dcfRein <- result$Cf$Total.Rein * v
+      # dcfNet <- result$Cf$Total.Net * v
+      # projResGross <- -rev(cumsum(rev(dcfGross))) / v / np
+      # projResRein <- -rev(cumsum(rev(dcfRein))) / v / np
+      # projResNet <- -rev(cumsum(rev(dcfNet))) / v / np
+      # projResNet <- ifelse(projResNet <= resFloor, resFloor, projResNet)
+      # result$ProjRes <- data.frame(
+      #    Timeline = GetCovProjTimeLabel(result$Timeline),
+      #    ProjRes.Gross = projResGross,
+      #    ProjRes.Rein = projResRein,
+      #    ProjRes.Net = projResNet,
+      #    stringsAsFactors = FALSE
+      # )
       # Summarize results
       result$ValuSumm <- .SumrzResult.Model.PPM(object, var, result)
       return(result)
@@ -75,40 +74,40 @@ setMethod(
    pv <- result$PV
    res <- result$Res
    df <- data.frame(
-      ModelId = ifelse(length(GetId(model)) > 0, GetId(model), NA),
-      ArgSetId = ifelse(length(GetId(GetArgs(model))) > 0, GetId(GetArgs(model)), "NA"),
-      ValuDate = GetArgValue(model, "ValuDate"),
-      ReportClass1 = ifelse(length(GetReportClass1(cov)) > 0, GetReportClass1(cov), NA),
+      # ModelId = ifelse(length(GetId(model)) > 0, GetId(model), NA),
+      # ArgSetId = ifelse(length(GetId(GetArgs(model))) > 0, GetId(GetArgs(model)), "NA"),
+      # ValuDate = GetArgValue(model, "ValuDate"),
+      ReportClass = ifelse(length(GetReportClass1(cov)) > 0, GetReportClass1(cov), NA),
       CovId = ifelse(length(GetId(cov)) > 0, GetId(cov), NA),
       AnlzPrem = ifelse(HasValue(GetPremMode(cov)), GetPremMode(cov), 0) * ifelse(HasValue(GetModPrem(cov)), GetModPrem(cov), 0),
       GrossSumIns = GetFaceAmt(cov),
       NetSumIns = GetFaceAmt(cov) * (1 - ifelse(is.null(result$.ReinProp), 0, result$.ReinProp)),
       PUAAmt = GetPUAAmt(cov),
-      Res.Gross = res$Res.Gross,
-      Res.Rein = res$Res.Rein,
-      Res.Net = res$Res.Net,
+      ResGross = res$Res.Gross,
+      ResRein = res$Res.Rein,
+      ResNet = res$Res.Net,
       AccBal = GetAccBal(cov),
       CV = curCV,
       CVDfcn = curCV - res$Res.Net,
       LiabDur = GetProjLen(result$Timeline),
-      Pv.Prem = ifelse(is.null(pv$Prem), 0, pv$Prem),
-      Pv.Prem.Tax = ifelse(is.null(pv$Prem.Tax), 0, pv$Prem.Tax),
-      Pv.Comm = ifelse(is.null(pv$Comm), 0, pv$Comm),
-      Pv.Comm.Ovrd = ifelse(is.null(pv$Comm.Ovrd), 0, pv$Comm.Ovrd),
-      Pv.Ben.Dth = ifelse(is.null(pv$Ben.Dth), 0, pv$Ben.Dth),
-      Pv.Ben.Mat = ifelse(is.null(pv$Ben.Mat), 0, pv$Ben.Mat),
-      Pv.Ben.Sur = ifelse(is.null(pv$Ben.Sur), 0, pv$Ben.Sur),
-      Pv.Ben.Dth.PUA = ifelse(is.null(pv$Ben.Dth.PUA), 0, pv$Ben.Dth.PUA),
-      Pv.Ben.Mat.PUA = ifelse(is.null(pv$Ben.Mat.PUA), 0, pv$Ben.Mat.PUA),
-      Pv.Ben.Sur.PUA = ifelse(is.null(pv$Ben.Sur.PUA), 0, pv$Ben.Sur.PUA),
-      Pv.Ben.Anu = ifelse(is.null(pv$Ben.Anu), 0, pv$Ben.Anu),
-      Pv.Expns.Acq = ifelse(is.null(pv$Expns.Acq), 0, pv$Expns.Acq),
-      Pv.Expns.Mnt = ifelse(is.null(pv$Expns.Mnt), 0, pv$Expns.Mnt),
-      Pv.Rein.Ben = ifelse(is.null(pv$Rein.Ben), 0, pv$Rein.Ben),
-      Pv.Rein.Prem = ifelse(is.null(pv$Rein.Prem), 0, pv$Rein.Prem),
-      Pv.Rein.Prem.Rfnd = ifelse(is.null(pv$Rein.Prem.Rfnd), 0, pv$Rein.Prem.Rfnd),
-      Pv.Rein.Comm = ifelse(is.null(pv$Rein.Comm), 0, pv$Rein.Comm),
-      Pv.Rein.Comm.Rfnd = ifelse(is.null(pv$Rein.Comm.Rfnd), 0, pv$Rein.Comm.Rfnd),
+      PV.Prem = ifelse(is.null(pv$Prem), 0, pv$Prem),
+      PV.Prem.Tax = ifelse(is.null(pv$Prem.Tax), 0, pv$Prem.Tax),
+      PV.Comm = ifelse(is.null(pv$Comm), 0, pv$Comm),
+      PV.Comm.Ovrd = ifelse(is.null(pv$Comm.Ovrd), 0, pv$Comm.Ovrd),
+      PV.Ben.Dth = ifelse(is.null(pv$Ben.Dth), 0, pv$Ben.Dth),
+      PV.Ben.Dth.PUA = ifelse(is.null(pv$Ben.Dth.PUA), 0, pv$Ben.Dth.PUA),
+      PV.Ben.Mat = ifelse(is.null(pv$Ben.Mat), 0, pv$Ben.Mat),
+      PV.Ben.Mat.PUA = ifelse(is.null(pv$Ben.Mat.PUA), 0, pv$Ben.Mat.PUA),
+      PV.Ben.Sur = ifelse(is.null(pv$Ben.Sur), 0, pv$Ben.Sur),
+      PV.Ben.Sur.PUA = ifelse(is.null(pv$Ben.Sur.PUA), 0, pv$Ben.Sur.PUA),
+      PV.Ben.Anu = ifelse(is.null(pv$Ben.Anu), 0, pv$Ben.Anu),
+      PV.Expns.Acq = ifelse(is.null(pv$Expns.Acq), 0, pv$Expns.Acq),
+      PV.Expns.Mnt = ifelse(is.null(pv$Expns.Mnt), 0, pv$Expns.Mnt),
+      PV.Rein.Ben = ifelse(is.null(pv$Rein.Ben), 0, pv$Rein.Ben),
+      PV.Rein.Prem = ifelse(is.null(pv$Rein.Prem), 0, pv$Rein.Prem),
+      PV.Rein.Prem.Rfnd = ifelse(is.null(pv$Rein.Prem.Rfnd), 0, pv$Rein.Prem.Rfnd),
+      PV.Rein.Comm = ifelse(is.null(pv$Rein.Comm), 0, pv$Rein.Comm),
+      PV.Rein.Comm.Rfnd = ifelse(is.null(pv$Rein.Comm.Rfnd), 0, pv$Rein.Comm.Rfnd),
       stringsAsFactors = FALSE
    )
    return(df)
