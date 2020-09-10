@@ -32,9 +32,13 @@ setMethod(
       t <- covProjTimeIndex[covProjTimeIndex > 0]
       s <- t - as.integer(t)
       v1 <- cumprod(v) * (v ^ ifelse(s == 0, 0, s - 1))    # Discount factors for cashflows at the end of policy month
-      v0 <- ShiftRight(v1, positions = 1, filler = 1)    # Discount for cashflows at the beginning of policy month
+      if (s[1] == 0) {
+         v0 <- ShiftRight(v1, positions = 1, filler = 1)
+      } else {
+         v0 <- v1
+      }
       cf <- result$Cf
-      if (!is.null(result$Ben.Anu)) {
+      if (!all(cf$Ben.Anu == 0)) {
          if (GetAnuTiming(plan) == 0L) {
             vAnuBen <- v0
          } else {

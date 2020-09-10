@@ -110,7 +110,7 @@ setMethod(
          if (projLen > covProjLen) {
             cfPrem <- c(zeroCf, cfPrem)
          } else if (!IsBegPolMonth) {
-            cfPrem[1] <- 0
+            cfPrem <- ShiftLeft(cfPrem, positions = 1, filler = 0)
          }
       } else {
          cfPrem <- rep(0, length.out = projLen)
@@ -121,7 +121,7 @@ setMethod(
          if (projLen > covProjLen) {
             cfPremTax <- c(zeroCf, cfPremTax)
          } else if (!IsBegPolMonth) {
-            cfPremTax[1] <- 0
+             cfPremTax <- ShiftLeft(cfPremTax, positions = 1, filler = 0)
          }
       } else {
          cfPremTax <- rep(0, length.out = projLen)
@@ -132,7 +132,7 @@ setMethod(
          if (projLen > covProjLen) {
             cfComm <- c(zeroCf, cfComm)
          } else if (!IsBegPolMonth) {
-            cfComm[1] <- 0
+            cfComm <- ShiftLeft(cfComm, positions = 1, filler = 0)
          }
       } else {
          cfComm <- rep(0, length.out = projLen)
@@ -142,7 +142,7 @@ setMethod(
          if (projLen > covProjLen) {
             cfOvrd <- c(zeroCf, cfOvrd)
          } else if (!IsBegPolMonth) {
-            cfOvrd[1] <- 0
+            cfOvrd <- ShiftLeft(cfOvrd, positions = 1, filler = 0)
          }
       } else {
          cfOvrd <- rep(0, length.out = projLen)
@@ -215,7 +215,7 @@ setMethod(
          if (projLen > covProjLen) {
             cfReinPrem <- c(zeroCf, cfReinPrem)
          } else if (!IsBegPolMonth) {
-            cfReinPrem[1] <- 0
+            cfReinPrem <- ShiftLeft(cfReinPrem, positions = 1, filler = 0)
          }
       } else {
          cfReinPrem <- rep(0, length.out = projLen)
@@ -225,7 +225,7 @@ setMethod(
          if (projLen > covProjLen) {
             cfReinComm <- c(zeroCf, cfReinComm)
          } else if (!IsBegPolMonth) {
-            cfReinComm[1] <- 0
+            cfReinComm <- ShiftLeft(cfReinComm, positions = 1, filler = 0)
          }
       } else {
          cfReinComm <- rep(0, length.out = projLen)
@@ -260,7 +260,7 @@ setMethod(
          if (projLen > covProjLen) {
             cfAnuBen <- c(zeroCf, cfAnuBen)
          } else if (!IsBegPolMonth) {
-            cfAnuBen[1] <- 0
+            cfAnuBen <- ShiftLeft(cfAnuBen, positions = 1, filler = 0)
          }
       } else {
          cfAnuBen <- rep(0, length.out = projLen)
@@ -272,8 +272,8 @@ setMethod(
       cfAcqExpns <- -ae * c(rep(0, length.out = projLen - covProjLen), pn[projPolMonths])
       cfMntExpns <- -me * c(rep(0, length.out = projLen - covProjLen), pn[projPolMonths])
       if (projLen == covProjLen & !IsBegPolMonth) {
-         cfAcqExpns[1] <- 0
-         cfMntExpns[1] <- 0
+         cfAcqExpns <- ShiftLeft(cfAcqExpns, positions = 1, filler = 0)
+         cfMntExpns <- ShiftLeft(cfMntExpns, positions = 1, filler = 0)
       }
       result$Cf <- data.frame(
          CovId = ifelse(length(GetId(cov)) > 0, GetId(cov), NA),

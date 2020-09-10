@@ -265,9 +265,4 @@ CloneS4Object <- function(object){
    return(newObject)
 }
 
-LaunchProject <- function() {
-   devtools::build()
-   devtools::load_all()
-}
-
 

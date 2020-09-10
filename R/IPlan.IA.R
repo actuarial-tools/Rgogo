@@ -201,8 +201,7 @@ setMethod(
    f = "ProjDthBen",
    signature = "IPlan.IA",
    definition = function(object, cov, resultContainer) {
-      # No death benefit
-      return(resultContainer)
+      stop("'ProjDthBen' method cannot be invoked by an object of 'IPlan.IA' class.")
    }
 )
 
@@ -210,8 +209,7 @@ setMethod(
    f = "ProjMatBen",
    signature = "IPlan.IA",
    definition = function(object, cov, resultContainer) {
-      # No maturity benefit
-      return(resultContainer)
+      stop("'ProjMatBen' method cannot be invoked by an object of 'IPlan.IA' class.")
    }
 )
 
@@ -219,8 +217,7 @@ setMethod(
    f = "ProjRein",
    signature = "IPlan.IA",
    definition = function(object, cov, resultContainer) {
-      # No reinsurance
-      return(resultContainer)
+      stop("'ProjRein' method cannot be invoked by an object of 'IPlan.IA' class.")
    }
 )
 
@@ -229,9 +226,13 @@ setMethod(
    signature = "IPlan.IA",
    definition = function(object, cov, resultContainer) {
       covMonths <- GetCovMonths(object, cov)
-      a <- rep(GetFaceAmt(cov) / object@AnuMode, length.out = covMonths)   # Face amount of coverage contrains annualized annuity benefit information.
-      m <- (seq(from = 1, to = length(a)) - 1) %% (12 / object@AnuMode) == 0
-      # if (object@AnuTiming == 0) v <- c(a * m, 0) else v <- c(0, a * m)
+      anuMode <- GetAnuMode(object)
+      a <- rep(GetFaceAmt(cov) / anuMode, length.out = covMonths)   # Face amount of coverage contrains annualized annuity benefit information.
+      if (GetAnuTiming(object) == 0) {
+         m <- (seq(from = 1, to = length(a)) - 1) %% (12 / anuMode) == 0
+      } else {
+         m <- (seq(from = 1, to = length(a))) %% (12 / anuMode) == 0
+      }
       resultContainer %<>% AddProjection(projItem = "Ben.Anu", projValue = a * m)
       return(resultContainer)
    }
@@ -241,8 +242,7 @@ setMethod(
    f = "ProjCV",
    signature = "IPlan.IA",
    definition = function(object, cov, resultContainer){
-      # No cash value
-      return(resultContainer)
+      stop("'ProjCV' method cannot be invoked by an object of 'IPlan.IA' class.")
    }
 )
 
@@ -250,8 +250,7 @@ setMethod(
    f = "ProjSurBen",
    signature = "IPlan.IA",
    definition = function(object, cov, resultContainer) {
-      # No surrender
-      return(resultContainer)
+      stop("'ProjSurBen' method cannot be invoked by an object of 'IPlan.IA' class.")
    }
 )
 
@@ -263,12 +262,7 @@ setMethod(
       resultContainer <- NewProjection(resultContainer, cov, object)
       resultContainer <- ProjPrem(object, cov, resultContainer)
       resultContainer <- ProjComm(object, cov, resultContainer)
-      resultContainer <- ProjDthBen(object, cov, resultContainer)
-      resultContainer <- ProjMatBen(object, cov, resultContainer)
       resultContainer <- ProjAnuBen(object, cov, resultContainer)
-      resultContainer <- ProjCV(object, cov, resultContainer)
-      resultContainer <- ProjSurBen(object, cov, resultContainer)
-      resultContainer <- ProjRein(object, cov, resultContainer)
       return(resultContainer)
    }
 )
