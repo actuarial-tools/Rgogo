@@ -8,4 +8,5 @@ export("%>%")
 export("%<>%")
 export("%m+%")
 import("RSQLite")
+import("DBI")
 

@@ -11,7 +11,9 @@ setClass(
       InpVars = "list",
       Dispatcher = "function_or_character",
       ExportRda = "logical_or_character",
-      ExportExcel = "logical_or_character"
+      ExportExcel = "logical_or_character",
+      DbDriver = "ANY",
+      DbConnArgs = "character"
    )
 )
 
@@ -123,15 +125,6 @@ setMethod(
 )
 
 setMethod(
-   f = "Initialize",
-   signature = "IJob",
-   definition = function(object) {
-      # The method must return the job object.
-      return(object)
-   }
-)
-
-setMethod(
    f = "Dispatch",
    signature = "IJob",
    definition = function(object, inpVar) {
@@ -215,4 +208,14 @@ setMethod(
    }
 )
 
-
+setMethod(
+   f = "ConnectDb",
+   signature = "IJob",
+   definition = function(object) {
+      if (HasValue(object@DbDriver)) {
+         return(ConnectDb(object@DbDriver, object@DbConnArgs))
+      } else {
+         return(NULL)
+      }
+   }
+)

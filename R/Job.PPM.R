@@ -1,26 +1,76 @@
 setClass(
    Class = "Job.PPM",
    contains = "IJob",
-   slots = c(Conn = "DBIConnection")
+   slots = c(
+      MaxProjYears = "integer",
+      DbAppend = "logical"
+   )
 )
 
-Job.PPM <- function(inpVars, dispatcher, conn, id, descrip = character(0L)) {
+Job.PPM <- function(inpVars, dispatcher, dbDrvr, dbConnArgs, maxProjYears = 20L, dbAppend = FALSE, id, descrip = character(0L)) {
    job <- new(
       Class = "Job.PPM",
       InpVars = inpVars,
       Dispatcher = dispatcher,
-      Conn = conn,
+      DbDriver = dbDrvr,
+      DbConnArgs = dbConnArgs,
+      MaxProjYears = as.integer(maxProjYears),
+      DbAppend = dbAppend,
       Descrip = as.character(descrip)
    )
    SetJobId(job) <- as.character(id)
    return(job)
 }
 
+setValidity(
+   Class = "Job.PPM",
+   method = function(object) {
+      err <- New.SysMessage()
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = 0, maxValue = 100)
+         ),
+         object@MaxProjYears
+      )
+      if (NoMessage(err)) {
+         return(TRUE)
+      } else {
+         return(GetMessage(err))
+      }
+   }
+)
+
 setMethod(
-   f = "GetConn",
+   f = "GetMaxProjYears",
    signature = "Job.PPM",
    definition = function(object) {
-      return(object@Conn)
+      return(object@MaxProjYears)
+   }
+)
+
+setMethod(
+   f = "SetMaxProjYears<-",
+   signature = "Job.PPM",
+   definition = function(object, value) {
+      object@MaxProjYears <- as.integer(value)
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "Initialize",
+   signature = "Job.PPM",
+   definition = function(object) {
+      conn <- ConnectDb(object)
+      if (object@DbAppend == FALSE) {
+         whereClause <- paste0("JobId = '", GetId(object), "'")
+         DeleteRows(conn, "ValuSumm", whereClause)
+         DeleteRows(conn, "Cf", whereClause)
+      }
+      DisconnectDb(conn)
+      return(object)
    }
 )
 
@@ -28,54 +78,32 @@ setMethod(
    f = "Finalize",
    signature = "Job.PPM",
    definition = function(object, result, digits = 0) {
-
       # Valuation summary
       s <- paste0("rbind(", paste0(paste0("result[[", 1:length(result), "]]$ValuSumm"), collapse = ","), ")")
       eval(expr = parse(text = paste0("valuSumm <- ", s)))
       valuSumm <- cbind(JobId = GetId(object), valuSumm)
-
-      # Cash value
-      s <- paste0("rbind(", paste0(paste0("result[[", 1:length(result), "]]$Cf"), collapse = ","), ")")
+      # Cashflows
+      maxRows <- GetMaxProjYears(object) * 12
+      s <- paste0("rbind(", paste0(paste0("result[[", 1:length(result), "]]$Cf[1:maxRows,]"), collapse = ","), ")")
       eval(expr = parse(text = paste0("cf <- ", s)))
-      cf <- cbind(JobId = GetId(object), cf)
-
-      # PV
+      if (!is.null(cf)) {
+         cf <- cbind(JobId = GetId(object), dplyr::filter(cf, !is.na(CovId)))
+      }
+      # Present values
       s <- paste0("rbind(", paste0(paste0("result[[", 1:length(result), "]]$PV"), collapse = ","), ")")
       eval(expr = parse(text = paste0("pv <- ", s)))
-      pv <- cbind(JobId = GetId(job), pv)
-
-      jobResut <- list(
-         ValuSumm = valuSumm,
-         Cf = cf,
-         PV = pv
-      )
-
-
-      #    rdaFileName <- "Cf"
-      #    eval(expr = parse(text = paste0(rdaFileName, "<-", s)))
-      #    eval(expr = parse(text = paste0("save(", rdaFileName, ", file = paste0(outputDir, '/', rdaFileName, '.rda'))")))
-
-
-
-      invisible(jobResut)
-
-
-
-
-      # outputDir <- paste0("output/", GetId(object))
-      # if (object@SaveValuSumm) {
-      #    s <- paste0("rbind(", paste0(paste0("result[[", 1:length(result), "]]$ValuSumm"), collapse = ","), ")")
-      #    rdaFileName <- "ValuSumm"
-      #    eval(expr = parse(text = paste0(rdaFileName, "<-", s)))
-      #    eval(expr = parse(text = paste0("save(", rdaFileName, ", file = paste0(outputDir, '/', rdaFileName, '.rda'))")))
-      # }
-      # if (object@SaveCf) {
-      #    s <- paste0("rbind(", paste0(paste0("result[[", 1:length(result), "]]$Cf"), collapse = ","), ")")
-      #    rdaFileName <- "Cf"
-      #    eval(expr = parse(text = paste0(rdaFileName, "<-", s)))
-      #    eval(expr = parse(text = paste0("save(", rdaFileName, ", file = paste0(outputDir, '/', rdaFileName, '.rda'))")))
-      # }
-      # return(result)
+      if (!is.null(pv)) {
+         pv <- cbind(JobId = GetId(job), pv)
+      }
+      # Output job results
+      conn <- ConnectDb(object)
+      WriteTable.ValuSumm(conn, valuSumm)
+      if (!is.null(cf)) {
+         WriteTable.Cf(conn, cf)
+      }
+      CompactDb(conn)
+      DisconnectDb(conn)
+      invisible(list(ValuSumm = valuSumm, Cf = cf, PV = pv))
    }
 )
 

@@ -13,10 +13,11 @@ setClass(
              ModPrem = "numeric",
              PremMode = "integer",
              ReinProp = "numeric",
-             ExpnsWeight = "numeric",
              PUAAmt = "numeric",
              AccBal = "numeric",
-             ReportClass1 = "character"
+             ReportClass1 = "character",
+             ReportClass2 = "character",
+             ReportClass3 = "character"
    )
 )
 
@@ -27,10 +28,11 @@ Cov <- function(issDate,
                 premMode,
                 modPrem = NA_real_,
                 reinProp = NA_real_,
-                #expnsWeight = 1,
                 puaAmt = 0,
                 accBal = NA_real_,
                 reportClass1 = character(0L),
+                reportClass2 = character(0L),
+                reportClass3 = character(0L),
                 planId = character(0L),
                 id = character(0L),
                 descrip = character(0L)
@@ -45,10 +47,11 @@ Cov <- function(issDate,
       PremMode = as.integer(premMode),
       ModPrem = modPrem,
       ReinProp = reinProp,
-      #ExpnsWeight = expnsWeight,
       PUAAmt = puaAmt,
       AccBal = accBal,
       ReportClass1 = reportClass1,
+      ReportClass2 = reportClass2,
+      ReportClass3 = reportClass3,
       Id = as.character(id),
       Descrip = as.character(descrip)
    )
@@ -236,28 +239,6 @@ setMethod(
 )
 
 setMethod(
-   f = "GetExpnsWeight",
-   signature = "Cov",
-   definition = function(object) {
-      if (HasValue(object@ExpnsWeight)) {
-         return(object@ExpnsWeight)
-      } else {
-         return(1)
-      }
-   }
-)
-
-setMethod(
-   f = "SetExpnsWeight<-",
-   signature = "Cov",
-   definition = function(object, value) {
-      object@ExpnsWeight <- as.numeric(value)
-      validObject(object)
-      return(object)
-   }
-)
-
-setMethod(
    f = "GetPUAAmt",
    signature = "Cov",
    definition = function(object) {
@@ -308,7 +289,43 @@ setMethod(
    f = "SetReportClass1<-",
    signature = "Cov",
    definition = function(object, value) {
-      object@ReportClass1 <- value
+      object@ReportClass1 <- as.character(value)
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "GetReportClass2",
+   signature = "Cov",
+   definition = function(object) {
+      return(object@ReportClass2)
+   }
+)
+
+setMethod(
+   f = "SetReportClass2<-",
+   signature = "Cov",
+   definition = function(object, value) {
+      object@ReportClass2 <- as.character(value)
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "GetReportClass3",
+   signature = "Cov",
+   definition = function(object) {
+      return(object@ReportClass3)
+   }
+)
+
+setMethod(
+   f = "SetReportClass3<-",
+   signature = "Cov",
+   definition = function(object, value) {
+      object@ReportClass3 <- as.character(value)
       validObject(object)
       return(object)
    }

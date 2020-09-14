@@ -66,6 +66,8 @@ Model.PfadAnlys.NewResultContainer <- function(model, cov) {
       ModelId = GetId(model),
       CovId = GetId(cov),
       ReportClass1 = GetReportClass1(cov),
+      ReportClass2 = GetReportClass2(cov),
+      ReportClass3 = GetReportClass3(cov),
       Res.Net.Base = NA,
       Res.Net.1 = NA,
       Res.Net.2 = NA,

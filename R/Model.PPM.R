@@ -1,7 +1,11 @@
 setClass(Class = "Model.PPM", contains = "IModel")
 
 Model.PPM <- function(args = ArgSet.PPM(), id = character(0L), descrip = character(0L)) {
-   model <- new(Class = "Model.PPM", Args = args, Descrip = as.character(descrip))
+   model <- new(
+      Class = "Model.PPM",
+      Args = args,
+      Descrip = as.character(descrip)
+   )
    SetModelId(model) <- as.character(id)
    return(model)
 }
@@ -60,6 +64,7 @@ setMethod(
       #    ProjRes.Net = projResNet,
       #    stringsAsFactors = FALSE
       # )
+
       # Summarize results
       result$ValuSumm <- .SumrzResult.Model.PPM(object, var, result)
       return(result)
@@ -67,46 +72,42 @@ setMethod(
 )
 
 .SumrzResult.Model.PPM <- function(model, cov, result) {
-   m <- GetPolMonth(GetIssDate(cov), GetArgValue(model, "ValuDate"))
-   curCV <- ifelse(is.null(result$Proj$CV), 0, result$Proj$CV[m])
-   curDthBen <- ifelse(is.null(result$Proj$Ben.Dth), 0, result$Proj$Ben.Dth[m])
-   curReinDthBen <- ifelse(is.null(result$Proj$Rein.Ben), 0, result$Proj$Rein.Ben[m])
+   proj <- result$Proj
    pv <- result$PV
    res <- result$Res
+   anlzPrem <- ifelse(is.null(proj$Prem), 0, sum(proj$Prem[1:12], na.rm = TRUE))
+   curCV <- ifelse(is.null(proj$CV), 0, proj$CV[1])
+   grossSumInsd <- ifelse(is.null(proj$Ben.Dth), 0, proj$Ben.Dth[1]) + ifelse(is.null(proj$Ben.Dth.PUA), 0, proj$Ben.Dth.PUA[1])
+   reinSumInsd <- ifelse(is.null(proj$Rein.Ben), 0, proj$Rein.Ben[1])
    df <- data.frame(
-      # ModelId = ifelse(length(GetId(model)) > 0, GetId(model), NA),
-      # ArgSetId = ifelse(length(GetId(GetArgs(model))) > 0, GetId(GetArgs(model)), "NA"),
-      # ValuDate = GetArgValue(model, "ValuDate"),
-      ReportClass = ifelse(length(GetReportClass1(cov)) > 0, GetReportClass1(cov), NA),
       CovId = ifelse(length(GetId(cov)) > 0, GetId(cov), NA),
-      AnlzPrem = ifelse(HasValue(GetPremMode(cov)), GetPremMode(cov), 0) * ifelse(HasValue(GetModPrem(cov)), GetModPrem(cov), 0),
-      GrossSumIns = GetFaceAmt(cov),
-      NetSumIns = GetFaceAmt(cov) * (1 - ifelse(is.null(result$.ReinProp), 0, result$.ReinProp)),
-      PUAAmt = GetPUAAmt(cov),
-      ResGross = res$Res.Gross,
-      ResRein = res$Res.Rein,
-      ResNet = res$Res.Net,
-      AccBal = GetAccBal(cov),
+      PlanId = GetId(GetPlan(cov)),
+      AnlzPrem = anlzPrem,
       CV = curCV,
-      CVDfcn = curCV - res$Res.Net,
+      GrossSumInsd = grossSumInsd,
+      ReinSumInsd = reinSumInsd,
+      NetSumInsd = grossSumInsd - reinSumInsd,
+      GrossRes = res$Res.Gross,
+      ReinRes = res$Res.Rein,
+      NetSRes = res$Res.Net,
       LiabDur = GetProjLen(result$Timeline),
       PV.Prem = ifelse(is.null(pv$Prem), 0, pv$Prem),
       PV.Prem.Tax = ifelse(is.null(pv$Prem.Tax), 0, pv$Prem.Tax),
       PV.Comm = ifelse(is.null(pv$Comm), 0, pv$Comm),
       PV.Comm.Ovrd = ifelse(is.null(pv$Comm.Ovrd), 0, pv$Comm.Ovrd),
       PV.Ben.Dth = ifelse(is.null(pv$Ben.Dth), 0, pv$Ben.Dth),
-      PV.Ben.Dth.PUA = ifelse(is.null(pv$Ben.Dth.PUA), 0, pv$Ben.Dth.PUA),
       PV.Ben.Mat = ifelse(is.null(pv$Ben.Mat), 0, pv$Ben.Mat),
-      PV.Ben.Mat.PUA = ifelse(is.null(pv$Ben.Mat.PUA), 0, pv$Ben.Mat.PUA),
       PV.Ben.Sur = ifelse(is.null(pv$Ben.Sur), 0, pv$Ben.Sur),
-      PV.Ben.Sur.PUA = ifelse(is.null(pv$Ben.Sur.PUA), 0, pv$Ben.Sur.PUA),
       PV.Ben.Anu = ifelse(is.null(pv$Ben.Anu), 0, pv$Ben.Anu),
+      PV.Ben.Dth.PUA = ifelse(is.null(pv$Ben.Dth.PUA), 0, pv$Ben.Dth.PUA),
+      PV.Ben.Mat.PUA = ifelse(is.null(pv$Ben.Mat.PUA), 0, pv$Ben.Mat.PUA),
+      PV.Ben.Sur.PUA = ifelse(is.null(pv$Ben.Sur.PUA), 0, pv$Ben.Sur.PUA),
       PV.Expns.Acq = ifelse(is.null(pv$Expns.Acq), 0, pv$Expns.Acq),
       PV.Expns.Mnt = ifelse(is.null(pv$Expns.Mnt), 0, pv$Expns.Mnt),
-      PV.Rein.Ben = ifelse(is.null(pv$Rein.Ben), 0, pv$Rein.Ben),
       PV.Rein.Prem = ifelse(is.null(pv$Rein.Prem), 0, pv$Rein.Prem),
-      PV.Rein.Prem.Rfnd = ifelse(is.null(pv$Rein.Prem.Rfnd), 0, pv$Rein.Prem.Rfnd),
       PV.Rein.Comm = ifelse(is.null(pv$Rein.Comm), 0, pv$Rein.Comm),
+      PV.Rein.Ben = ifelse(is.null(pv$Rein.Ben), 0, pv$Rein.Ben),
+      PV.Rein.Prem.Rfnd = ifelse(is.null(pv$Rein.Prem.Rfnd), 0, pv$Rein.Prem.Rfnd),
       PV.Rein.Comm.Rfnd = ifelse(is.null(pv$Rein.Comm.Rfnd), 0, pv$Rein.Comm.Rfnd),
       stringsAsFactors = FALSE
    )
@@ -160,8 +161,6 @@ ExportToExcel.Model.PPM <- function(result, dir, annual = TRUE, digits = 0, over
    openxlsx::writeData(wb, sheet = "CovData", x = GetModPrem(cov) * GetPremMode(cov), startCol = 2, startRow = r)
    openxlsx::writeData(wb, sheet = "CovData", x = "Account Balance:", startCol = 1, startRow = (r <- r + 1))
    openxlsx::writeData(wb, sheet = "CovData", x = GetAccBal(cov), startCol = 2, startRow = r)
-   openxlsx::writeData(wb, sheet = "CovData", x = "Expense Weight:", startCol = 1, startRow = (r <- r + 1))
-   openxlsx::writeData(wb, sheet = "CovData", x = GetExpnsWeight(cov), startCol = 2, startRow = r)
    openxlsx::writeData(wb, sheet = "CovData", x = "Expiry Date:", startCol = 1, startRow = (r <- r + 1))
    openxlsx::writeData(wb, sheet = "CovData", x = GetExpiryDate(cov), startCol = 2, startRow = r)
    openxlsx::setColWidths(wb, sheet = "CovData", cols = (1:2), widths = c(20, 15))

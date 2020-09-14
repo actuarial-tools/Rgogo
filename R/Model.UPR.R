@@ -1,21 +1,25 @@
 # Unearned Premium Reserve Model
 setClass(Class = "Model.UPR", contains = "IModel")
 
-
 Model.UPR <- function(args = ArgSet.UPR(), id = character(0L), descrip = as.character(0L)) {
-   model <- new(Class = "Model.UPR", Args = args, Descrip = as.character(descrip))
+   model <- new(
+      Class = "Model.UPR",
+      Args = args,
+      Descrip = as.character(descrip)
+   )
    SetModelId(model) <- as.character(id)
    return(model)
 }
-
 
 setMethod(
    f = "Run",
    signature = c("Model.UPR", "Cov"),
    definition = function(object, var, result = list()) {
-      # Calculate unearned portion
       projStartDate <- GetArgValue(object, "ValuDate") + 1
-      tInfo <- GetProjTimelineInfo(projStartDate, var)
+      result <- Project(GetPlan(var), var, result)
+      result$Timeline <- GetProjTimelineInfo(projStartDate, var, GetPlan(var))
+      # Calculate unearned portion
+      tInfo <- result$Timeline
       premDueDates <- GetCovTimeline(tInfo)[((1:length(GetCovProjTimeIndex(tInfo))) - 1) %% (12 / GetPremMode(var)) == 0]
       x <- sum(premDueDates < projStartDate)
       if (x > 0 & x < length(premDueDates)) {
@@ -26,62 +30,60 @@ setMethod(
          urndProp <- 0
       }
       uprGross <- GetModPrem(var) * urndProp
-      uprCeded <- uprGross * ifelse(HasValue(GetReinProp(var)), GetReinProp(var), 0)
-      uprNet <- uprGross - uprCeded
-      result$Res.Gross <- uprGross
-      result$Res.Rein <- uprCeded
-      result$Res.Net <- uprNet
+      #uprCeded <- uprGross * ifelse(HasValue(GetReinProp(var)), GetReinProp(var), 0)
+      uprRein <- 0
+      uprNet <- uprGross - uprRein
+      result$Res <- data.frame(
+         Res.Gross = uprGross,
+         Res.Rein = uprRein,
+         Res.Net = uprNet,
+         stringsAsFactors = FALSE
+      )
       result$UrndProp <- urndProp
-
-      result$CovData <- var
       result$ValuSumm <- .SumrzResult.Model.UPR(object, var, result)
-
       return(result)
    }
 )
 
-
 .SumrzResult.Model.UPR <- function(model, cov, result) {
    m <- GetPolMonth(GetIssDate(cov), GetArgValue(model, "ValuDate"))
-   curCV <- ifelse(is.null(result$Proj$CV), 0, result$Proj$CV[m])
-   curDthBen <- ifelse(is.null(result$Proj$Ben.Dth), 0, result$Proj$Ben.Dth[m])
-   curReinDthBen <- ifelse(is.null(result$Proj$Rein.Ben), 0, result$Proj$Rein.Ben[m])
+   proj <- result$Proj
+   pv <- result$PV
+   res <- result$Res
+   anlzPrem <- ifelse(is.null(proj$Prem), 0, sum(proj$Prem[m:(m+11)], na.rm = TRUE))
+   curCV <- ifelse(is.null(proj$CV), 0, proj$CV[m])
+   grossSumInsd <- ifelse(is.null(proj$Ben.Dth), 0, proj$Ben.Dth[m]) + ifelse(is.null(proj$Ben.Dth.PUA), 0, proj$Ben.Dth.PUA[m])
+   reinSumInsd <- ifelse(is.null(proj$Rein.Ben), 0, proj$Rein.Ben[m])
    df <- data.frame(
-      ModelId = ifelse(length(GetId(model)) > 0, GetId(model), "NA"),
-      ArgSetId = ifelse(length(GetId(GetArgs(model))) > 0, GetId(GetArgs(model)), "NA"),
-      ValuDate = GetArgValue(model, "ValuDate"),
-      ReportClass1 = GetReportClass1(cov),
-      CovId = GetId(cov),
-      AnlzPrem = ifelse(HasValue(GetPremMode(cov)), GetPremMode(cov), 0) * ifelse(HasValue(GetModPrem(cov)), GetModPrem(cov), 0),
-      GrossSumIns = GetFaceAmt(cov),
-      # NetSumIns = GetFaceAmt(cov) * (1 - ifelse(HasValue(GetReinProp(cov)), GetReinProp(cov), 0)),
-      NetSumIns = GetFaceAmt(cov) * (1 - ifelse(is.null(result$.ReinProp), 0, result$.ReinProp)),
-      PUAAmt = GetPUAAmt(cov),
-      Res.Gross = result$Res.Gross,
-      Res.Rein = result$Res.Rein,
-      Res.Net = result$Res.Net,
-      AccBal = GetAccBal(cov),
-      CV = NA,
-      CVDfcn = NA,
-      LiabDur = NA,
-      Pv.Prem = NA,
-      Pv.Prem.Tax = NA,
-      Pv.Comm = NA,
-      Pv.Comm.Ovrd = NA,
-      Pv.Ben.Dth = NA,
-      Pv.Ben.Mat = NA,
-      Pv.Ben.Sur = NA,
-      Pv.Ben.Dth.PUA = NA,
-      Pv.Ben.Mat.PUA = NA,
-      Pv.Ben.Sur.PUA = NA,
-      Pv.Ben.Anu = NA,
-      Pv.Expns.Acq = NA,
-      Pv.Expns.Mnt = NA,
-      Pv.Rein.Ben = NA,
-      Pv.Rein.Prem = NA,
-      Pv.Rein.Prem.Rfnd = NA,
-      Pv.Rein.Comm = NA,
-      Pv.Rein.Comm.Rfnd = NA,
+      CovId = ifelse(length(GetId(cov)) > 0, GetId(cov), NA),
+      PlanId = GetId(GetPlan(cov)),
+      AnlzPrem = anlzPrem,
+      CV = curCV,
+      GrossSumInsd = grossSumInsd,
+      ReinSumInsd = reinSumInsd,
+      NetSumInsd = grossSumInsd - reinSumInsd,
+      GrossRes = res$Res.Gross,
+      ReinRes = res$Res.Rein,
+      NetSRes = res$Res.Net,
+      LiabDur = GetProjLen(result$Timeline),
+      PV.Prem = NA,
+      PV.Prem.Tax = NA,
+      PV.Comm = NA,
+      PV.Comm.Ovrd = NA,
+      PV.Ben.Dth = NA,
+      PV.Ben.Mat = NA,
+      PV.Ben.Sur = NA,
+      PV.Ben.Anu = NA,
+      PV.Ben.Dth.PUA = NA,
+      PV.Ben.Mat.PUA = NA,
+      PV.Ben.Sur.PUA = NA,
+      PV.Expns.Acq = NA,
+      PV.Expns.Mnt = NA,
+      PV.Rein.Prem = NA,
+      PV.Rein.Comm = NA,
+      PV.Rein.Ben = NA,
+      PV.Rein.Prem.Rfnd = NA,
+      PV.Rein.Comm.Rfnd = NA,
       stringsAsFactors = FALSE
    )
    return(df)
