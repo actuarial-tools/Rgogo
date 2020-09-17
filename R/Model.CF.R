@@ -22,17 +22,17 @@ setMethod(
 
 setMethod(
    f = "Run.CF",
-   signature = c("Model.CF", "IPlan.LT", "Cov"),
+   signature = c("Model.CF", "IPlan", "Cov"),
    definition = function(object, plan, cov, result) {
       covMonths <- GetCovMonths(plan, cov)
       projStartDate <- GetArgValue(object, "ProjStartDate")
       result$Timeline <- GetProjTimelineInfo(projStartDate, cov, plan)
-      # projPolMonths <- (1:(covMonths + 1))[GetCovProjTimeIndex(result$Timeline) >= 0]
       projLen <- GetProjLen(result$Timeline)
       covProjLen <- GetCovProjLen(result$Timeline)
       projPolMonths <- GetProjPolMonths(result$Timeline)
 
       # Project policy values
+      result$.args <- GetArgs(object)
       result <- Project(plan, cov, result)
       proj <- result$Proj
 

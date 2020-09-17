@@ -44,25 +44,9 @@ setMethod(
 )
 
 setMethod(
-   f = "GetExpdAssump",
-   signature = "IPremAssump",
-   definition = function(object, cov, plan, assumpInfo, ...) {
-      stop("Method 'GetExpdAssump' must be implemented by a class extending 'IPremAssump'.")
-   }
-)
-
-setMethod(
-   f = "GetPaddAssump",
-   signature = "IPremAssump",
-   definition = function(object, cov, plan, assumpInfo, ...) {
-      stop("Method 'GetPaddAssump' must be implemented by a class extending 'IPremAssump'.")
-   }
-)
-
-setMethod(
    f = "GetAssump",
    signature = "IPremAssump",
-   definition = function(object, cov, plan, assumpInfo, ...) {
+   definition = function(object, cov, plan, applyMargin) {
       stop("Method 'GetAssump' must be implemented by a class extending 'IPremAssump'.")
    }
 )

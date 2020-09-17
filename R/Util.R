@@ -120,6 +120,7 @@ DeployProject <- function(pkgName, overwrite = FALSE) {
    DeployObject(pkgName, "ExpnsAssump", overwrite)
    DeployObject(pkgName, "IntrAssump", overwrite)
    DeployObject(pkgName, "PremAssump", overwrite)
+   DeployObject(pkgName, "IntrCredAssump", overwrite)
    DeployObject(pkgName, "PUA", overwrite)
    DeployObject(pkgName, "Rein", overwrite)
    DeployObject(pkgName, "ArgSet", overwrite)

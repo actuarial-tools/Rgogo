@@ -84,31 +84,17 @@ setMethod(
 )
 
 setMethod(
-   f = "GetExpdAssump",
-   signature = "PremAssump",
-   definition = function(object, cov, plan, assumpInfo) {
-      assumpInfo$PremAdj.Expd <- GetPremAdj(cov, plan)
-      return(assumpInfo)
-   }
-)
-
-setMethod(
-   f = "GetPaddAssump",
-   signature = "PremAssump",
-   definition = function(object, cov, plan, assumpInfo) {
-      assumpInfo$PremAdj.Padd <- assumpInfo$PremAdj.Expd * (1 + GetPremPfad(object, cov, plan))
-      return(assumpInfo)
-   }
-)
-
-
-setMethod(
    f = "GetAssump",
    signature = "PremAssump",
-   definition = function(object, cov, plan, assumpInfo = list()){
-      assumpInfo <- GetExpdAssump(object, cov, plan, assumpInfo)
-      assumpInfo <- GetPaddAssump(object, cov, plan, assumpInfo)
-      return(assumpInfo)
+   definition = function(object, cov, plan, applyMargin){
+      covMonths <- GetCovMonths(plan, cov)
+      premAdj <- rep(GetPremAdj(object, cov, plan), each = 12, length.out = covMonths)
+      if (applyMargin == TRUE) {
+         pfad <- rep(GetPremPfad(object, cov, plan), each = 12, length.out = covMonths)
+         return(premAdj * (1 + pfad))
+      } else {
+         return(premAdj)
+      }
    }
 )
 

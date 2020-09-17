@@ -89,7 +89,7 @@ setMethod(
       NetSumInsd = grossSumInsd - reinSumInsd,
       GrossRes = res$Res.Gross,
       ReinRes = res$Res.Rein,
-      NetSRes = res$Res.Net,
+      NetRes = res$Res.Net,
       LiabDur = GetProjLen(result$Timeline),
       PV.Prem = ifelse(is.null(pv$Prem), 0, pv$Prem),
       PV.Prem.Tax = ifelse(is.null(pv$Prem.Tax), 0, pv$Prem.Tax),

@@ -1,83 +1,92 @@
 setClass(Class = "Model.PfadAnlys", contains = "IModel")
 
-
 Model.PfadAnlys <- function(args, id = character(0L), descrip = character(0L)) {
    model <- new(Class = "Model.PfadAnlys", Args = args, Descrip = as.character(descrip))
    SetModelId(model) <- as.character(id)
    return(model)
 }
 
-
 setMethod(
    f = "Run",
    signature = "Model.PfadAnlys",
    definition = function(object, var, result) {
-      # PfAD analysis is to calculate reserves by removing provisions for adverse deviation in the following orders: mortality -> lapse -> interest -> expense
+      # PfAD analysis is to calculate reserves by removing provisions for adverse deviation in the following orders: mortality -> lapse -> interest -> expense -> premium
+      model <- GetModel(GetArgs(object))
+      args <- GetArgs(model)
       # Calculate base scenario reserve
-      valuModel <- GetModel(GetArgs(object))
-      dfResult <- Model.PfadAnlys.NewResultContainer(object, var)
-      valuResult <- Run(valuModel, var, list())
-      dfResult[1,"Res.Net.Base"] <- valuResult$Res.Net
-      valuArgs <- GetArgs(valuModel)
-      # Remove mortality pfad
-      if (GetArgValue(valuArgs, "ApplyMortMargin") == TRUE) {
-         valuModel <- SetArgValue(valuModel, ApplyMortMargin = FALSE)
-         valuResult <- Run(valuModel, var, list())
-         dfResult[1, "Res.Net.1"] <- valuResult$Res.Net
-      } else {
-         dfResult[1, "Res.Net.1"] <- dfResult[1, "Base"]
+      valuResult <- Run(model, var, list())
+      netRes0 <- valuResult$Res.Net
+      # Step 1: calculate reserve by removing mortality pfad
+      netRes1 <- netRes0
+      if (all(Contains(args, c("MortAssump", "ApplyMortMargin")))) {
+         if (ApplyMortMargin(args)) {
+            ApplyMortMargin(args) <- FALSE
+            SetArgs(model) <- args
+            valuResult <- Run(model, var, list())
+           netRes1 <- valuResult$Res.Net
+         }
       }
-      dfResult[1, "Pfad.Mort"] <- dfResult[1, "Res.Net.Base"] - dfResult[1, "Res.Net.1"]
-      # Remove lapse pfad
-      if (GetArgValue(valuArgs, "ApplyLapseMargin") == TRUE) {
-         valuModel <- SetArgValue(valuModel, ApplyLapseMargin = FALSE)
-         valuResult <- Run(valuModel, var, list())
-         dfResult[1, "Res.Net.2"] <- valuResult$Res.Net
-      } else {
-         dfResult[1, "Res.Net.2"] <- dfResult[1, "Base"]
+      # Step 2: calculate reserve by removing lapse pfad
+      netRes2 <- netRes1
+      if (all(Contains(args, c("LapseAssump", "ApplyLapseMargin")))) {
+         if (ApplyLapseMargin(args)) {
+            ApplyLapseMargin(args) <- FALSE
+            SetArgs(model) <- args
+            valuResult <- Run(model, var, list())
+            netRes2 <- valuResult$Res.Net
+         }
       }
-      dfResult[1, "Pfad.Lapse"] <- dfResult[1, "Res.Net.1"] - dfResult[1, "Res.Net.2"]
-      # Remove interest pfad
-      if (GetArgValue(valuArgs, "ApplyIntrMargin") == TRUE) {
-         valuModel <- SetArgValue(valuModel, ApplyIntrMargin = FALSE)
-         valuResult <- Run(valuModel, var, list())
-         dfResult[1, "Res.Net.3"] <- valuResult$Res.Net
-      } else {
-         dfResult[1, "Res.Net.3"] <- dfResult[1, "Base"]
+      # Step 3: calculate reserve by removing interest pfad
+      netRes3 <- netRes2
+      if (all(Contains(args, c("IntrAssump", "ApplyIntrMargin")))) {
+         if (ApplyIntrMargin(args)) {
+            ApplyIntrMargin(args) <- FALSE
+            SetArgs(model) <- args
+            valuResult <- Run(model, var, list())
+            netRes3 <- valuResult$Res.Net
+         }
       }
-      dfResult[1, "Pfad.Intr"] <- dfResult[1, "Res.Net.2"] - dfResult[1, "Res.Net.3"]
-      # Remove expense pfad
-      if (GetArgValue(valuArgs, "ApplyExpnsMargin") == TRUE) {
-         valuModel <- SetArgValue(valuModel, ApplyExpnsMargin = FALSE)
-         valuResult <- Run(valuModel, var, list())
-         dfResult[1, "Res.Net.4"] <- valuResult$Res.Net
-      } else {
-         dfResult[1, "Res.Net.4"] <- dfResult[1, "Base"]
+      # Step 4: calculate reserve by removing expense pfad
+      netRes4 <- netRes3
+      if (all(Contains(args, c("ExpnsAssump", "ApplyExpnsMargin")))) {
+         if (ApplyExpnsMargin(args)) {
+            ApplyExpnsMargin(args) <- FALSE
+            SetArgs(model) <- args
+            valuResult <- Run(model, var, list())
+            netRes4 <- valuResult$Res.Net
+         }
       }
-      dfResult[1, "Pfad.Expns"] <- dfResult[1, "Res.Net.3"] - dfResult[1, "Res.Net.4"]
-      result$PfadInfo <- dfResult
+      # Step 5: calculate reserve by removing expense pfad
+      netRes5 <- netRes4
+      if (all(Contains(args, c("PremAssump", "ApplyPremMargin")))) {
+         if (ApplyPremMargin(args)) {
+            ApplyPremMargin(args) <- FALSE
+            SetArgs(model) <- args
+            valuResult <- Run(model, var, list())
+            netRes5 <- valuResult$Res.Net
+         }
+      }
+      dfResult$MortPfad = dfResult$NetRes0 - dfResult$NetRes1
+      dfResult$LapsePfad = dfResult$NetRes1 - dfResult$NetRes2
+      dfResult$IntrPfad = dfResult$NetRes2 - dfResult$NetRes3
+      dfResult$ExpnsPfad = dfResult$NetRes3 - dfResult$NetRes4
+      dfResult$ExpnsPfad = dfResult$NetRes4 - dfResult$NetRes5
+      result$Pfad <- data.frame(
+         CovId <- GetId(var),
+         NetRes0 = netRes0,
+         NetRes1 = netRes1,
+         NetRes2 = netRes2,
+         NetRes3 = netRes3,
+         NetRes4 = netRes4,
+         NetRes5 = netRes5,
+         MortPfad = netRes0 - netRes1,
+         LapsePfad = netRes1 - netRes2,
+         IntrPfad = netRes2 - netRes3,
+         ExpnsPfad = netRes3 - netRes4,
+         PremPfad = netRes4 - netRes5,
+         stringsAsFactors = FALSE
+      )
       return(result)
    }
 )
 
-
-Model.PfadAnlys.NewResultContainer <- function(model, cov) {
-   df <- data.frame(
-      ModelId = GetId(model),
-      CovId = GetId(cov),
-      ReportClass1 = GetReportClass1(cov),
-      ReportClass2 = GetReportClass2(cov),
-      ReportClass3 = GetReportClass3(cov),
-      Res.Net.Base = NA,
-      Res.Net.1 = NA,
-      Res.Net.2 = NA,
-      Res.Net.3 = NA,
-      Res.Net.4 = NA,
-      Pfad.Mort = NA,
-      Pfad.Lapse = NA,
-      Pfad.Intr = NA,
-      Pfad.Expns = NA,
-      stringsAsFactors = FALSE
-   )
-   return(df)
-}

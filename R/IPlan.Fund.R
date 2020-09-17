@@ -29,13 +29,13 @@ setMethod(
    }
 )
 
-# setMethod(
-#    f = "GetPremPrstncyRatio",
-#    signature = "IPlan.Fund",
-#    definition = function(object, cov) {
-#       return(rep(1, length.out = GetCovMonths(object, cov)))
-#    }
-# )
+setMethod(
+   f = "GetRiskClass",
+   signature = "IPlan.Fund",
+   definition = function(object, cov) {
+      return(GetRiskClass(cov))
+   }
+)
 
 setMethod(
    f = "ProjPrem",
@@ -44,9 +44,14 @@ setMethod(
       covMonths <- GetCovMonths(object, cov)
       modPrem <- GetModPrem(cov)
       if (HasValue(modPrem)) {
-         premMode <- GetPremMode(cov)
-         prem <- FillZeroIfNA(rep(c(modPrem, rep(0, times = (12 / premMode - 1))), length.out = GetPremMonths(object, cov)),
-                              len = covMonths) #* GetPremPrstncyRatio(object, cov)
+         premAssump <- GetPremAssump(resultContainer$.args)
+         if (!is.null(premAssump)) {
+            premAdj <- GetAssump(premAssump, cov, object, ApplyPremMargin(resultContainer$.args))
+         } else {
+            premAdj <- rep(1, length.out = covMonths)
+         }
+         prem <- FillZeroIfNA(rep(c(modPrem, rep(0, times = (12 / GetPremMode(cov) - 1))), length.out = GetPremMonths(object, cov)),
+                              len = covMonths) * premAdj
       } else {
          prem <- rep(0, length.out = covMonths)
       }
@@ -70,7 +75,7 @@ setMethod(
    f = "ProjDthBen",
    signature = "IPlan.Fund",
    definition = function(object, cov, resultContainer) {
-      resultContainer %<>% AddProjection(projItem = "Ben.Dth", projValue = resultContainer$Proj$FundValue)
+      resultContainer %<>% AddProjection(projItem = "Ben.Dth", projValue = resultContainer$Proj$Fund)
       return(resultContainer)
    }
 )

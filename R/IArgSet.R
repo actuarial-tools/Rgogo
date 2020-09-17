@@ -86,3 +86,11 @@ setMethod(
       eval(parse(text = paste("usethis::use_data(", rdaName, ", overwrite = ", overwrite, ")")))
    }
 )
+
+setMethod(
+   f = "Contains",
+   signature = c("IArgSet", "character"),
+   definition = function(object, item) {
+      return(argName %in% slotNames(object))
+   }
+)

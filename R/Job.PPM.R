@@ -64,12 +64,14 @@ setMethod(
    signature = "Job.PPM",
    definition = function(object) {
       conn <- ConnectDb(object)
-      if (object@DbAppend == FALSE) {
-         whereClause <- paste0("JobId = '", GetId(object), "'")
-         DeleteRows(conn, "ValuSumm", whereClause)
-         DeleteRows(conn, "Cf", whereClause)
+      if (!is.null(conn)) {
+         if (object@DbAppend == FALSE) {
+            whereClause <- paste0("JobId = '", GetId(object), "'")
+            DeleteRows(conn, "ValuSumm", whereClause)
+            DeleteRows(conn, "Cf", whereClause)
+         }
+         DisconnectDb(conn)
       }
-      DisconnectDb(conn)
       return(object)
    }
 )
@@ -97,12 +99,14 @@ setMethod(
       }
       # Output job results
       conn <- ConnectDb(object)
-      WriteTable.ValuSumm(conn, valuSumm)
-      if (!is.null(cf)) {
-         WriteTable.Cf(conn, cf)
+      if (!is.null(conn)) {
+         WriteTable.ValuSumm(conn, valuSumm)
+         if (!is.null(cf)) {
+            WriteTable.Cf(conn, cf)
+         }
+         CompactDb(conn)
+         DisconnectDb(conn)
       }
-      CompactDb(conn)
-      DisconnectDb(conn)
       invisible(list(ValuSumm = valuSumm, Cf = cf, PV = pv))
    }
 )

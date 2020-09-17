@@ -180,7 +180,7 @@ setMethod(
                   NetSumInsd = DBI::dbDataType(conn, numeric()),
                   GrossRes = DBI::dbDataType(conn, numeric()),
                   ReinRes = DBI::dbDataType(conn, numeric()),
-                  NetSRes = DBI::dbDataType(conn, numeric()),
+                  NetRes = DBI::dbDataType(conn, numeric()),
                   LiabDur = DBI::dbDataType(conn, numeric()),
                   PVPrem = DBI::dbDataType(conn, numeric()),
                   PVPremTax = DBI::dbDataType(conn, numeric()),
@@ -287,5 +287,42 @@ setMethod(
    signature = "SQLiteConnection",
    definition = function(conn) {
       DBI::dbExecute(conn, "VACUUM")
+   }
+)
+
+setMethod(
+   f = "CreateTable.Pfad",
+   signature = "SQLiteConnection",
+   definition = function(conn) {
+      DBI::dbWithTransaction(
+         conn,
+         {
+            CreateTable(
+               conn,
+               tableName = "Pfad",
+               colSpec <- c(
+                  JobId = DBI::dbDataType(conn, character()),
+                  CovId = DBI::dbDataType(conn, character()),
+                  PlanId = DBI::dbDataType(conn, character()),
+                  MortPfad = DBI::dbDataType(conn, numeric()),
+                  LapsePfad = DBI::dbDataType(conn, numeric()),
+                  IntrPfad = DBI::dbDataType(conn, numeric()),
+                  ExpnsPfad = DBI::dbDataType(conn, numeric()),
+                  PremPfad = DBI::dbDataType(conn, numeric())
+               ),
+               primaryKey = c("JobId", "CovId")
+            )
+            CreateIndex(conn, tableName = "Pfad", indexCol = "PlanId")
+         }
+      )
+   }
+)
+
+setMethod(
+   f = "WriteTable.Pfad",
+   signature = c("SQLiteConnection", "ANY"),
+   definition = function(conn, data, append = TRUE, colExpandable = FALSE) {
+      names(data) <- gsub("\\.", "", names(data))
+      WriteTable(conn, "Pfad", data, append, colExpandable)
    }
 )
