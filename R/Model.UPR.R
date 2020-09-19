@@ -50,7 +50,8 @@ setMethod(
    proj <- result$Proj
    pv <- result$PV
    res <- result$Res
-   anlzPrem <- ifelse(is.null(proj$Prem), 0, sum(proj$Prem[m:(m+11)], na.rm = TRUE))
+   #anlzPrem <- ifelse(is.null(proj$Prem), 0, sum(proj$Prem[m:(m+11)], na.rm = TRUE))
+   anlzPrem <- GetModPrem(cov) * GetPremMode(cov)
    curCV <- ifelse(is.null(proj$CV), 0, proj$CV[m])
    grossSumInsd <- ifelse(is.null(proj$Ben.Dth), 0, proj$Ben.Dth[m]) + ifelse(is.null(proj$Ben.Dth.PUA), 0, proj$Ben.Dth.PUA[m])
    reinSumInsd <- ifelse(is.null(proj$Rein.Ben), 0, proj$Rein.Ben[m])
@@ -64,7 +65,7 @@ setMethod(
       NetSumInsd = grossSumInsd - reinSumInsd,
       GrossRes = res$Res.Gross,
       ReinRes = res$Res.Rein,
-      NetSRes = res$Res.Net,
+      NetRes = res$Res.Net,
       LiabDur = GetProjLen(result$Timeline),
       PV.Prem = NA,
       PV.Prem.Tax = NA,

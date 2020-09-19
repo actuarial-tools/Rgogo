@@ -1,5 +1,5 @@
 setClass(
-   Class = "Job.PPM",
+   Class = "Job.Valuation",
    contains = "IJob",
    slots = c(
       MaxProjYears = "integer",
@@ -7,9 +7,9 @@ setClass(
    )
 )
 
-Job.PPM <- function(inpVars, dispatcher, dbDrvr, dbConnArgs, maxProjYears = 20L, dbAppend = FALSE, id, descrip = character(0L)) {
+Job.Valuation <- function(inpVars, dispatcher, dbDrvr, dbConnArgs, maxProjYears = 20L, dbAppend = FALSE, id, descrip = character(0L)) {
    job <- new(
-      Class = "Job.PPM",
+      Class = "Job.Valuation",
       InpVars = inpVars,
       Dispatcher = dispatcher,
       DbDriver = dbDrvr,
@@ -23,7 +23,7 @@ Job.PPM <- function(inpVars, dispatcher, dbDrvr, dbConnArgs, maxProjYears = 20L,
 }
 
 setValidity(
-   Class = "Job.PPM",
+   Class = "Job.Valuation",
    method = function(object) {
       err <- New.SysMessage()
       isValid <- Validate(
@@ -43,7 +43,7 @@ setValidity(
 
 setMethod(
    f = "GetMaxProjYears",
-   signature = "Job.PPM",
+   signature = "Job.Valuation",
    definition = function(object) {
       return(object@MaxProjYears)
    }
@@ -51,7 +51,7 @@ setMethod(
 
 setMethod(
    f = "SetMaxProjYears<-",
-   signature = "Job.PPM",
+   signature = "Job.Valuation",
    definition = function(object, value) {
       object@MaxProjYears <- as.integer(value)
       validObject(object)
@@ -61,7 +61,7 @@ setMethod(
 
 setMethod(
    f = "Initialize",
-   signature = "Job.PPM",
+   signature = "Job.Valuation",
    definition = function(object) {
       conn <- ConnectDb(object)
       if (!is.null(conn)) {
@@ -78,7 +78,7 @@ setMethod(
 
 setMethod(
    f = "Finalize",
-   signature = "Job.PPM",
+   signature = "Job.Valuation",
    definition = function(object, result, digits = 0) {
       # Valuation summary
       s <- paste0("rbind(", paste0(paste0("result[[", 1:length(result), "]]$ValuSumm"), collapse = ","), ")")
@@ -111,7 +111,7 @@ setMethod(
    }
 )
 
-ExportToExcel.Job.PPM <- function(result, dir, annualized = TRUE, digits = 0, overwrite = FALSE) {
+ExportToExcel.Job.Valuation <- function(result, dir, annualized = TRUE, digits = 0, overwrite = FALSE) {
    lst <- lapply(result,
                  function(rslt, d, anlz, dgt, ow) {ExportToExcel.Model.PPM(rslt, d, anlz, dgt, ow)},
                  dir, annualized, digits, overwrite)

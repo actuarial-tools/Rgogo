@@ -1,4 +1,4 @@
-CreateProj <- function(projId, loc, msgPath = character(0L)) {
+CreateProject <- function(projId, loc, msgPath = character(0L)) {
    cond <- tryCatch(
       {
          # Check project id naming rule: should contain only (ASCII) letters, numbers and dot, have at least two characters and start with a letter and not end in a dot.
@@ -66,6 +66,10 @@ CreateProj <- function(projId, loc, msgPath = character(0L)) {
    } else {
       return(cond)
    }
+}
+
+CreateProj <- function(projId, loc, msgPath = character(0L)) {
+   CreateProject(projId, loc, msgPath)
 }
 
 ReadDescripFile <- function(projRoot = character()) {

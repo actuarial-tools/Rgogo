@@ -15,6 +15,9 @@ setMethod(
    signature = c("Model.PPM", "Cov"),
    definition = function(object, var, result = list()) {
       args <- GetArgs(object)
+      if (GetExpiryDate(var) <= GetProjStartDate(args)) {
+         return(result)
+      }
       resFloor <- GetArgValue(object, "ResFloor")
       # Run discounted cash flow model to calculate reserves.
       model.dcf <- Model.DCF(args)

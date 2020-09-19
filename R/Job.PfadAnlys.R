@@ -5,7 +5,7 @@ setClass(
 
 setMethod(
    f = "Initialize",
-   signature = "Job.PPM",
+   signature = "Job.PfadAnlys",
    definition = function(object) {
       conn <- ConnectDb(object)
       if (!is.null(conn)) {
