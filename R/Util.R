@@ -266,4 +266,21 @@ CloneS4Object <- function(object){
    return(newObject)
 }
 
+IsListOfList <- function(x) {
+   return(all(unlist(lapply(x, function(y) {is.list(y)}))))
+}
 
+To.data.frame <- function(x, itemName, colNames = NA_character_) {
+   stopifnot(IsListOfList(x))
+   rslt <- list()
+   cols <- names(x[[1]][[itemName]])
+   for (col in cols) {
+      eval(expr = parse(text = paste0("s", col, "<-c(", paste0("x[[", 1:length(x), "]][[itemName]]$", col, collapse = ","),")")))
+      eval(expr = parse(text = paste0("rslt$", col, "<-s", col)))
+   }
+   df <- as.data.frame(rslt, stringsAsFactors = FALSE)
+   if (!is.na(colNames)) {
+      colnames(df) <- colNames
+   }
+   return(df)
+}

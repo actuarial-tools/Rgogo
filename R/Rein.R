@@ -274,7 +274,7 @@ setMethod(
       } else {
          cv <- ShiftRight(resultContainer$Proj$CV, positions = 1, filler = 0)
       }
-      resultContainer %<>% AddProjection(projItem = "Naar", projValue = resultContainer$Proj$Ben.Dth - cv)
+      resultContainer$Proj$Naar = resultContainer$Proj$Ben.Dth - cv
       return(resultContainer)
    }
 )
@@ -292,9 +292,9 @@ setMethod(
       # Project retention and reinsured Naar
       resultContainer <- ProjNaar(object, cov, resultContainer)
       naar <- resultContainer$Proj$Naar
-      resultContainer %<>% AddProjection(projItem = "Rein.Naar", projValue = naar * reinProp)
-      resultContainer %<>% AddProjection(projItem = "Rein.Retn", projValue = naar * (1 - reinProp))
-      resultContainer %<>% AddProjection(projItem = "Rein.Ben", projValue = naar * reinProp)
+      resultContainer$Proj$Rein.Naar = naar * reinProp
+      resultContainer$Proj$Rein.Retn = naar * (1 - reinProp)
+      resultContainer$Proj$Rein.Ben = naar * reinProp
       resultContainer$.ReinProp <- reinProp
       return(resultContainer)
    }
@@ -326,8 +326,8 @@ setMethod(
          } else {
             projReinPremRfnd <- rep(0, length.out = covMonths)
          }
-         resultContainer %<>% AddProjection(projItem = "Rein.Prem", projValue = projReinPrem)
-         resultContainer %<>% AddProjection(projItem = "Rein.Prem.Rfnd", projValue = projReinPremRfnd)
+         resultContainer$Proj$Rein.Prem <- projReinPrem
+         resultContainer$Proj$Rein.Prem.Rfnd <- projReinPremRfnd
       }
       return(resultContainer)
    }
@@ -348,8 +348,8 @@ setMethod(
          } else {
             projReinCommRfnd <- rep(0, length.out = covMonths)
          }
-         resultContainer %<>% AddProjection(projItem = "Rein.Comm", projValue = projReinComm)
-         resultContainer %<>% AddProjection(projItem = "Rein.Comm.Rfnd", projValue = projReinCommRfnd)
+         resultContainer$Proj$Rein.Comm <- projReinComm
+         resultContainer$Proj$Rein.Comm.Rfnd <- projReinCommRfnd
          resultContainer$.pctRfnd <- NULL
       }
       return(resultContainer)

@@ -188,10 +188,10 @@ setMethod(
       prem <- c(singlePrem, rep(0, length.out = GetCovMonths(object, cov) - 1))
       premTax <- prem * GetPremTaxRate(object, cov)
       if (!all(prem == 0)) {
-         resultContainer %<>% AddProjection(projItem = "Prem", projValue = prem)
+         resultContainer$Proj$Prem = prem
       }
       if (!all(premTax == 0)) {
-         resultContainer %<>% AddProjection(projItem = "Prem.Tax", projValue = premTax)
+         resultContainer$Proj$Prem.Tax <- premTax
       }
       return(resultContainer)
    }
@@ -233,7 +233,7 @@ setMethod(
       } else {
          m <- (seq(from = 1, to = length(a))) %% (12 / anuMode) == 0
       }
-      resultContainer %<>% AddProjection(projItem = "Ben.Anu", projValue = a * m)
+      resultContainer$Proj$Ben.Anu <-  a * m
       return(resultContainer)
    }
 )

@@ -109,7 +109,7 @@ setMethod(
    definition = function(object, cov, resultContainer) {
       covMonths <- GetCovMonths(object, cov)
       matBen <- c(rep(0, covMonths - 1), GetFaceAmt(cov))
-      resultContainer %<>% AddProjection(projItem = "Ben.Mat", projValue = matBen)
+      resultContainer$Proj$Ben.Mat <- matBen
       return(resultContainer)
    }
 )
@@ -119,7 +119,7 @@ setMethod(
    signature = "IPlan.End",
    definition = function(object, cov, resultContainer){
       projCV <- GetFaceAmt(cov) * GetCVRateVector(object, cov)
-      resultContainer %<>% AddProjection(projItem = "CV", projValue = projCV)
+      resultContainer$Proj$CV <- projCV
       return(resultContainer)
    }
 )
@@ -129,7 +129,7 @@ setMethod(
    signature = "IPlan.End",
    definition = function(object, cov, resultContainer) {
       cv <- resultContainer$Proj$CV
-      resultContainer %<>% AddProjection(projItem = "Ben.Sur", projValue = cv)
+      resultContainer$Proj$Ben.Sur
       return(resultContainer)
    }
 )

@@ -91,6 +91,6 @@ setMethod(
    f = "Contains",
    signature = c("IArgSet", "character"),
    definition = function(object, item) {
-      return(argName %in% slotNames(object))
+      return(item %in% slotNames(object))
    }
 )

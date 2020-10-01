@@ -133,6 +133,14 @@ setMethod(
 )
 
 setMethod(
+   f = "Initialize",
+   signature = "IJob",
+   definition = function(object) {
+      return(object)
+   }
+)
+
+setMethod(
    f = "Run",
    signature = "IJob",
    definition = function(object) {

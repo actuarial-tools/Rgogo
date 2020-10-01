@@ -3,15 +3,26 @@ setClass(
    contains = "IJob"
 )
 
+Job.PfadAnlys <- function(inpVars, dispatcher, dbDrvr, dbConnArgs, id, descrip = character(0L)) {
+   job <- new(
+      Class = "Job.PfadAnlys",
+      InpVars = inpVars,
+      Dispatcher = dispatcher,
+      DbDriver = dbDrvr,
+      DbConnArgs = dbConnArgs,
+      Descrip = as.character(descrip)
+   )
+   SetJobId(job) <- as.character(id)
+   return(job)
+}
+
 setMethod(
    f = "Initialize",
    signature = "Job.PfadAnlys",
    definition = function(object) {
       conn <- ConnectDb(object)
       if (!is.null(conn)) {
-         if (object@DbAppend == FALSE) {
-            DeleteRows(conn, "Pfad", paste0("JobId = '", GetId(object), "'"))
-         }
+         DeleteRows(conn, "Pfad", paste0("JobId = '", GetId(object), "'"))
          DisconnectDb(conn)
       }
       return(object)
@@ -22,16 +33,14 @@ setMethod(
    f = "Finalize",
    signature = "Job.PfadAnlys",
    definition = function(object, result, digits = 0) {
-      s <- paste0("rbind(", paste0(paste0("result[[", 1:length(result), "]]$Pfad"), collapse = ","), ")")
-      eval(expr = parse(text = paste0("pfad <- ", s)))
-      pfad <- cbind(JobId = GetId(object), pfad)
+      pfad <- cbind(JobId = GetId(object), To.data.frame(result, "Pfad"))
       conn <- ConnectDb(object)
       if (!is.null(conn)) {
          WriteTable.Pfad(conn, pfad)
          CompactDb(conn)
          DisconnectDb(conn)
       }
-      invisible(list(Pfad = pfad))
+      return(list(Pfad = pfad))
    }
 )
 

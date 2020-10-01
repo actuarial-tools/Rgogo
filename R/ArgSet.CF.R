@@ -122,7 +122,8 @@ setMethod(
             slotValue <- ifelse(startsWith(slotValue, "MortAssump."), slotValue, paste0("MortAssump.", slotValue))
             return(eval(expr = parse(text = slotValue)))
          } else {
-            return(MortAssump())
+            # return(MortAssump())
+            return(NULL)
          }
       } else {
          return(slotValue)
@@ -140,7 +141,8 @@ setMethod(
             slotValue <- ifelse(startsWith(slotValue, "LapseAssump."), slotValue, paste0("LapseAssump.", slotValue))
             return(eval(expr = parse(text = slotValue)))
          } else {
-            return(LapseAssump())
+            # return(LapseAssump())
+            return(NULL)
          }
       } else {
          return(slotValue)
@@ -158,7 +160,8 @@ setMethod(
             slotValue <- ifelse(startsWith(slotValue, "ExpnsAssump."), slotValue, paste0("ExpnsAssump.", slotValue))
             return(eval(expr = parse(text = slotValue)))
          } else {
-            return(ExpnsAssump())
+            # return(ExpnsAssump())
+            return(NULL)
          }
       } else {
          return(slotValue)

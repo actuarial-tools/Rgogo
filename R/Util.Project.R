@@ -1,4 +1,4 @@
-CreateProject <- function(projId, loc, msgPath = character(0L)) {
+CreateProject <- function(projId, loc = getwd(), msgPath = character(0L)) {
    cond <- tryCatch(
       {
          # Check project id naming rule: should contain only (ASCII) letters, numbers and dot, have at least two characters and start with a letter and not end in a dot.
@@ -42,12 +42,10 @@ CreateProject <- function(projId, loc, msgPath = character(0L)) {
          )
          WriteNamespaceFile(content, projRoot)
          # Create sub-folders under project root.
-         dir.create(file.path(projRoot, "batch"))
-         dir.create(file.path(projRoot, "data"))
-         dir.create(file.path(projRoot, "data-raw"))
-         # dir.create(file.path(projRoot, "db"))
-         dir.create(file.path(projRoot, "R"))
-         NULL
+         for (subdir in c("R", "data", "batch", "export")) {
+            dir.create(file.path(projRoot, subdir))
+         }
+         paste0("'", projId, "' project is created in '", loc, "'")
       },
       message = function(c) {c},
       warning = function(c) {c},
@@ -66,10 +64,6 @@ CreateProject <- function(projId, loc, msgPath = character(0L)) {
    } else {
       return(cond)
    }
-}
-
-CreateProj <- function(projId, loc, msgPath = character(0L)) {
-   CreateProject(projId, loc, msgPath)
 }
 
 ReadDescripFile <- function(projRoot = character()) {

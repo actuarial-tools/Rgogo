@@ -143,7 +143,7 @@ setMethod(
       # Refund occurs at the end of coverage period.
       if (ropAmt != 0) {
          matBen <- c(rep(0, covMonths - 1), ropAmt)
-         resultContainer %<>% AddProjection(projItem = "Ben.Mat", projValue = matBen)
+         resultContainer$Proj$Ben.Mat <- matBen
       }
       return(resultContainer)
    }

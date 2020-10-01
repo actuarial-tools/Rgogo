@@ -6,8 +6,8 @@ setClass(
       ExpnsChrgSchd = "numeric",
       ExpnsChrgMode = "integer",
       ExpnsChrgTiming = "integer",
-      SurChrgSchd = "numeric",
       MinIntrCredRate = "numeric",
+      SurChrgSchd = "numeric",
       CommSchd = "numeric",
       OvrdOnPremSchd = "numeric",
       OvrdOnCommSchd = "numeric",
@@ -66,11 +66,6 @@ setValidity(
       isValid <- Validate(Validator.Range(minValue = 0, maxValue = 1), object@SurChrgSchd)
       if (isValid != TRUE) {
          AddMessage(err) <- "Invalid surrender charge schedule.  The rates must be between 0 and 1."
-      }
-      # Validate @MinIntrCredRate
-      isValid <- Validate(Validator.Length(minLen = 0, maxLen = 1), object@MinIntrCredRate)
-      if (isValid != TRUE) {
-         AddMessage(err) <- "Invaid credited interest rate.  It must be a numeric scalar."
       }
       # Validate @PremTaxRate
       isValid <- Validate(
@@ -237,8 +232,19 @@ setMethod(
 setMethod(
    f = "GetMinIntrCredRate",
    signature = "IPlan.Fund.A",
-   definition = function(object, cov) {
-      return(object@MinIntrCredRate)
+   definition = function(object, cov = NULL) {
+      if (is.null(cov)) {
+         return(object@MinIntrCredRate)
+      } else {
+         covMonths <- GetCovMonths(object, cov)
+         if (length(object@MinIntrCredRate) == 0) {
+            return(rep(-Inf, legnth.out = covMonths))
+         } else if (length(object@MinIntrCredRate) == 1) {
+            return(rep(object@MinIntrCredRate, length.out = covMonths))
+         } else {
+            return(FillTail(rep(object@MinIntrCredRate, each = 12), filler = -Inf, len = covMonths))
+         }
+      }
    }
 )
 
@@ -249,6 +255,14 @@ setMethod(
       object@MinIntrCredRate <- value
       validObject(object)
       return(object)
+   }
+)
+
+setMethod(
+   f = "GetIntrCredDate",
+   signature = "IPlan.Fund.A",
+   definition = function(object, cov) {
+      return(GetIssDate(cov) %m+% months(1:GetCovMonths(object, cov)))
    }
 )
 
@@ -355,10 +369,7 @@ setMethod(
    definition = function(object, cov, resultContainer) {
       resultContainer <- callNextMethod()
       if (GetPremTaxRate(object, cov) != 0) {
-         resultContainer %<>% AddProjection(
-            projItem = "Prem.Tax",
-            projValue = resultContainer$Proj$Prem * GetPremTaxRate(object, cov)
-         )
+         resultContainer$Proj$Prem.Tax <- resultContainer$Proj$Prem * GetPremTaxRate(object, cov)
       }
       return(resultContainer)
    }
@@ -373,60 +384,32 @@ setMethod(
       prem <- resultContainer$Proj$Prem
       premLoad <- -prem * GetPremLoadSchd(object, cov)
       expnsChrg <- -GetExpnsChrgSchd(object, cov) * (((1:covMonths) - 1) %% (12 / GetExpnsChrgMode(object)) == 0)
-      i <- GetAssump(GetIntrCredAssump(resultContainer$.args), cov, object)
-      imin <- GetMinIntrCredRate(object, cov)
-      i <- ifelse(i < imin, imin, i)
-      j <- (1 + i) ^ (1 / 12) - 1
-      projStartPolMonth <- GetPolMonth(GetIssDate(cov), GetProjStartDate(resultContainer$.args))
-      accBal <- GetAccBal(cov)
-      fundAdj <- icred <- fund <- rep(0, covMonths)
-      if (GetExpnsChrgTiming(object) == 0) {
-         icred[1] = (prem[1] + premLoad[1] + expnsChrg[1]) * j[1]
-         fund[1] = prem[1] + premLoad[1] + expnsChrg[1] + icred[1]
-         t <- 2
-         while (t <= covMonths) {
-            icred[t] = (fund[t - 1] + prem[t] + premLoad[t] + expnsChrg[t]) * j[t]
-            fund[t] = fund[t - 1] + prem[t] + premLoad[t] + expnsChrg[t] + icred[t]
-            if (t == projStartPolMonth) {
-               fundAdj[t] <- accBal - fund[t]
-               fund[t] <- accBal
-            }
-            t <- t + 1
-         }
+      iMin <- GetMinIntrCredRate(object, cov)
+      if (is.null(resultContainer$.ArgSet)) {
+         i <- iMin
+         projStartPolMonth <- 1
       } else {
-         icred[1] = (prem[1] + premLoad[1]) * j[1]
-         fund[1] = prem[1] + premLoad[1] + expnsChrg[1] + icred[1]
-         t <- 2
-         while (t <= covMonths) {
-            icred[t] = (fund[t - 1] + prem[t] + premLoad[t]) * j[t]
-            fund[t] = fund[t - 1] + prem[t] + premLoad[t] + expnsChrg[t] + icred[t]
-            if (t == projStartPolMonth) {
-               fundAdj[t] <- accBal - fund[t]
-               fund[t] <- accBal
-            }
-            t <- t + 1
-         }
+         i <- GetAssump(GetIntrCredAssump(resultContainer$.ArgSet), cov, object)
+         i <- ifelse(i < iMin, iMin, i)
+         projStartPolMonth <- floor(GetPolMonth(GetIssDate(cov), GetProjStartDate(resultContainer$.ArgSet), exact = TRUE))
       }
-      resultContainer %<>% AddProjection(
-         projItem = "PremLoad",
-         projValue = premLoad
-      )
-      resultContainer %<>% AddProjection(
-         projItem = "ExpnsChrg",
-         projValue = expnsChrg
-      )
-      resultContainer %<>% AddProjection(
-         projItem = "IntrCred",
-         projValue = icred
-      )
-      resultContainer %<>% AddProjection(
-         projItem = "Fund.Adj",
-         projValue = fundAdj
-      )
-      resultContainer %<>% AddProjection(
-         projItem = "Fund",
-         projValue = fund
-      )
+      j <- (1 + i) ^ (1 / 12) - 1
+      accBal <- GetAccBal(cov)
+      fundAdj <- iCred <- fundBeg <- fundEnd <- rep(0, covMonths)
+      expnsChrgTiming <- GetExpnsChrgTiming(object)
+      for (t in 1:covMonths) {
+         fundBeg[t] <- ifelse(t == 1, 0, fundEnd[t - 1])
+         openBal <- fundBeg[t] + prem[t] + premLoad[t] + expnsChrg[t] * (expnsChrgTiming == 0)
+         iCred[t] <- openBal * j[t]
+         fundEnd[t] <- openBal + iCred[t] + expnsChrg[t] * (expnsChrgTiming == 1)
+         fundAdj[t] <- (accBal - fundEnd[t]) * (t == (projStartPolMonth - 1))
+         fundEnd[t] <- fundEnd[t] + fundAdj[t]
+      }
+      resultContainer$Proj$PremLoad <- premLoad
+      resultContainer$Proj$ExpnsChrg <- expnsChrg
+      resultContainer$Proj$IntrCred <- iCred
+      resultContainer$Proj$Fund.Adj <- fundAdj
+      resultContainer$Proj$Fund <- fundEnd
       return(resultContainer)
    }
 )

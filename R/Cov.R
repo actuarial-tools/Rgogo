@@ -109,6 +109,14 @@ setMethod(
 )
 
 setMethod(
+   f = "GetPlanId",
+   signature = "Cov",
+   definition = function(object) {
+      return(object@PlanId)
+   }
+)
+
+setMethod(
    f = "GetIssDate",
    signature = "Cov",
    definition = function(object) {

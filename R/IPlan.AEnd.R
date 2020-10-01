@@ -117,7 +117,7 @@ setMethod(
    signature = "IPlan.AEnd",
    definition = function(object, cov, resultContainer) {
       matBen <- GetMatBenSchd(object, cov) * GetFaceAmt(cov)
-      resultContainer %<>% AddProjection(projItem = "Ben.Mat", projValue = matBen)
+      resultContainer$Proj$Ben.Mat <- matBen
       return(resultContainer)
    }
 )

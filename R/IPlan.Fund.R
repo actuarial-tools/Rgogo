@@ -22,10 +22,10 @@ setMethod(
    f = "GetPremYears",
    signature = "IPlan.Fund",
    definition = function(object, cov) {
-      years1 <- ifelse(is.na(object@CovPeriod["PremYears"]), Inf, object@CovPeriod["PremYears"])
-      years2 <- ifelse(is.na(object@CovPeriod["PremToAge"]), Inf, object@CovPeriod["PremToAge"] - GetIssAge(cov))
-      covYears <- min(years1, years2)
-      return(covYears)
+      years1 <- ifelse(is.na(object@PremPeriod["PremYears"]), Inf, object@PremPeriod["PremYears"])
+      years2 <- ifelse(is.na(object@PremPeriod["PremToAge"]), Inf, object@PremPeriod["PremToAge"] - GetIssAge(cov))
+      premYears <- min(years1, years2)
+      return(premYears)
    }
 )
 
@@ -44,18 +44,11 @@ setMethod(
       covMonths <- GetCovMonths(object, cov)
       modPrem <- GetModPrem(cov)
       if (HasValue(modPrem)) {
-         premAssump <- GetPremAssump(resultContainer$.args)
-         if (!is.null(premAssump)) {
-            premAdj <- GetAssump(premAssump, cov, object, ApplyPremMargin(resultContainer$.args))
-         } else {
-            premAdj <- rep(1, length.out = covMonths)
-         }
-         prem <- FillZeroIfNA(rep(c(modPrem, rep(0, times = (12 / GetPremMode(cov) - 1))), length.out = GetPremMonths(object, cov)),
-                              len = covMonths) * premAdj
+         prem <- FillZeroIfNA(rep(c(modPrem, rep(0, times = (12 / GetPremMode(cov) - 1))), length.out = GetPremMonths(object, cov)), len = covMonths)
       } else {
          prem <- rep(0, length.out = covMonths)
       }
-      resultContainer %<>% AddProjection(projItem = "Prem", projValue = prem)
+      resultContainer$Proj$Prem <- prem
       return(resultContainer)
    }
 )
@@ -65,8 +58,8 @@ setMethod(
    signature = "IPlan.Fund",
    definition = function(object, cov, resultContainer) {
       covMonths <- GetCovMonths(object, cov)
-      resultContainer %<>% AddProjection(projItem = "Comm", projValue = rep(0, length.out = covMonths))
-      resultContainer %<>% AddProjection(projItem = "Comm.Ovrd", projValue = rep(0, length.out = covMonths))
+      resultContainer$Proj$Comm <- rep(0, length.out = covMonths)
+      resultContainer$Proj$Comm.Ovrd <- rep(0, length.out = covMonths)
       return(resultContainer)
    }
 )
@@ -75,7 +68,7 @@ setMethod(
    f = "ProjDthBen",
    signature = "IPlan.Fund",
    definition = function(object, cov, resultContainer) {
-      resultContainer %<>% AddProjection(projItem = "Ben.Dth", projValue = resultContainer$Proj$Fund)
+      resultContainer$Proj$Ben.Dth <- resultContainer$Proj$Fund
       return(resultContainer)
    }
 )
@@ -92,10 +85,7 @@ setMethod(
    f = "ProjSurBen",
    signature = "IPlan.Fund",
    definition = function(object, cov, resultContainer) {
-      resultContainer %<>% AddProjection(
-         projItem = "Ben.Sur",
-         projValue = resultContainer$Proj$Fund - GetSurChrg(object, cov, resultContainer)
-      )
+      resultContainer$Proj$Ben.Sur <- resultContainer$Proj$Fund - GetSurChrg(object, cov, resultContainer)
       return(resultContainer)
    }
 )
@@ -105,10 +95,7 @@ setMethod(
    signature = "IPlan.Fund",
    definition = function(object, cov, resultContainer) {
       covMonths <- GetCovMonths(object, cov)
-      resultContainer %<>% AddProjection(
-         projItem = "Ben.Mat",
-         projValue = c(rep(0, length.out = covMonths - 1), resultContainer$Proj$Fund[covMonths])
-      )
+      resultContainer$Proj$Ben.Mat <- c(rep(0, length.out = covMonths - 1), resultContainer$Proj$Fund[covMonths])
       return(resultContainer)
    }
 )
@@ -124,7 +111,7 @@ setMethod(
 setMethod(
    f = "Project",
    signature = "IPlan.Fund",
-   definition = function(object, cov, resultContainer) {
+   definition = function(object, cov, resultContainer = list()) {
       resultContainer <- NewProjection(resultContainer, cov, object)
       resultContainer <- ProjPrem(object, cov, resultContainer)
       resultContainer <- ProjComm(object, cov, resultContainer)

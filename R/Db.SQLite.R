@@ -304,6 +304,7 @@ setMethod(
                   JobId = DBI::dbDataType(conn, character()),
                   CovId = DBI::dbDataType(conn, character()),
                   PlanId = DBI::dbDataType(conn, character()),
+                  NetRes = DBI::dbDataType(conn, numeric()),
                   MortPfad = DBI::dbDataType(conn, numeric()),
                   LapsePfad = DBI::dbDataType(conn, numeric()),
                   IntrPfad = DBI::dbDataType(conn, numeric()),

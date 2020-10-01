@@ -79,9 +79,9 @@ setMethod(
       credRate <- object@IntrCredRate[sort(names(object@IntrCredRate), decreasing = TRUE)]
       rate <- unlist(
          lapply(
-            X = as.list(GetIssDate(cov) %m+% months(1:covMonths)),
-            FUN = function(polMonthDate) {
-               rate <- credRate[polMonthDate >= as.Date(names(credRate))][1]
+            X = as.list(GetIntrCredDate(plan, cov)),
+            FUN = function(intrCredDates) {
+               rate <- credRate[intrCredDates >= as.Date(names(credRate))][1]
                return(rate)
             }
          )

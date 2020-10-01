@@ -22,26 +22,25 @@ setMethod(
       # Run discounted cash flow model to calculate reserves.
       model.dcf <- Model.DCF(args)
       result1 <- Run(model.dcf, var, result)
-      result1$Res <- data.frame(
-         Res.Gross = -result1$PV$Total.Gross,
-         Res.Rein = -result1$PV$Total.Rein,
-         Res.Net = max(-result1$PV$Total.Net, resFloor),
-         stringsAsFactors = FALSE
+      result1$Res <- list(
+         Res.Gross = max(-result1$PV$Total.Gross, resFloor),
+         Res.Rein = -result1$PV$Total.Rein
       )
-      result1$.LapsePfadUsed <- GetLapsePfad(GetArgValue(model.dcf, "LapseAssump"))
-      # Re-run by reversing lapse margin if necessary (when applying lapse margin and the coverage has cash values)
-      if (GetArgValue(object, "ApplyLapseMargin")) {
-         lapseAssump <- GetArgValue(model.dcf, "LapseAssump")
-         SetLapsePfad(lapseAssump) <- -GetLapsePfad(lapseAssump)
+      result1$Res$Res.Net <- max(result1$Res$Res.Gross + result1$Res$Res.Rein, resFloor)
+      # Re-run by reversing lapse margin if necessary
+      lapseAssump <- GetArgValue(model.dcf, "LapseAssump")
+      if (!is.null(lapseAssump) & GetArgValue(object, "ApplyLapseMargin")) {
+         lapsePfad <- GetLapsePfad(lapseAssump)
+         result1$.LapsePfadUsed <- GetLapsePfad(GetArgValue(model.dcf, "LapseAssump"))
+         SetLapsePfad(lapseAssump) <- -lapsePfad
          model.dcf <- SetArgValue(model.dcf, LapseAssump = lapseAssump)
          result2 <- Run(model.dcf, var, result)
-         result2$Res <- data.frame(
-            Res.Gross = -result2$PV$Total.Gross,
-            Res.Rein = -result2$PV$Total.Rein,
-            Res.Net = max(-result2$PV$Total.Net, resFloor),
-            stringsAsFactors = FALSE
+         result2$Res <- list(
+            Res.Gross = max(-result2$PV$Total.Gross, resFloor),
+            Res.Rein = -result2$PV$Total.Rein
          )
-         result2$.LapsePfadUsed <- GetLapsePfad(GetArgValue(model.dcf, "LapseAssump"))
+         result2$Res$Res.Net <- max(result2$Res$Res.Gross + result2$Res$Res.Rein, resFloor)
+         result2$.LapsePfadUsed <- -lapsePfad
          if (result2$Res$Res.Net[1] > result1$Res$Res.Net[1]) {
             result <- result2
          } else {
@@ -50,24 +49,6 @@ setMethod(
       } else {
          result <- result1
       }
-      # # Reserve projection
-      # np <- result$Assump$np
-      # v <- result$Assump$v
-      # dcfGross <- result$Cf$Total.Gross * v
-      # dcfRein <- result$Cf$Total.Rein * v
-      # dcfNet <- result$Cf$Total.Net * v
-      # projResGross <- -rev(cumsum(rev(dcfGross))) / v / np
-      # projResRein <- -rev(cumsum(rev(dcfRein))) / v / np
-      # projResNet <- -rev(cumsum(rev(dcfNet))) / v / np
-      # projResNet <- ifelse(projResNet <= resFloor, resFloor, projResNet)
-      # result$ProjRes <- data.frame(
-      #    Timeline = GetCovProjTimeLabel(result$Timeline),
-      #    ProjRes.Gross = projResGross,
-      #    ProjRes.Rein = projResRein,
-      #    ProjRes.Net = projResNet,
-      #    stringsAsFactors = FALSE
-      # )
-
       # Summarize results
       result$ValuSumm <- .SumrzResult.Model.PPM(object, var, result)
       return(result)
@@ -82,7 +63,7 @@ setMethod(
    curCV <- ifelse(is.null(proj$CV), 0, proj$CV[1])
    grossSumInsd <- ifelse(is.null(proj$Ben.Dth), 0, proj$Ben.Dth[1]) + ifelse(is.null(proj$Ben.Dth.PUA), 0, proj$Ben.Dth.PUA[1])
    reinSumInsd <- ifelse(is.null(proj$Rein.Ben), 0, proj$Rein.Ben[1])
-   df <- data.frame(
+   df <- list(
       CovId = ifelse(length(GetId(cov)) > 0, GetId(cov), NA),
       PlanId = GetId(GetPlan(cov)),
       AnlzPrem = anlzPrem,
@@ -111,8 +92,7 @@ setMethod(
       PV.Rein.Comm = ifelse(is.null(pv$Rein.Comm), 0, pv$Rein.Comm),
       PV.Rein.Ben = ifelse(is.null(pv$Rein.Ben), 0, pv$Rein.Ben),
       PV.Rein.Prem.Rfnd = ifelse(is.null(pv$Rein.Prem.Rfnd), 0, pv$Rein.Prem.Rfnd),
-      PV.Rein.Comm.Rfnd = ifelse(is.null(pv$Rein.Comm.Rfnd), 0, pv$Rein.Comm.Rfnd),
-      stringsAsFactors = FALSE
+      PV.Rein.Comm.Rfnd = ifelse(is.null(pv$Rein.Comm.Rfnd), 0, pv$Rein.Comm.Rfnd)
    )
    return(df)
 }
@@ -268,32 +248,32 @@ ExportToExcel.Model.PPM <- function(result, dir, annual = TRUE, digits = 0, over
    return(wb)
 }
 
-.ExportPPMResultToExcel.ProjRes <- function(wb, result, annual, digits) {
-   if (annual == TRUE) {
-      dfOutput <- data.frame(Timeline = GetYearStartValue(result$ProjRes[, "Timeline"]), stringsAsFactors = FALSE)
-      cnames <- names(result$ProjRes)
-      for (cname in cnames[cnames != "Timeline"]) {
-         dfOutput <- eval(expr = parse(text = paste0("cbind(dfOutput, data.frame(", cname, " = GetYearStartValue(result$ProjRes[, cname]), stringsAsFactors = FALSE))")))
-      }
-   } else {
-      dfOutput <- result$ProjRes
-   }
-   sheetName <- "ProjRes"
-   openxlsx::addWorksheet(wb, sheetName)
-   dfOutput <- Round.data.frame(dfOutput, digits)
-   openxlsx::writeDataTable(wb, sheet = sheetName, x = dfOutput, startCol = 1, startRow = 1)
-   openxlsx::setColWidths(wb, sheet = sheetName, cols = (1:dim(dfOutput)[2]), widths = 12)
-   return(wb)
-}
+# .ExportPPMResultToExcel.ProjRes <- function(wb, result, annual, digits) {
+#    if (annual == TRUE) {
+#       dfOutput <- data.frame(Timeline = GetYearStartValue(result$ProjRes[, "Timeline"]), stringsAsFactors = FALSE)
+#       cnames <- names(result$ProjRes)
+#       for (cname in cnames[cnames != "Timeline"]) {
+#          dfOutput <- eval(expr = parse(text = paste0("cbind(dfOutput, data.frame(", cname, " = GetYearStartValue(result$ProjRes[, cname]), stringsAsFactors = FALSE))")))
+#       }
+#    } else {
+#       dfOutput <- result$ProjRes
+#    }
+#    sheetName <- "ProjRes"
+#    openxlsx::addWorksheet(wb, sheetName)
+#    dfOutput <- Round.data.frame(dfOutput, digits)
+#    openxlsx::writeDataTable(wb, sheet = sheetName, x = dfOutput, startCol = 1, startRow = 1)
+#    openxlsx::setColWidths(wb, sheet = sheetName, cols = (1:dim(dfOutput)[2]), widths = 12)
+#    return(wb)
+# }
 
-.ExportPPMResultToExcel.Assump <- function(wb, result) {
-   sheetName <- "Assump"
-   openxlsx::addWorksheet(wb, sheetName)
-   data <- result$Assump
-   openxlsx::writeDataTable(wb, sheet = sheetName, x = data, startCol = 1, startRow = 1)
-   openxlsx::setColWidths(wb, sheet = sheetName, cols = (1:dim(data)[2]), widths = 12)
-   return(wb)
-}
+# .ExportPPMResultToExcel.Assump <- function(wb, result) {
+#    sheetName <- "Assump"
+#    openxlsx::addWorksheet(wb, sheetName)
+#    data <- result$Assump
+#    openxlsx::writeDataTable(wb, sheet = sheetName, x = data, startCol = 1, startRow = 1)
+#    openxlsx::setColWidths(wb, sheet = sheetName, cols = (1:dim(data)[2]), widths = 12)
+#    return(wb)
+# }
 
 
 

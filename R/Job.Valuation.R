@@ -80,23 +80,9 @@ setMethod(
    f = "Finalize",
    signature = "Job.Valuation",
    definition = function(object, result, digits = 0) {
-      # Valuation summary
-      s <- paste0("rbind(", paste0(paste0("result[[", 1:length(result), "]]$ValuSumm"), collapse = ","), ")")
-      eval(expr = parse(text = paste0("valuSumm <- ", s)))
-      valuSumm <- cbind(JobId = GetId(object), valuSumm)
-      # Cashflows
-      maxRows <- GetMaxProjYears(object) * 12
-      s <- paste0("rbind(", paste0(paste0("result[[", 1:length(result), "]]$Cf[1:maxRows,]"), collapse = ","), ")")
-      eval(expr = parse(text = paste0("cf <- ", s)))
-      if (!is.null(cf)) {
-         cf <- cbind(JobId = GetId(object), dplyr::filter(cf, !is.na(CovId)))
-      }
-      # Present values
-      s <- paste0("rbind(", paste0(paste0("result[[", 1:length(result), "]]$PV"), collapse = ","), ")")
-      eval(expr = parse(text = paste0("pv <- ", s)))
-      if (!is.null(pv)) {
-         pv <- cbind(JobId = GetId(job), pv)
-      }
+      jobId <- GetJobId(object)
+      valuSumm <- cbind(JobId = jobId, To.data.frame(result, "ValuSumm"))
+      cf <- cbind(JobId = jobId, To.data.frame(result, "Cf"))
       # Output job results
       conn <- ConnectDb(object)
       if (!is.null(conn)) {
@@ -107,7 +93,7 @@ setMethod(
          CompactDb(conn)
          DisconnectDb(conn)
       }
-      invisible(list(ValuSumm = valuSumm, Cf = cf, PV = pv))
+      return(list(ValuSumm = valuSumm, Cf = cf))
    }
 )
 

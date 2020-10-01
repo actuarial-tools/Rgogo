@@ -19,6 +19,7 @@ setMethod(
       # Run cash flow projection
       modelCF <- Model.CF(args)
       result <- Run(modelCF, var, result = result)
+
       # Get interest assumption information
       covProjLen <- GetCovProjLen(result$Timeline)
       covProjTimeIndex <- GetCovProjTimeIndex(result$Timeline)
@@ -47,35 +48,68 @@ setMethod(
       } else {
          vAnuBen <- 0
       }
-      result$PV <- data.frame(
+
+      # result$PV <- data.frame(
+      #    CovId = ifelse(length(GetId(var)) > 0, GetId(var), NA),
+      #    Prem = ifelse(is.null(cf$Prem), 0, sum(cf$Prem * v0)),
+      #    Prem.Tax = ifelse(is.null(cf$Prem.Tax), 0, sum(cf$Prem.Tax * v0)),
+      #    Comm =  ifelse(is.null(cf$Comm), 0, sum(cf$Comm * v0)),
+      #    Comm.Ovrd = ifelse(is.null(cf$Comm.Ovrd), 0, sum(cf$Comm.Ovrd * v0)),
+      #    Ben.Dth = ifelse(is.null(cf$Ben.Dth), 0, sum(cf$Ben.Dth * v1)),
+      #    Ben.Mat = ifelse(is.null(cf$Ben.Mat), 0, sum(cf$Ben.Mat * v1)),
+      #    Ben.Sur = ifelse(is.null(cf$Ben.Sur), 0, sum(cf$Ben.Sur * v1)),
+      #    Ben.Dth.PUA = ifelse(is.null(cf$Ben.Dth.PUA), 0, sum(cf$Ben.Dth.PUA * v1)),
+      #    Ben.Mat.PUA = ifelse(is.null(cf$Ben.Mat.PUA), 0, sum(cf$Ben.Mat.PUA * v1)),
+      #    Ben.Sur.PUA = ifelse(is.null(cf$Ben.Sur.PUA), 0, sum(cf$Ben.Sur.PUA * v1)),
+      #    Ben.Anu = ifelse(is.null(cf$Ben.Anu), 0, sum(cf$Ben.Anu * vAnuBen)),
+      #    Expns.Acq = ifelse(is.null(cf$Expns.Acq), 0, sum(cf$Expns.Acq * v0)),
+      #    Expns.Mnt = ifelse(is.null(cf$Expns.Mnt), 0, sum(cf$Expns.Mnt * v0)),
+      #    Rein.Ben = ifelse(is.null(cf$Rein.Ben), 0, sum(cf$Rein.Ben * v1)),
+      #    Rein.Prem = ifelse(is.null(cf$Rein.Prem), 0, sum(cf$Rein.Prem * v0)),
+      #    Rein.Comm = ifelse(is.null(cf$Rein.Comm), 0, sum(cf$Rein.Comm * v0)),
+      #    Rein.Prem.Rfnd = ifelse(is.null(cf$Rein.Prem.Rfnd), 0, sum(cf$Rein.Prem.Rfnd * v1)),
+      #    Rein.Comm.Rfnd = ifelse(is.null(cf$Rein.Comm.Rfnd), 0, sum(cf$Rein.Comm.Rfnd * v1)),
+      #    stringsAsFactors = FALSE
+      # ) %>% dplyr::mutate(
+      #    Total.Gross = Prem + Prem.Tax + Comm + Comm.Ovrd + Ben.Dth + Ben.Mat + Ben.Sur + Ben.Dth.PUA + Ben.Mat.PUA + Ben.Sur.PUA + Ben.Anu + Expns.Acq + Expns.Mnt,
+      #    Total.Rein = Rein.Ben + Rein.Prem + Rein.Comm + Rein.Prem.Rfnd + Rein.Comm.Rfnd
+      # ) %>% dplyr::mutate(
+      #    Total.Net = Total.Gross + Total.Rein
+      # )
+
+      result$PV <- list(
          CovId = ifelse(length(GetId(var)) > 0, GetId(var), NA),
          Prem = ifelse(is.null(cf$Prem), 0, sum(cf$Prem * v0)),
-         Prem.Tax = ifelse(is.null(cf$Prem.Tax), 0, sum(cf$Prem.Tax * v0)),
-         Comm =  ifelse(is.null(cf$Comm), 0, sum(cf$Comm * v0)),
-         Comm.Ovrd = ifelse(is.null(cf$Comm.Ovrd), 0, sum(cf$Comm.Ovrd * v0)),
-         Ben.Dth = ifelse(is.null(cf$Ben.Dth), 0, sum(cf$Ben.Dth * v1)),
-         Ben.Mat = ifelse(is.null(cf$Ben.Mat), 0, sum(cf$Ben.Mat * v1)),
-         Ben.Sur = ifelse(is.null(cf$Ben.Sur), 0, sum(cf$Ben.Sur * v1)),
-         Ben.Dth.PUA = ifelse(is.null(cf$Ben.Dth.PUA), 0, sum(cf$Ben.Dth.PUA * v1)),
-         Ben.Mat.PUA = ifelse(is.null(cf$Ben.Mat.PUA), 0, sum(cf$Ben.Mat.PUA * v1)),
-         Ben.Sur.PUA = ifelse(is.null(cf$Ben.Sur.PUA), 0, sum(cf$Ben.Sur.PUA * v1)),
-         Ben.Anu = ifelse(is.null(cf$Ben.Anu), 0, sum(cf$Ben.Anu * vAnuBen)),
-         Expns.Acq = ifelse(is.null(cf$Expns.Acq), 0, sum(cf$Expns.Acq * v0)),
-         Expns.Mnt = ifelse(is.null(cf$Expns.Mnt), 0, sum(cf$Expns.Mnt * v0)),
-         Rein.Ben = ifelse(is.null(cf$Rein.Ben), 0, sum(cf$Rein.Ben * v1)),
-         Rein.Prem = ifelse(is.null(cf$Rein.Prem), 0, sum(cf$Rein.Prem * v0)),
-         Rein.Comm = ifelse(is.null(cf$Rein.Comm), 0, sum(cf$Rein.Comm * v0)),
-         Rein.Prem.Rfnd = ifelse(is.null(cf$Rein.Prem.Rfnd), 0, sum(cf$Rein.Prem.Rfnd * v1)),
-         Rein.Comm.Rfnd = ifelse(is.null(cf$Rein.Comm.Rfnd), 0, sum(cf$Rein.Comm.Rfnd * v1)),
-         stringsAsFactors = FALSE
-      ) %>% dplyr::mutate(
-         Total.Gross = Prem + Prem.Tax + Comm + Comm.Ovrd + Ben.Dth + Ben.Mat + Ben.Sur + Ben.Dth.PUA + Ben.Mat.PUA + Ben.Sur.PUA + Ben.Anu + Expns.Acq + Expns.Mnt,
-         Total.Rein = Rein.Ben + Rein.Prem + Rein.Comm + Rein.Prem.Rfnd + Rein.Comm.Rfnd
-      ) %>% dplyr::mutate(
-         Total.Net = Total.Gross + Total.Rein
+         Prem.Tax = sum(cf$Prem.Tax * v0),
+         Comm =  sum(cf$Comm * v0),
+         Comm.Ovrd = sum(cf$Comm.Ovrd * v0),
+         Ben.Dth = sum(cf$Ben.Dth * v1),
+         Ben.Mat = sum(cf$Ben.Mat * v1),
+         Ben.Sur = sum(cf$Ben.Sur * v1),
+         Ben.Dth.PUA = sum(cf$Ben.Dth.PUA * v1),
+         Ben.Mat.PUA = sum(cf$Ben.Mat.PUA * v1),
+         Ben.Sur.PUA = sum(cf$Ben.Sur.PUA * v1),
+         Ben.Anu = sum(cf$Ben.Anu * vAnuBen),
+         Expns.Acq = sum(cf$Expns.Acq * v0),
+         Expns.Mnt = sum(cf$Expns.Mnt * v0),
+         Rein.Ben = sum(cf$Rein.Ben * v1),
+         Rein.Prem = sum(cf$Rein.Prem * v0),
+         Rein.Comm = sum(cf$Rein.Comm * v0),
+         Rein.Prem.Rfnd = sum(cf$Rein.Prem.Rfnd * v1),
+         Rein.Comm.Rfnd = sum(cf$Rein.Comm.Rfnd * v1)
       )
+      result$PV$Total.Gross = result$PV$Prem + result$PV$Prem.Tax + result$PV$Comm + result$PV$Comm.Ovrd +
+         result$PV$Ben.Dth + result$PV$Ben.Mat + result$PV$Ben.Sur + result$PV$Ben.Dth.PUA + result$PV$Ben.Mat.PUA +
+         result$PV$Ben.Sur.PUA + result$PV$Ben.Anu + result$PV$Expns.Acq + result$PV$Expns.Mnt
+      result$PV$Total.Rein = result$PV$Rein.Ben + result$PV$Rein.Prem + result$PV$Rein.Comm + result$PV$Rein.Prem.Rfnd + result$PV$Rein.Comm.Rfnd
+      result$PV$Total.Net = result$PV$Total.Gross + result$PV$Total.Rein
       # Save assumption information
-      result$Assump <- cbind(result$Assump, data.frame(i = i, t = t, v0 = v0, v1 = v1, stringsAsFactors = FALSE))
+      # result$Assump <- cbind(result$Assump, data.frame(i = i, t = t, v0 = v0, v1 = v1, stringsAsFactors = FALSE))
+      result$Assump$i <- i
+      result$Assump$t <- t
+      result$Assump$v0 <- v0
+      result$Assump$v1 <- v1
+
       return(result)
    }
 )

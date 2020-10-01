@@ -407,10 +407,10 @@ setMethod(
       prem <- FillZeroIfNA(rep(c(modPrem, rep(0, times = (12 / premMode - 1))), length.out = GetPremMonths(object, cov)), len = GetCovMonths(object, cov))
       premTax <- prem * GetPremTaxRate(object, cov)
       if (!all(prem == 0)) {
-         resultContainer %<>% AddProjection(projItem = "Prem", projValue = prem)
+         resultContainer$Proj$Prem <- prem
       }
       if (!all(premTax == 0)) {
-         resultContainer %<>% AddProjection(projItem = "Prem.Tax", projValue = premTax)
+         resultContainer$Proj$Prem.Tax <- premTax
       }
       return(resultContainer)
    }
@@ -427,10 +427,10 @@ setMethod(
          comm <- resultContainer$Proj$Prem * GetCommSchd(object, cov)
          ovrd <- resultContainer$Proj$Prem * GetOvrdOnPremSchd(object, cov) + comm * GetOvrdOnCommSchd(object, cov)
          if (!all(comm == 0)) {
-            resultContainer %<>% AddProjection(projItem = "Comm", projValue = comm)
+            resultContainer$Proj$Comm <- comm
          }
          if (!all(ovrd == 0)) {
-            resultContainer %<>% AddProjection(projItem = "Comm.Ovrd", projValue = ovrd)
+            resultContainer$Proj$Comm.Ovrd <- ovrd
          }
       }
       return(resultContainer)
@@ -444,9 +444,8 @@ setMethod(
       faceAmt <- GetFaceAmt(cov)
       if (faceAmt != 0) {
          covMonths <- GetCovMonths(object, cov)
-         # benDth <- c(rep(faceAmt, covMonths + 1))
          benDth <- rep(faceAmt, covMonths)
-         resultContainer %<>% AddProjection(projItem = "Ben.Dth", projValue = benDth)
+         resultContainer$Proj$Ben.Dth <- benDth
       }
       return(resultContainer)
    }
@@ -479,19 +478,9 @@ setMethod(
 NewProjection <- function(resultContainer, cov, plan) {
    stopifnot(is.list(resultContainer), is.null(resultContainer$Proj))
    timeline <- GetIssDate(cov) %m+% months(0:(GetCovMonths(plan, cov) - 1))
-   resultContainer$Proj <- data.frame(
-      Timeline = paste0(year(timeline), "-", sprintf("%02d",month(timeline))),
-      stringsAsFactors = FALSE
-   )
+   resultContainer$Proj <- list(Timeline = paste0(year(timeline), "-", sprintf("%02d",month(timeline))))
    return(resultContainer)
 }
 
-# Add a new projection item to projection container.
-AddProjection <- function(resultContainer, projItem, projValue) {
-   stopifnot(length(projValue) == dim(resultContainer$Proj)[1])
-   dfProj <- eval(expr = parse(text = paste0("data.frame(", projItem, " = projValue, stringsAsFactors = FALSE)")))
-   resultContainer$Proj <- cbind(resultContainer$Proj, dfProj)
-   return(resultContainer)
-}
 
 

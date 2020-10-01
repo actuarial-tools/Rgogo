@@ -13,6 +13,7 @@ setMethod(
       projStartDate <- GetArgValue(object, "ProjStartDate")
       if (projStartDate <= GetExpiryDate(var)) {
          result$CovData <- var
+         result$.ArgSet <- GetArgs(object)
          return(Run.CF(object, GetPlan(var), var, result))
       } else {
          stop("The coverage has expired before projection starting date.")
@@ -32,69 +33,80 @@ setMethod(
       projPolMonths <- GetProjPolMonths(result$Timeline)
 
       # Project policy values
-      result$.args <- GetArgs(object)
-      result <- Project(plan, cov, result)
+      # if (is.null(result$Proj)) {
+         result <- Project(plan, cov, result)
+      # }
       proj <- result$Proj
 
       # Get mortality assumption information
       mortAssump <- GetArgValue(object, "MortAssump")
-      result <- GetAssump(mortAssump, cov, plan, result)
-      if (GetArgValue(object, "ApplyMortMargin")) {
-         qRate <- result$q.Padd
+      if (!is.null(mortAssump)) {
+         result <- GetAssump(mortAssump, cov, plan, result)
+         if (GetArgValue(object, "ApplyMortMargin")) {
+            qRate <- result$q.Padd
+         } else {
+            qRate <- result$q.Expd
+         }
+         q <- Convert_qx(qRate, 12L, "ud")[1:covMonths]
       } else {
-         qRate <- result$q.Expd
+         q <- rep(0, length.out = covMonths)
       }
-      q <- Convert_qx(qRate, 12L, "ud")[1:covMonths]
 
       # Get lapse assumption information
       lapseAssump <- GetArgValue(object, "LapseAssump")
-      result <- GetAssump(lapseAssump, cov, plan, result)
-      if (GetArgValue(object, "ApplyLapseMargin")) {
-         wRate <- result$w.Padd
+      if (!is.null(lapseAssump)) {
+         result <- GetAssump(lapseAssump, cov, plan, result)
+         if (GetArgValue(object, "ApplyLapseMargin")) {
+            wRate <- result$w.Padd
+         } else {
+            wRate <- result$w.Expd
+         }
+         lapseMode <- ifelse(length(GetPremMode(cov)) == 0, 12L, GetPremMode(cov))
+         wRate <- Convert_qx(wRate, lapseMode, "ud")
+         w <- unlist(lapply(as.list(wRate), function(x){return(c(rep(0, length.out = 12/lapseMode - 1), x))}))
+         w <- w[1:covMonths]
       } else {
-         wRate <- result$w.Expd
+         w <- rep(0, length.out = covMonths)
       }
-      lapseMode <- ifelse(length(GetPremMode(cov)) == 0, 12L, GetPremMode(cov))
-      wRate <- Convert_qx(wRate, lapseMode, "ud")
-      w <- unlist(lapply(as.list(wRate), function(x){return(c(rep(0, length.out = 12/lapseMode - 1), x))}))
-      w <- w[1:covMonths]
 
       # Get expense assumption information
       expnsAssump <- GetArgValue(object, "ExpnsAssump")
-      result <- GetAssump(expnsAssump, cov, plan, result, projStartDate)
       ae <- rep(0, length.out = projLen)
       me <- rep(0, length.out = projLen)
-      if (GetArgValue(object, "ApplyExpnsMargin")) {
-         if (!is.null(result$ae.PerPol.Padd)) {
-            ae <- ae + result$ae.PerPol.Padd
-         }
-         if (!is.null(result$ae.PerFaceAmt.Padd)) {
-            ae <- ae + result$ae.PerFaceAmt.Padd
-         }
-         if (!is.null(result$me.PerPol.Padd)) {
-            me <- me + result$me.PerPol.Padd
-         }
-         if (!is.null(result$me.PerPrem.Padd)) {
-            me <- me + result$me.PerPrem.Padd
-         }
-         if (!is.null(result$me.PerPremAmt.Padd)) {
-            me <- me + result$me.PerPremAmt.Padd
-         }
-      } else {
-         if (!is.null(result$ae.PerPol.Expd)) {
-            ae <- ae + result$ae.PerPol.Expd
-         }
-         if (!is.null(result$ae.PerFaceAmt.Expd)) {
-            ae <- ae + result$ae.PerFaceAmt.Expd
-         }
-         if (!is.null(result$me.PerPol.Expd)) {
-            me <- me + result$me.PerPol.Expd
-         }
-         if (!is.null(result$me.PerPrem.Expd)) {
-            me <- me + result$me.PerPrem.Expd
-         }
-         if (!is.null(result$me.PerPremAmt.Expd)) {
-            me <- me + result$me.PerPremAmt.Expd
+      if (!is.null(expnsAssump)) {
+         result <- GetAssump(expnsAssump, cov, plan, result, projStartDate)
+         if (GetArgValue(object, "ApplyExpnsMargin")) {
+            if (!is.null(result$ae.PerPol.Padd)) {
+               ae <- ae + result$ae.PerPol.Padd
+            }
+            if (!is.null(result$ae.PerFaceAmt.Padd)) {
+               ae <- ae + result$ae.PerFaceAmt.Padd
+            }
+            if (!is.null(result$me.PerPol.Padd)) {
+               me <- me + result$me.PerPol.Padd
+            }
+            if (!is.null(result$me.PerPrem.Padd)) {
+               me <- me + result$me.PerPrem.Padd
+            }
+            if (!is.null(result$me.PerPremAmt.Padd)) {
+               me <- me + result$me.PerPremAmt.Padd
+            }
+         } else {
+            if (!is.null(result$ae.PerPol.Expd)) {
+               ae <- ae + result$ae.PerPol.Expd
+            }
+            if (!is.null(result$ae.PerFaceAmt.Expd)) {
+               ae <- ae + result$ae.PerFaceAmt.Expd
+            }
+            if (!is.null(result$me.PerPol.Expd)) {
+               me <- me + result$me.PerPol.Expd
+            }
+            if (!is.null(result$me.PerPrem.Expd)) {
+               me <- me + result$me.PerPrem.Expd
+            }
+            if (!is.null(result$me.PerPremAmt.Expd)) {
+               me <- me + result$me.PerPremAmt.Expd
+            }
          }
       }
 
@@ -266,17 +278,46 @@ setMethod(
          cfAnuBen <- rep(0, length.out = projLen)
       }
       # Projected expenses and projected expense cashflows
-      result$Proj <- proj[projPolMonths,]
-      result %<>% AddProjection(projItem = "Expns.Acq", projValue = ae[(projLen - covProjLen + 1):projLen])
-      result %<>% AddProjection(projItem = "Expns.Man", projValue = me[(projLen - covProjLen + 1):projLen])
+      result$Proj$Expns.Acq = c(rep(NA, covMonths - covProjLen), ae[(projLen - covProjLen + 1):projLen])
+      result$Proj$Expns.Mnt = c(rep(NA, covMonths - covProjLen), me[(projLen - covProjLen + 1):projLen])
       cfAcqExpns <- -ae * c(rep(0, length.out = projLen - covProjLen), pn[projPolMonths])
       cfMntExpns <- -me * c(rep(0, length.out = projLen - covProjLen), pn[projPolMonths])
       if (projLen == covProjLen & !IsBegPolMonth) {
          cfAcqExpns <- ShiftLeft(cfAcqExpns, positions = 1, filler = 0)
          cfMntExpns <- ShiftLeft(cfMntExpns, positions = 1, filler = 0)
       }
-      result$Cf <- data.frame(
-         CovId = ifelse(length(GetId(cov)) > 0, GetId(cov), NA),
+      cfTotalGross = cfPrem + cfPremTax + cfComm + cfOvrd + cfDthBen + cfMatBen + cfSurBen + cfDthBenPUA + cfMatBenPUA + cfSurBenPUA + cfAnuBen + cfAcqExpns + cfMntExpns
+      cfTotalRein = cfReinBen + cfReinPrem + cfReinComm + cfReinPremRfnd + cfReinCommRfnd
+
+      # Export cashflow information
+     #  result$Cf <- data.frame(
+     #     CovId = ifelse(length(GetId(cov)) > 0, GetId(cov), NA),
+     #     Timeline = GetProjTimeLabel(result$Timeline),
+     #     Prem = cfPrem,
+     #     Prem.Tax = cfPremTax,
+     #     Comm = cfComm,
+     #     Comm.Ovrd = cfOvrd,
+     #     Ben.Dth = cfDthBen,
+     #     Ben.Dth.PUA = cfDthBenPUA,
+     #     Ben.Mat = cfMatBen,
+     #     Ben.Mat.PUA = cfMatBenPUA,
+     #     Ben.Sur = cfSurBen,
+     #     Ben.Sur.PUA = cfSurBenPUA,
+     #     Ben.Anu = cfAnuBen,
+     #     Expns.Acq = cfAcqExpns,
+     #     Expns.Mnt = cfMntExpns,
+     #     Rein.Ben = cfReinBen,
+     #     Rein.Prem = cfReinPrem,
+     #     Rein.Comm = cfReinComm,
+     #     Rein.Prem.Rfnd = cfReinPremRfnd,
+     #     Rein.Comm.Rfnd = cfReinCommRfnd,
+     #     Total.Gross = cfTotalGross,
+     #     Total.Rein = cfTotalRein,
+     #     Total.Net = cfTotalGross + cfTotalRein,
+     #     stringsAsFactors = FALSE
+     # )
+      result$Cf <- list(
+         CovId = rep(ifelse(length(GetId(cov)) > 0, GetId(cov), NA), length.out = projLen),
          Timeline = GetProjTimeLabel(result$Timeline),
          Prem = cfPrem,
          Prem.Tax = cfPremTax,
@@ -296,24 +337,30 @@ setMethod(
          Rein.Comm = cfReinComm,
          Rein.Prem.Rfnd = cfReinPremRfnd,
          Rein.Comm.Rfnd = cfReinCommRfnd,
-         stringsAsFactors = FALSE
-      ) %>% dplyr::mutate(
-         Total.Gross = Prem + Prem.Tax + Comm + Comm.Ovrd + Ben.Dth + Ben.Mat + Ben.Sur + Ben.Dth.PUA + Ben.Mat.PUA + Ben.Sur.PUA + Ben.Anu + Expns.Acq + Expns.Mnt,
-         Total.Rein = Rein.Ben + Rein.Prem + Rein.Comm + Rein.Prem.Rfnd + Rein.Comm.Rfnd
-      ) %>% dplyr::mutate(
-         Total.Net = Total.Gross + Total.Rein
+         Total.Gross = cfTotalGross,
+         Total.Rein = cfTotalRein,
+         Total.Net = cfTotalGross + cfTotalRein
       )
 
       # Export assumption information
-      result$Assump <- data.frame(
+      # result$Assump <- data.frame(
+      #    PolMonth = projPolMonths,
+      #    q = q[projPolMonths],
+      #    w = w[projPolMonths],
+      #    p = p[projPolMonths],
+      #    pn = pn[projPolMonths],
+      #    t = covProjTimeIndex[ceiling(covProjTimeIndex) >= 0],
+      #    stringsAsFactors = FALSE
+      # )
+      result$Assump <- list(
          PolMonth = projPolMonths,
          q = q[projPolMonths],
          w = w[projPolMonths],
          p = p[projPolMonths],
          pn = pn[projPolMonths],
-         t = covProjTimeIndex[ceiling(covProjTimeIndex) >= 0],
-         stringsAsFactors = FALSE
+         t = covProjTimeIndex[ceiling(covProjTimeIndex) >= 0]
       )
+
       return(result)
    }
 )

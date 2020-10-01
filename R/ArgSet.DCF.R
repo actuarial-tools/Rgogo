@@ -77,7 +77,8 @@ setMethod(
             slotValue <- ifelse(startsWith(slotValue, "IntrAssump."), slotValue, paste0("IntrAssump.", slotValue))
             return(eval(expr = parse(text = slotValue)))
          } else {
-            return(IntrAssump())
+            #return(IntrAssump())
+            return(NULL)
          }
       } else {
          return(slotValue)

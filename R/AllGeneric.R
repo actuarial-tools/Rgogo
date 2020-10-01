@@ -384,6 +384,6 @@ setGeneric(name = "SetExpnsChrgTiming<-", def = function(object, value) {standar
 setGeneric(name = "GetMinIntrCredRate", def = function(object, ...) {standardGeneric("GetMinIntrCredRate")})
 setGeneric(name = "SetMinIntrCredRate<-", def = function(object, value) {standardGeneric("SetMinIntrCredRate<-")})
 setGeneric(name = "Contains", def = function(object, item) {standardGeneric("Contains")})
-
+setGeneric(name = "GetIntrCredDate", def = function(object, ...) {standardGeneric("GetIntrCredDate")})
 
 

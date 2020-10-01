@@ -314,9 +314,15 @@ setMethod(
    signature = "MortAssump",
    definition = function(object, cov, plan, assumpInfo) {
       covYears <-ceiling(GetCovYears(plan, cov))
-      assumpInfo$.q <- q <- FillTail(GetBaseMortRateVector(object, cov, plan, ignoreCovPeriod = TRUE), filler = 1, len = covYears)
-      assumpInfo$.xq <- xq <- FillTail(GetExtraMortRateVector(object, cov, plan, ignoreCovPeriod = TRUE), filler = 0, len = covYears)
-      assumpInfo$.qImprovAdj <- qImprovAdj <- FillTail(GetMortImprovAdjVector(object, cov, plan, ignoreCovPeriod = TRUE), filler = 1, len = covYears)
+      assumpInfo$.q <- q <- GetBaseMortRateVector(object, cov, plan, ignoreCovPeriod = TRUE)
+      assumpInfo$.xq <- xq <- GetExtraMortRateVector(object, cov, plan, ignoreCovPeriod = TRUE)
+      assumpInfo$.qImprovAdj <- qImprovAdj <- GetMortImprovAdjVector(object, cov, plan, ignoreCovPeriod = TRUE)
+      len <- length(q)
+      xq <- FillTail(xq, filler = 0, len)
+      qImprovAdj <- FillTail(qImprovAdj, filler = 1, len)
+      # assumpInfo$.q <- q <- FillTail(GetBaseMortRateVector(object, cov, plan, ignoreCovPeriod = TRUE), filler = 1, len = covYears)
+      # assumpInfo$.xq <- xq <- FillTail(GetExtraMortRateVector(object, cov, plan, ignoreCovPeriod = TRUE), filler = 0, len = covYears)
+      # assumpInfo$.qImprovAdj <- qImprovAdj <- FillTail(GetMortImprovAdjVector(object, cov, plan, ignoreCovPeriod = TRUE), filler = 1, len = covYears)
       q.Expd <- (q + xq) * qImprovAdj
       assumpInfo$q.Expd <- ifelse(q.Expd <= 1, q.Expd, 1)[1:covYears]
       return(assumpInfo)

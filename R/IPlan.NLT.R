@@ -122,7 +122,7 @@ setMethod(
    signature = "IPlan.NLT",
    definition = function(object, cov, resultContainer) {
       dthBen <- GetFaceAmt(cov) * GetDthBenSchd(object, cov)
-      resultContainer %<>% AddProjection(projItem = "Ben.Dth", projValue = dthBen)
+      resultContainer$Proj$Ben.Dth <- dthBen
       return(resultContainer)
    }
 )
