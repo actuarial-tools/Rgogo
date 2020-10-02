@@ -1,4 +1,6 @@
-Rgogo is a software framework for actuarial modeling.  It comprises a collection of classes and tools that are designed for actuarial modeling.  These classes and tools are building blocks that allow actuaries to build and run complex actuarial models in R programming environment easily and quickly.
+## What is Rgogo?
+
+Rgogo is a software framework for actuarial modeling.  It is an R package comprising a collection of classes and tools that are designed for actuarial modeling.  These classes and tools are building blocks that allow actuaries to build and run complex actuarial models in R programming environment easily and quickly.
 
 ## Modeling Environment
 
