@@ -42,7 +42,7 @@ CreateProject <- function(projId, loc = getwd(), msgPath = character(0L)) {
          )
          WriteNamespaceFile(content, projRoot)
          # Create sub-folders under project root.
-         for (subdir in c("R", "data", "batch", "export")) {
+         for (subdir in c("R", "data", "batch", "export", "data-raw", "db")) {
             dir.create(file.path(projRoot, subdir))
          }
          paste0("'", projId, "' project is created in '", loc, "'")
