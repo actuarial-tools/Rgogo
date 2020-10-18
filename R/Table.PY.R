@@ -53,6 +53,14 @@ Table.PY <- function(maxPolYear, tBase, tValue = NA,
 }
 
 setMethod(
+   f = "GetMaxPolYear",
+   signature = "Table.PY",
+   definition = function(object) {
+      return(object@MaxPolYear)
+   }
+)
+
+setMethod(
    f = "LookUp",
    signature (tbl = "Table.PY", lookUpKey = "list"),
    definition = function(tbl, lookUpKey) {
