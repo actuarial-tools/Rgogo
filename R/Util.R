@@ -114,7 +114,7 @@ DeployObject <- function(pkgName, objectType, overwrite = FALSE) {
 
 DeployProject <- function(pkgName, overwrite = FALSE) {
    cat("Start project deployment...\n")
-   devtools::load_all(quiet = FALSE)
+   devtools::install(quiet = TRUE)
    DeployObject(pkgName, "Plan", overwrite)
    DeployObject(pkgName, "MortAssump", overwrite)
    DeployObject(pkgName, "LapseAssump", overwrite)
@@ -126,8 +126,7 @@ DeployProject <- function(pkgName, overwrite = FALSE) {
    DeployObject(pkgName, "Rein", overwrite)
    DeployObject(pkgName, "ArgSet", overwrite)
    DeployObject(pkgName, "Model", overwrite)
-   devtools::build(vignettes = FALSE, quiet = FALSE)
-   devtools::load_all(quiet = FALSE)
+   devtools::install(vignettes = FALSE, quiet = TRUE)
    cat(pkgName, "is deployed successfully.")
 }
 
