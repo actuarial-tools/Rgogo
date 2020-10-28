@@ -10,7 +10,7 @@ MortAssump.A <- function(mortTable = character(0L),
                          extraMortTable = character(0L),
                          extraMortTableMult = 1,
                          mortImprovRate = 0,
-                         mortPfad = 0,
+                         margin = 0,
                          id = character(0L),
                          descrip = character(0L)) {
    assump <- new(
@@ -20,7 +20,7 @@ MortAssump.A <- function(mortTable = character(0L),
       ExtraMortTable = extraMortTable,
       ExtraMortTableMult = extraMortTableMult,
       MortImprovRate = mortImprovRate,
-      MortPfad = mortPfad,
+      Margin = margin,
       Descrip = as.character(descrip)
    )
    SetAssumpId(assump) <- as.character(id)
@@ -28,13 +28,13 @@ MortAssump.A <- function(mortTable = character(0L),
 }
 
 setMethod(
-   f = "GetMargin",
+   f = "GetPaddAssump",
    signature = "MortAssump.A",
    definition = function(object, cov, plan, assumpInfo, projStartDate) {
-      pfad <- GetMortPfad(object, cov, plan)
-      assumpInfo$q.Margin <- assumpInfo$q.Expd * pfad
+      assumpInfo$q.Margin <- assumpInfo$q.Expd * GetMargin(object, cov, plan)
+      q.Padd <- assumpInfo$q.Expd + assumpInfo$q.Margin
+      assumpInfo$q.Padd <- q.Padd <- ifelse(q.Padd <= 1, q.Padd, 1)
       return(assumpInfo)
    }
 )
-
 

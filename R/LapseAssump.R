@@ -8,7 +8,7 @@ setClass(
       LapseRate = "character_or_numeric",
       LapseRateMult = "numeric",
       LapseRateFlatExtra = "numeric",
-      LapsePfad = "numeric"
+      Margin = "numeric"
    )
 )
 
@@ -45,10 +45,10 @@ setValidity(
       if (Validate(v, object@LapseRateFlatExtra) != TRUE) {
          AddMessage(err) <- "Value of slot @LapseRateFlatExtra in class LapseAssump must be between -1 and 1.  In addition, it must have name attributes if the length is greater than 1."
       }
-      # Validate @LapsePfad
-      v <- Validator.Names(hasNames = (length(object@LapsePfad) > 1))
-      if (Validate(v, object@LapsePfad) != TRUE) {
-         AddMessage(err) <- "Value of slot @LapsePfad in class LapseAssump is invalid."
+      # Validate @Margin
+      v <- Validator.Names(hasNames = (length(object@Margin) > 1))
+      if (Validate(v, object@Margin) != TRUE) {
+         AddMessage(err) <- "Value of slot @Margin in class LapseAssump is invalid."
       }
       if (NoMessage(err)) {
          return(TRUE)
@@ -59,13 +59,13 @@ setValidity(
 )
 
 LapseAssump <- function(lapseRate = numeric(0), lapseRateMult = 1, lapseRateFlatExtra = 0,
-                        lapsePfad = 0, id = character(0), descrip = character(0)) {
+                        margin = 0, id = character(0), descrip = character(0)) {
    assump <- new(
       Class = "LapseAssump",
       LapseRate = lapseRate,
       LapseRateMult = lapseRateMult,
       LapseRateFlatExtra = lapseRateFlatExtra,
-      LapsePfad = lapsePfad,
+      Margin = margin,
       Descrip = as.character(descrip)
    )
    SetAssumpId(assump) <- as.character(id)
@@ -163,27 +163,27 @@ setMethod(
 )
 
 setMethod(
-   f = "GetLapsePfad",
+   f = "GetMargin",
    signature = "LapseAssump",
    definition = function(object, cov = NULL, plan = NULL) {
       if (is.null(cov) & is.null(plan)) {
-         return(object@LapsePfad)
+         return(object@Margin)
       }
-      if (length(object@LapsePfad) == 0) {
+      if (length(object@Margin) == 0) {
          return(0)
-      } else if (length(object@LapsePfad) == 1) {
-         return(object@LapsePfad)
+      } else if (length(object@Margin) == 1) {
+         return(object@Margin)
       } else {
-         return(object@LapsePfad[GetRiskClass(object, cov, plan)])
+         return(object@Margin[GetRiskClass(object, cov, plan)])
       }
    }
 )
 
 setMethod(
-   f = "SetLapsePfad<-",
+   f = "SetMargin<-",
    signature = "LapseAssump",
    definition = function(object, value) {
-      object@LapsePfad <- value
+      object@Margin <- value
       validObject(object)
       return(object)
    }
@@ -213,7 +213,7 @@ setMethod(
    f = "GetPaddAssump",
    signature = "LapseAssump",
    definition = function(object, cov, plan, assumpInfo) {
-      pfad <- GetLapsePfad(object, cov, plan)
+      pfad <- GetMargin(object, cov, plan)
       w <- assumpInfo$w.Expd * (1 + pfad)
       w <- ifelse(w < 0, 0, w)
       w <- ifelse(w > 1, 1, w)

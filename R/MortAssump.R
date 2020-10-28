@@ -10,7 +10,7 @@ setClass(
       ExtraMortTable = "character",
       ExtraMortTableMult = "numeric",
       MortImprovRate = "numeric",
-      MortPfad = "numeric"
+      Margin = "numeric"
    )
 )
 
@@ -49,10 +49,10 @@ setValidity(
       if (Validate(v, object@MortImprovRate) != TRUE) {
          AddMessage(err) <- "Value of slot @MortImprovRate in class MortAssump is invalid."
       }
-      # Validate @MortPfad
-      v <- Validator.Names(hasNames = (length(object@MortPfad) > 1))
-      if (Validate(v, object@MortPfad) != TRUE) {
-         AddMessage(err) <- "Value of slot @MortPfad in class MortAssump is invalid."
+      # Validate
+      v <- Validator.Names(hasNames = (length(object@Margin) > 1))
+      if (Validate(v, object@Margin) != TRUE) {
+         AddMessage(err) <- "Value of slot @Margin in class MortAssump is invalid."
       }
       if (NoMessage(err)) {
          return(TRUE)
@@ -68,7 +68,7 @@ MortAssump <- function(mortTable = character(0L),
                        extraMortTable = character(0L),
                        extraMortTableMult = 1,
                        mortImprovRate = 0,
-                       mortPfad = 0,
+                       margin = 0,
                        id = character(0L),
                        descrip = character(0L)) {
    assump <- new(
@@ -78,7 +78,7 @@ MortAssump <- function(mortTable = character(0L),
       ExtraMortTable = extraMortTable,
       ExtraMortTableMult = extraMortTableMult,
       MortImprovRate = mortImprovRate,
-      MortPfad = mortPfad,
+      Margin = margin,
       Descrip = as.character(descrip)
    )
    SetAssumpId(assump) <- as.character(id)
@@ -231,27 +231,27 @@ setMethod(
 )
 
 setMethod(
-   f = "GetMortPfad",
+   f = "GetMargin",
    signature = "MortAssump",
    definition = function(object, cov = NULL, plan = NULL) {
       if(is.null(cov) & is.null(plan)) {
-         return(object@MortPfad)
+         return(object@Margin)
       }
-      if (length(object@MortPfad) == 0) {
+      if (length(object@Margin) == 0) {
          return(0)
-      } else if (length(object@MortPfad) == 1) {
-         return(object@MortPfad)
+      } else if (length(object@Margin) == 1) {
+         return(object@Margin)
       } else {
-         return(object@MortPfad[GetRiskClass(object, cov, plan)])
+         return(object@Margin[GetRiskClass(object, cov, plan)])
       }
    }
 )
 
 setMethod(
-   f = "SetMortPfad<-",
+   f = "SetMargin<-",
    signature = "MortAssump",
    definition = function(object, value) {
-      object@MortPfad <- value
+      object@Margin <- value
       validObject(object)
       return(object)
    }
@@ -320,52 +320,46 @@ setMethod(
       len <- length(q)
       xq <- FillTail(xq, filler = 0, len)
       qImprovAdj <- FillTail(qImprovAdj, filler = 1, len)
-      # assumpInfo$.q <- q <- FillTail(GetBaseMortRateVector(object, cov, plan, ignoreCovPeriod = TRUE), filler = 1, len = covYears)
-      # assumpInfo$.xq <- xq <- FillTail(GetExtraMortRateVector(object, cov, plan, ignoreCovPeriod = TRUE), filler = 0, len = covYears)
-      # assumpInfo$.qImprovAdj <- qImprovAdj <- FillTail(GetMortImprovAdjVector(object, cov, plan, ignoreCovPeriod = TRUE), filler = 1, len = covYears)
       q.Expd <- (q + xq) * qImprovAdj
       assumpInfo$q.Expd <- ifelse(q.Expd <= 1, q.Expd, 1)[1:covYears]
       return(assumpInfo)
    }
 )
 
-setMethod(
-   f = "GetMargin",
-   signature = "MortAssump",
-   definition = function(object, cov, plan, assumpInfo, projStartDate) {
-      # Warning: in order to run this methode, GetExpdAssum method must be run first and the results are stored in assumpInfo.
-      # Determine margin for adverse deviation
-      pfad <- GetMortPfad(object, cov, plan)
-      if (pfad != 0) {
-         # Check if the base mortality table is a select and ultimate table.  If yes, get the ultimate mortality rate to calculate PfAD
-         qTable <- GetMortTable(object, cov, plan)
-         if (class(qTable) == "Table.SU") {
-            qUlt <- .GetUltMortRateVector(qTable, cov, GetPolYear(GetIssDate(cov), projStartDate)) * GetMortTableMult(object, cov, plan)
-         } else {
-            qUlt <- assumpInfo$.q
-         }
-         len <- length(qUlt)
-         xq <- FillTail(assumpInfo$.xq, 0, len)
-         qImprovAdj <- FillTail(assumpInfo$.qImprovAdj, 1, len)
-         q <- (qUlt + xq) * qImprovAdj
-         q <- ifelse(q <= 1, q, 1)
-         ex <- sum(cumprod(1-q))
-         assumpInfo$.qUlt <- qUlt
-         assumpInfo$.qUlt_plus_xq_with_qImprovAdj <- q
-         assumpInfo$.ex <- ex
-         assumpInfo$q.Margin <- pfad / 1000 / ex
+.Get_q_Margin <- function(object, cov, plan, assumpInfo, projStartDate) {
+   # Warning: in order to run this methode, GetExpdAssum method must be run first and the results are stored in assumpInfo.
+   # Determine margin for adverse deviation
+   margin <- GetMargin(object, cov, plan)
+   if (margin != 0) {
+      # Check if the base mortality table is a select and ultimate table.  If yes, get the ultimate mortality rate to calculate PfAD
+      qTable <- GetMortTable(object, cov, plan)
+      if (class(qTable) == "Table.SU") {
+         qUlt <- .GetUltMortRateVector(qTable, cov, GetPolYear(GetIssDate(cov), projStartDate)) * GetMortTableMult(object, cov, plan)
       } else {
-         assumpInfo$q.Margin <- 0
+         qUlt <- assumpInfo$.q
       }
-      return(assumpInfo)
+      len <- length(qUlt)
+      xq <- FillTail(assumpInfo$.xq, 0, len)
+      qImprovAdj <- FillTail(assumpInfo$.qImprovAdj, 1, len)
+      q <- (qUlt + xq) * qImprovAdj
+      q <- ifelse(q <= 1, q, 1)
+      ex <- sum(cumprod(1-q))
+      assumpInfo$.qUlt <- qUlt
+      assumpInfo$.qUlt_plus_xq_with_qImprovAdj <- q
+      assumpInfo$.ex <- ex
+      assumpInfo$q.Margin <- margin / 1000 / ex
+   } else {
+      assumpInfo$q.Margin <- 0
    }
-)
+   return(assumpInfo)
+}
 
 setMethod(
    f = "GetPaddAssump",
    signature = "MortAssump",
    definition = function(object, cov, plan, assumpInfo, projStartDate) {
-      # In order to run this methode, GetExpdAssum and GetMargin methods must be run first and the results are stored in assumpInfo.
+      # In order to run this methode, GetExpdAssum method must be run first and the results are stored in assumpInfo.
+      assumpInfo <- .Get_q_Margin(object, cov, plan, assumpInfo, projStartDate)
       q.Padd <- assumpInfo$q.Expd + assumpInfo$q.Margin
       assumpInfo$q.Padd <- q.Padd <- ifelse(q.Padd <= 1, q.Padd, 1)
       return(assumpInfo)
@@ -380,7 +374,7 @@ setMethod(
          projStartDate <- GetIssDate(cov)
       }
       assumpInfo <- GetExpdAssump(object, cov, plan, assumpInfo)
-      assumpInfo <- GetMargin(object, cov, plan, assumpInfo, projStartDate)
+      # assumpInfo <- GetMargin(object, cov, plan, assumpInfo, projStartDate)
       assumpInfo <- GetPaddAssump(object, cov, plan, assumpInfo, projStartDate)
       return(assumpInfo)
    }

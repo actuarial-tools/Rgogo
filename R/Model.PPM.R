@@ -30,9 +30,9 @@ setMethod(
       # Re-run by reversing lapse margin if necessary
       lapseAssump <- GetArgValue(model.dcf, "LapseAssump")
       if (!is.null(lapseAssump) & GetArgValue(object, "ApplyLapseMargin")) {
-         lapsePfad <- GetLapsePfad(lapseAssump)
-         result1$.LapsePfadUsed <- GetLapsePfad(GetArgValue(model.dcf, "LapseAssump"))
-         SetLapsePfad(lapseAssump) <- -lapsePfad
+         lapseMargin <- GetMargin(lapseAssump)
+         result1$.LapseMarginUsed <- GetMargin(lapseAssump)
+         SetMargin(lapseAssump) <- -lapseMargin
          model.dcf <- SetArgValue(model.dcf, LapseAssump = lapseAssump)
          result2 <- Run(model.dcf, var, result)
          result2$Res <- list(
@@ -40,7 +40,7 @@ setMethod(
             Res.Rein = -result2$PV$Total.Rein
          )
          result2$Res$Res.Net <- max(result2$Res$Res.Gross + result2$Res$Res.Rein, resFloor)
-         result2$.LapsePfadUsed <- -lapsePfad
+         result2$.LapseMarginUsed <- -lapseMargin
          if (result2$Res$Res.Net[1] > result1$Res$Res.Net[1]) {
             result <- result2
          } else {
@@ -247,35 +247,3 @@ ExportToExcel.Model.PPM <- function(result, dir, annual = TRUE, digits = 0, over
    openxlsx::setColWidths(wb, sheet = sheetName, cols = (1:2), widths = c(30, 10))
    return(wb)
 }
-
-# .ExportPPMResultToExcel.ProjRes <- function(wb, result, annual, digits) {
-#    if (annual == TRUE) {
-#       dfOutput <- data.frame(Timeline = GetYearStartValue(result$ProjRes[, "Timeline"]), stringsAsFactors = FALSE)
-#       cnames <- names(result$ProjRes)
-#       for (cname in cnames[cnames != "Timeline"]) {
-#          dfOutput <- eval(expr = parse(text = paste0("cbind(dfOutput, data.frame(", cname, " = GetYearStartValue(result$ProjRes[, cname]), stringsAsFactors = FALSE))")))
-#       }
-#    } else {
-#       dfOutput <- result$ProjRes
-#    }
-#    sheetName <- "ProjRes"
-#    openxlsx::addWorksheet(wb, sheetName)
-#    dfOutput <- Round.data.frame(dfOutput, digits)
-#    openxlsx::writeDataTable(wb, sheet = sheetName, x = dfOutput, startCol = 1, startRow = 1)
-#    openxlsx::setColWidths(wb, sheet = sheetName, cols = (1:dim(dfOutput)[2]), widths = 12)
-#    return(wb)
-# }
-
-# .ExportPPMResultToExcel.Assump <- function(wb, result) {
-#    sheetName <- "Assump"
-#    openxlsx::addWorksheet(wb, sheetName)
-#    data <- result$Assump
-#    openxlsx::writeDataTable(wb, sheet = sheetName, x = data, startCol = 1, startRow = 1)
-#    openxlsx::setColWidths(wb, sheet = sheetName, cols = (1:dim(data)[2]), widths = 12)
-#    return(wb)
-# }
-
-
-
-
-

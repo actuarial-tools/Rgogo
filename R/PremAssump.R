@@ -6,15 +6,15 @@ setClass(
    contains = "IPremAssump",
    slots = list(
       PremAdj = "numeric",
-      PremPfad = "numeric"
+      Margin = "numeric"
    )
 )
 
-PremAssump <- function(premAdj = numeric(0L), premPfad = 0, id = character(0L), descrip = character(0L)) {
+PremAssump <- function(premAdj = numeric(0L), margin = 0, id = character(0L), descrip = character(0L)) {
    assump <- new(
       Class = "PremAssump",
       PremAdj = premAdj,
-      PremPfad = premPfad,
+      Margin = margin,
       Descrip = descrip
    )
    SetAssumpId(assump) <- as.character(id)
@@ -53,31 +53,31 @@ setMethod(
 )
 
 setMethod(
-   f = "GetPremPfad",
+   f = "GetMargin",
    signature = "PremAssump",
    definition = function(object, cov = NULL, plan = NULL) {
       if (is.null(cov) & is.null(plan)) {
-         return(object@PremPfad)
+         return(object@Margin)
       }
       if (is.null(plan)) {
          plan <- GetPlan(cov)
       }
       len <- ceiling(GetCovYears(plan, cov))
-      if (length(object@PremPfad) == 0) {
+      if (length(object@Margin) == 0) {
          return(rep(0, len))
-      } else if (length(object@PremPfad) == 1) {
-         return(rep(object@PremPfad, len))
+      } else if (length(object@Margin) == 1) {
+         return(rep(object@Margin, len))
       } else {
-         return(FillTail(object@PremPfad, 0, len))
+         return(FillTail(object@Margin, 0, len))
       }
    }
 )
 
 setMethod(
-   f = "SetPremPfad<-",
+   f = "SetMargin<-",
    signature = "PremAssump",
    definition = function(object, value) {
-      object@PremPfad <- value
+      object@Margin <- value
       validObject(object)
       return(object)
    }
@@ -90,8 +90,8 @@ setMethod(
       covMonths <- GetCovMonths(plan, cov)
       premAdj <- rep(GetPremAdj(object, cov, plan), each = 12, length.out = covMonths)
       if (applyMargin == TRUE) {
-         pfad <- rep(GetPremPfad(object, cov, plan), each = 12, length.out = covMonths)
-         return(premAdj * (1 + pfad))
+         margin <- rep(GetMargin(object, cov, plan), each = 12, length.out = covMonths)
+         return(premAdj * (1 + margin))
       } else {
          return(premAdj)
       }

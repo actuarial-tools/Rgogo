@@ -1,28 +1,25 @@
 #' @include IIntrAssump.R
 NULL
 
-
 setClass(
    Class = "IntrAssump",
    contains = "IIntrAssump",
    slots = c(
       IntrRate = "numeric",
-      IntrPfad = "numeric"
+      Margin = "numeric"
    )
 )
 
-
-IntrAssump <- function(rate = 0, pfad = 0, id = character(0), descrip = character()) {
+IntrAssump <- function(rate = 0, margin = 0, id = character(0), descrip = character()) {
    assump <- new(
       Class = "IntrAssump",
       IntrRate = rate,
-      IntrPfad = pfad,
+      Margin = margin,
       Descrip = as.character(descrip)
    )
    SetAssumpId(assump) <- as.character(id)
    return(assump)
 }
-
 
 setValidity(
    Class = "IntrAssump",
@@ -33,9 +30,9 @@ setValidity(
       if (!isValid) {
          AddMessage(err) <- "Slot '@IntrRate' in an object of or extending class 'IntrAssump' has invalid length."
       }
-      isValid <- Validate(v, object@IntrPfad)
+      isValid <- Validate(v, object@Margin)
       if (!isValid) {
-         AddMessage(err) <- "Slot '@IntrPfad' in an object of or extending class 'IntrAssump' has invalid length."
+         AddMessage(err) <- "Slot '@Margin' in an object of or extending class 'IntrAssump' has invalid length."
       }
       if (NoMessage(err)) {
          return(TRUE)
@@ -45,7 +42,6 @@ setValidity(
    }
 )
 
-
 setMethod(
    f = "GetIntrRate",
    signature = "IntrAssump",
@@ -54,15 +50,13 @@ setMethod(
    }
 )
 
-
 setMethod(
-   f = "GetIntrPfad",
+   f = "GetMargin",
    signature = "IntrAssump",
    definition = function(object) {
-      return(object@IntrPfad)
+      return(object@Margin)
    }
 )
-
 
 setMethod(
    f = "SetIntrRate<-",
@@ -74,17 +68,15 @@ setMethod(
    }
 )
 
-
 setMethod(
-   f = "SetIntrPfad<-",
+   f = "SetMargin<-",
    signature = "IntrAssump",
    definition = function(object, value) {
-      object@IntrPfad <- value
+      object@Margin <- value
       validObject(object)
       return(object)
    }
 )
-
 
 setMethod(
    f = "GetExpdAssump",
@@ -100,7 +92,6 @@ setMethod(
    }
 )
 
-
 setMethod(
    f = "GetPaddAssump",
    signature = "IntrAssump",
@@ -110,17 +101,17 @@ setMethod(
       } else {
          rate <- RepeatTail(c(object@IntrRate, 0), len = projLen)
       }
-      if (length(object@IntrPfad) == 1) {
-         pfad <- rep(object@IntrPfad, length.out = projLen)
+      margin <- GetMargin(object)
+      if (length(margin) == 1) {
+         margin <- rep(margin, length.out = projLen)
       } else {
-         pfad <- RepeatTail(c(object@IntrPfad, 0), len = projLen)
+         margin <- RepeatTail(c(margin, 0), len = projLen)
       }
-      i <- rep((1 + (rate - pfad)) ^ (1 / projFreq) - 1, each = projFreq, length.out = projLen)
+      i <- rep((1 + (rate - margin)) ^ (1 / projFreq) - 1, each = projFreq, length.out = projLen)
       assumpInfo$i.Padd <- i
       return(assumpInfo)
    }
 )
-
 
 setMethod(
    f = "GetAssump",
