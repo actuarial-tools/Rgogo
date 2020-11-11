@@ -22,7 +22,7 @@ CreateProject <- function(projId, loc = getwd(), msgPath = character(0L)) {
          # Create DESCRIPTION file:
          descripFields <- list(
             Package = projId,
-            Type = "Package",
+            #Type = "Package",
             Version = "0.0.1",
             License = "To be specified",
             Title = "To be specified",
