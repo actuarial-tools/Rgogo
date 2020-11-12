@@ -32,10 +32,7 @@ setMethod(
       covProjLen <- GetCovProjLen(result$Timeline)
       projPolMonths <- GetProjPolMonths(result$Timeline)
 
-      # Project policy values
-      # if (is.null(result$Proj)) {
-         result <- Project(plan, cov, result)
-      # }
+      result <- Project(plan, cov, result)
       proj <- result$Proj
 
       # Get mortality assumption information
@@ -289,33 +286,6 @@ setMethod(
       cfTotalGross = cfPrem + cfPremTax + cfComm + cfOvrd + cfDthBen + cfMatBen + cfSurBen + cfDthBenPUA + cfMatBenPUA + cfSurBenPUA + cfAnuBen + cfAcqExpns + cfMntExpns
       cfTotalRein = cfReinBen + cfReinPrem + cfReinComm + cfReinPremRfnd + cfReinCommRfnd
 
-      # Export cashflow information
-     #  result$Cf <- data.frame(
-     #     CovId = ifelse(length(GetId(cov)) > 0, GetId(cov), NA),
-     #     Timeline = GetProjTimeLabel(result$Timeline),
-     #     Prem = cfPrem,
-     #     Prem.Tax = cfPremTax,
-     #     Comm = cfComm,
-     #     Comm.Ovrd = cfOvrd,
-     #     Ben.Dth = cfDthBen,
-     #     Ben.Dth.PUA = cfDthBenPUA,
-     #     Ben.Mat = cfMatBen,
-     #     Ben.Mat.PUA = cfMatBenPUA,
-     #     Ben.Sur = cfSurBen,
-     #     Ben.Sur.PUA = cfSurBenPUA,
-     #     Ben.Anu = cfAnuBen,
-     #     Expns.Acq = cfAcqExpns,
-     #     Expns.Mnt = cfMntExpns,
-     #     Rein.Ben = cfReinBen,
-     #     Rein.Prem = cfReinPrem,
-     #     Rein.Comm = cfReinComm,
-     #     Rein.Prem.Rfnd = cfReinPremRfnd,
-     #     Rein.Comm.Rfnd = cfReinCommRfnd,
-     #     Total.Gross = cfTotalGross,
-     #     Total.Rein = cfTotalRein,
-     #     Total.Net = cfTotalGross + cfTotalRein,
-     #     stringsAsFactors = FALSE
-     # )
       result$Cf <- list(
          CovId = rep(ifelse(length(GetId(cov)) > 0, GetId(cov), NA), length.out = projLen),
          Timeline = GetProjTimeLabel(result$Timeline),
@@ -342,16 +312,6 @@ setMethod(
          Total.Net = cfTotalGross + cfTotalRein
       )
 
-      # Export assumption information
-      # result$Assump <- data.frame(
-      #    PolMonth = projPolMonths,
-      #    q = q[projPolMonths],
-      #    w = w[projPolMonths],
-      #    p = p[projPolMonths],
-      #    pn = pn[projPolMonths],
-      #    t = covProjTimeIndex[ceiling(covProjTimeIndex) >= 0],
-      #    stringsAsFactors = FALSE
-      # )
       result$Assump <- list(
          PolMonth = projPolMonths,
          q = q[projPolMonths],
