@@ -8,10 +8,10 @@ Model.PremSolver <- function(args = ArgSet.PremSolver(), id = character(0L), des
 
 setMethod(
    f = "Run",
-   signature = c("Model.PremSolver", "IPlan.LT"),
+   signature = c("Model.PremSolver", "IPlan"),
    definition = function(object, var, result = list()) {
-      if (length(var@PremTable) > 1) {
-         riskClasses <- names(var@PremTable)
+      if (length(GetPremTable(var)) > 1) {
+         riskClasses <- names(GetPremTable(var))
       } else {
          riskClasses <- NA_character_
       }

@@ -175,7 +175,10 @@ setMethod(
 setMethod(
    f = "GetPremTable",
    signature = "IPlan.LT",
-   definition = function(object, cov) {
+   definition = function(object, cov = NULL) {
+      if (is.null(cov)) {
+         return(object@PremTable)
+      }
       if (length(object@PremTable) == 0) {
          return(NULL)
       }
