@@ -48,35 +48,6 @@ setMethod(
       } else {
          vAnuBen <- 0
       }
-
-      # result$PV <- data.frame(
-      #    CovId = ifelse(length(GetId(var)) > 0, GetId(var), NA),
-      #    Prem = ifelse(is.null(cf$Prem), 0, sum(cf$Prem * v0)),
-      #    Prem.Tax = ifelse(is.null(cf$Prem.Tax), 0, sum(cf$Prem.Tax * v0)),
-      #    Comm =  ifelse(is.null(cf$Comm), 0, sum(cf$Comm * v0)),
-      #    Comm.Ovrd = ifelse(is.null(cf$Comm.Ovrd), 0, sum(cf$Comm.Ovrd * v0)),
-      #    Ben.Dth = ifelse(is.null(cf$Ben.Dth), 0, sum(cf$Ben.Dth * v1)),
-      #    Ben.Mat = ifelse(is.null(cf$Ben.Mat), 0, sum(cf$Ben.Mat * v1)),
-      #    Ben.Sur = ifelse(is.null(cf$Ben.Sur), 0, sum(cf$Ben.Sur * v1)),
-      #    Ben.Dth.PUA = ifelse(is.null(cf$Ben.Dth.PUA), 0, sum(cf$Ben.Dth.PUA * v1)),
-      #    Ben.Mat.PUA = ifelse(is.null(cf$Ben.Mat.PUA), 0, sum(cf$Ben.Mat.PUA * v1)),
-      #    Ben.Sur.PUA = ifelse(is.null(cf$Ben.Sur.PUA), 0, sum(cf$Ben.Sur.PUA * v1)),
-      #    Ben.Anu = ifelse(is.null(cf$Ben.Anu), 0, sum(cf$Ben.Anu * vAnuBen)),
-      #    Expns.Acq = ifelse(is.null(cf$Expns.Acq), 0, sum(cf$Expns.Acq * v0)),
-      #    Expns.Mnt = ifelse(is.null(cf$Expns.Mnt), 0, sum(cf$Expns.Mnt * v0)),
-      #    Rein.Ben = ifelse(is.null(cf$Rein.Ben), 0, sum(cf$Rein.Ben * v1)),
-      #    Rein.Prem = ifelse(is.null(cf$Rein.Prem), 0, sum(cf$Rein.Prem * v0)),
-      #    Rein.Comm = ifelse(is.null(cf$Rein.Comm), 0, sum(cf$Rein.Comm * v0)),
-      #    Rein.Prem.Rfnd = ifelse(is.null(cf$Rein.Prem.Rfnd), 0, sum(cf$Rein.Prem.Rfnd * v1)),
-      #    Rein.Comm.Rfnd = ifelse(is.null(cf$Rein.Comm.Rfnd), 0, sum(cf$Rein.Comm.Rfnd * v1)),
-      #    stringsAsFactors = FALSE
-      # ) %>% dplyr::mutate(
-      #    Total.Gross = Prem + Prem.Tax + Comm + Comm.Ovrd + Ben.Dth + Ben.Mat + Ben.Sur + Ben.Dth.PUA + Ben.Mat.PUA + Ben.Sur.PUA + Ben.Anu + Expns.Acq + Expns.Mnt,
-      #    Total.Rein = Rein.Ben + Rein.Prem + Rein.Comm + Rein.Prem.Rfnd + Rein.Comm.Rfnd
-      # ) %>% dplyr::mutate(
-      #    Total.Net = Total.Gross + Total.Rein
-      # )
-
       result$PV <- list(
          CovId = ifelse(length(GetId(var)) > 0, GetId(var), NA),
          Prem = ifelse(is.null(cf$Prem), 0, sum(cf$Prem * v0)),
