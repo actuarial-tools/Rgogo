@@ -11,7 +11,8 @@ setClass(
       OvrdOnCommSchd = "numeric",
       PremTaxRate = "numeric",
       AnuMode = "integer",
-      AnuTiming = "integer"
+      AnuTiming = "integer",
+      CrtnMonths = "integer"
    )
 )
 
@@ -25,7 +26,7 @@ setValidity(
          Validator.Range(minValue = 0, maxValue = 120, allowNA = FALSE),
          Validator.Names(hasNames = TRUE, namesAllowed = c("AnuYears", "AnuToAge"))
       )
-      if (Validate(vg, object@CovPeriod) != TRUE) {
+      if (Validate(vg, object@AnuPeriod) != TRUE) {
          AddMessage(err) <- "Invalid annuity period setting."
       }
       # Validate premium table
@@ -93,6 +94,17 @@ setValidity(
       if (isValid != TRUE) {
          AddMessage(err) <- "Value of annuity timing is invalid.  It must be 0L (beginning of policy month) or 1L (end of policy month)."
       }
+      # Validate guarantee period @CrtnMonths
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1L, maxLen = 1L),
+            Validator.Range(minValue = 0)
+         ),
+         object@CrtnMonths
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Value of guarantee period (in number of months) is invalid.  It must be a non-negative integer."
+      }
       if (NoMessage(err)) {
          return(TRUE)
       } else {
@@ -102,7 +114,7 @@ setValidity(
 )
 
 IPlan.IA <- function(anuYears = NA, anuToAge = NA,
-                     anuMode = 12L, anuTiming = 0L,
+                     anuMode = 12L, anuTiming = 0L, crtnMonths = 0L,
                      premTable = character(0L), polFee = numeric(0), premTaxRate = numeric(0L),
                      commSchd = numeric(0L), ovrdOnPremSchd = numeric(0L), ovrdOnCommSchd = numeric(0L),
                      id = character(0L), descrip = character(0L)) {
@@ -114,6 +126,7 @@ IPlan.IA <- function(anuYears = NA, anuToAge = NA,
                AnuPeriod = anuPeriod,
                AnuMode = anuMode,
                AnuTiming = anuTiming,
+               CrtnMonths = crtnMonths,
                PremTable = premTable,
                PolFee = polFee,
                PremTaxRate = premTaxRate,
@@ -149,14 +162,17 @@ setMethod(
    f = "GetPremYears",
    signature = "IPlan.IA",
    definition = function(object, cov) {
-      return(1/12)
+      return(1)
    }
 )
 
 setMethod(
    f = "GetPremTable",
    signature = "IPlan.IA",
-   definition = function(object, cov) {
+   definition = function(object, cov = NULL) {
+      if (is.null(cov)) {
+         return(object@PremTable)
+      }
       if (length(object@PremTable) == 0) {
          return(NULL)
       }
@@ -197,8 +213,8 @@ setMethod(
 setMethod(
    f = "GetPolFee",
    signature = "IPlan.IA",
-   definition = function(object) {
-      if (length(object@PolFee0 == 0)) {
+   definition = function(object, ...) {
+      if (length(object@PolFee) == 0) {
          return(0)
       } else {
          return(object@PolFee)
@@ -214,6 +230,26 @@ setMethod(
       object@PolFee <- value
       validObject(object)
       return(object)
+   }
+)
+
+setMethod(
+   f = "GetModFactor",
+   signature = "IPlan.IA",
+   definition = function(object, ...) {
+      return(1)
+   }
+)
+
+setMethod(
+   f = "GetModPrem",
+   signature = "IPlan.IA",
+   definition = function(object, cov) {
+      premMode <- GetPremMode(cov)
+      premRate <- GetPremRate(object, cov)
+      stopifnot(!is.na(premRate))
+      modPrem <- premRate[1] * GetFaceAmt(cov) * GetModFactor(object, premMode) + GetPolFee(object, premMode)
+      return(modPrem)
    }
 )
 
@@ -341,6 +377,24 @@ setMethod(
    signature = "IPlan.IA",
    definition = function(object, value) {
       object@AnuTiming <- as.integer(value)
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "GetAnuCrtnMonths",
+   signature = "IPlan.IA",
+   definition = function(object) {
+      return(object@CrtnMonths)
+   }
+)
+
+setMethod(
+   f = "SetAnuCrtnMonths<-",
+   signature = "IPlan.IA",
+   definition = function(object, value) {
+      object@CrtnMonths <- as.integer(value)
       validObject(object)
       return(object)
    }
