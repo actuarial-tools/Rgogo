@@ -15,10 +15,201 @@ setClass(
              ReinProp = "numeric",
              PUAAmt = "numeric",
              AccBal = "numeric",
+             IssAge2 = "integer",
+             RiskClass2 = "character",
+             FaceAmt2 = "numeric",
+             LifeStatus = "integer",
+             LifeStatus2 = "integer",
              ReportClass1 = "character",
              ReportClass2 = "character",
              ReportClass3 = "character"
    )
+)
+
+setValidity(
+   Class = "Cov",
+   method = function(object) {
+      err <- New.SysMessage()
+      # Validate @PlanId
+      isValid <- Validate(
+         Validator.Length(minLen = 0, maxLen = 1),
+         object@PlanId
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "The length of slot value @PlanId cannot be greater than 1."
+      }
+      # Validate @IssDate
+      isValid <- Validate(
+         Validator.Length(minLen = 1, maxLen = 1),
+         object@IssDate
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "The length of slot value @IssDate must be 1."
+      }
+      # Validate @IssAge
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = 0, maxValue = 120)
+         ),
+         object@IssAge
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot @IssAge must contain an integer scalar between 0 and 120."
+      }
+      # Validate @RiskClass
+      isValid <- Validate(
+         Validator.Length(minLen = 1, maxLen = 1),
+         object@RiskClass
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot @RiskClass must contain a string scalar."
+      }
+      # Validate @FaceAmt
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 1, maxLen = 1),
+            Validator.Range(minValue = 0)
+         ),
+         object@FaceAmt
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot @FaceAmt must contain a non-negative numeric scalar."
+      }
+      # Validate @ModPrem
+      isValid <- Validate(
+         Validator.Length(minLen = 0, maxLen = 1),
+         object@ModPrem
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "The length of slot value @ModPrem cannot be greater than 1."
+      }
+      # Valid @PremMode
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 0, maxLen = 1),
+            Validator.InList(valuesAllowed = c(1L, 2L, 4L, 12L))
+         ),
+         object@PremMode
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "The length of slot value @PremMode cannot be greater than 1.  The value must be 1L, 2L, 4L or 12L."
+      }
+      # Validate @ReinProp
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 0, maxLen = 1),
+            Validator.Range(minValue = 0, allowNA = TRUE)
+         ),
+         object@ReinProp
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot @ReinProp must contain a non-negative numeric scalar."
+      }
+      # Validate @PUAAmt
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 0, maxLen = 1),
+            Validator.Range(minValue = 0, allowNA = TRUE)
+         ),
+         object@PUAAmt
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot @PUAAmt must contain a non-negative numeric scalar."
+      }
+      # Validate @AccBal
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 0, maxLen = 1),
+            Validator.Range(minValue = 0, allowNA = TRUE)
+         ),
+         object@AccBal
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot @AccBal must contain a non-negative numeric scalar."
+      }
+      # Validate @IssAge2
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 0, maxLen = 1),
+            Validator.Range(minValue = 0, maxValue = 120, allowNA = TRUE)
+         ),
+         object@IssAge2
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot @IssAge2 must contain an integer scalar between 0 and 120."
+      }
+      # Validate @RiskClass2
+      isValid <- Validate(
+         Validator.Length(minLen = 0, maxLen = 1),
+         object@RiskClass2
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot @RiskClass2 must contain a string scalar."
+      }
+      # Validate @FaceAmt2
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 0, maxLen = 1),
+            Validator.Range(minValue = 0, allowNA = TRUE)
+         ),
+         object@FaceAmt2
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot @FaceAmt2 must contain a non-negative numeric scalar."
+      }
+      # Valid @LifeStatus
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 0, maxLen = 1),
+            Validator.InList(valuesAllowed = c(0L, 1L), allowNA = TRUE)
+         ),
+         object@LifeStatus
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "The length of slot value @LifeStatus cannot be greater than 1.  The value must be 0L or 1L"
+      }
+      # Valid @LifeStatus2
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 0, maxLen = 1),
+            Validator.InList(valuesAllowed = c(0L, 1L), allowNA = TRUE)
+         ),
+         object@LifeStatus2
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "The length of slot value @LifeStatus2 cannot be greater than 1.  The value must be 0L or 1L"
+      }
+      # Validate @ReportClass1
+      isValid <- Validate(
+         Validator.Length(minLen = 0, maxLen = 1),
+         object@ReportClass1
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot @ReportClass1 must contain a string scalar."
+      }
+      # Validate @ReportClass2
+      isValid <- Validate(
+         Validator.Length(minLen = 0, maxLen = 1),
+         object@ReportClass2
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot @ReportClass2 must contain a string scalar."
+      }
+      # Validate @ReportClass3
+      isValid <- Validate(
+         Validator.Length(minLen = 0, maxLen = 1),
+         object@ReportClass3
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot @ReportClass3 must contain a string scalar."
+      }
+      if (NoMessage(err)) {
+         return(TRUE)
+      } else {
+         return(GetMessage(err))
+      }
+   }
 )
 
 Cov <- function(issDate,
@@ -30,6 +221,11 @@ Cov <- function(issDate,
                 reinProp = NA_real_,
                 puaAmt = 0,
                 accBal = NA_real_,
+                issAge2 = NA_integer_,
+                riskClass2 = NA_character_,
+                faceAmt2 = NA_real_,
+                lifeStatus = NA_integer_,
+                lifeStatus2 = NA_integer_,
                 reportClass1 = character(0L),
                 reportClass2 = character(0L),
                 reportClass3 = character(0L),
@@ -49,6 +245,11 @@ Cov <- function(issDate,
       ReinProp = reinProp,
       PUAAmt = puaAmt,
       AccBal = accBal,
+      IssAge2 = issAge2,
+      RiskClass2 = riskClass2,
+      FaceAmt2 = faceAmt2,
+      LifeStatus = lifeStatus,
+      LifeStatus2 = lifeStatus2,
       ReportClass1 = reportClass1,
       ReportClass2 = reportClass2,
       ReportClass3 = reportClass3,
@@ -340,6 +541,104 @@ setMethod(
 )
 
 setMethod(
+   f = "GetIssAge2",
+   signature = "Cov",
+   definition = function(object) {
+      return(object@IssAge2)
+   }
+)
+
+setMethod(
+   f = "SetIssAge2<-",
+   signature = "Cov",
+   definition = function(object, value) {
+      object@IssAge2 <- as.integer(value)
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "GetRiskClass2",
+   signature = "Cov",
+   definition = function(object) {
+      return(object@RiskClass2)
+   }
+)
+
+setMethod(
+   f = "SetRiskClass2<-",
+   signature = "Cov",
+   definition = function(object, value) {
+      object@RiskClass2 <- as.character(value)
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "GetFaceAmt2",
+   signature = "Cov",
+   definition = function(object) {
+      return(object@FaceAmt2)
+   }
+)
+
+setMethod(
+   f = "SetFaceAmt2<-",
+   signature = "Cov",
+   definition = function(object, value) {
+      object@FaceAmt2 <- as.numeric(value)
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "GetLifeStatus",
+   signature = "Cov",
+   definition = function(object) {
+      if (HasValue(object@LifeStatus)) {
+         return(object@LifeStatus)
+      } else {
+         return(1L)    # Both lives are alive.
+      }
+   }
+)
+
+setMethod(
+   f = "SetLifeStatus<-",
+   signature = "Cov",
+   definition = function(object, value) {
+      object@LifeStatus <-value
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "GetLifeStatus2",
+   signature = "Cov",
+   definition = function(object) {
+      if (HasValue(object@LifeStatus2)) {
+         return(object@LifeStatus2)
+      } else {
+         return(1L)    # Both lives are alive.
+      }
+   }
+)
+
+setMethod(
+   f = "SetLifeStatus2<-",
+   signature = "Cov",
+   definition = function(object, value) {
+      object@LifeStatus2 <-value
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
    f = "GetCovMonths",
    signature = "Cov",
    definition = function(object) {
@@ -406,25 +705,13 @@ as.CovList <- function(dfCov) {
                                     dfCov[[r, s]]
             )
          }
-         if (HasValue(dfCov[[r, "IssAge2"]])) {
-            cov@IssAge <- c(cov@IssAge, as.integer(dfCov[[r, "IssAge2"]]))
-         }
-         if (HasValue(dfCov[[r, "RiskClass2"]])) {
-            cov@RiskClass <- c(cov@RiskClass, dfCov[[r, "RiskClass2"]])
-         }
          return(cov)
       }
    )
    return(covList)
 }
 
-GetCovLifeInfo <- function(cov, n) {
-   SetIssAge(cov) <- GetIssAge(cov)[n]
-   SetRiskClass(cov) <- GetRiskClass(cov)[n]
-   return(cov)
-}
-
 IsSingleLife <- function(cov) {
-   return(length(GetIssAge(cov)) == 1 & length(GetRiskClass) == 1)
+   return(!HasValue(GetIssAge2(cov)) | !HasValue(GetRiskClass2(cov)))
 }
 
