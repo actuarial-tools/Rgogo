@@ -283,8 +283,8 @@ setMethod(
          cfAcqExpns <- ShiftLeft(cfAcqExpns, positions = 1, filler = 0)
          cfMntExpns <- ShiftLeft(cfMntExpns, positions = 1, filler = 0)
       }
-      cfTotalGross = cfPrem + cfPremTax + cfComm + cfOvrd + cfDthBen + cfMatBen + cfSurBen + cfDthBenPUA + cfMatBenPUA + cfSurBenPUA + cfAnuBen + cfAcqExpns + cfMntExpns
-      cfTotalRein = cfReinBen + cfReinPrem + cfReinComm + cfReinPremRfnd + cfReinCommRfnd
+      cfTotalGross <- cfPrem + cfPremTax + cfComm + cfOvrd + cfDthBen + cfMatBen + cfSurBen + cfDthBenPUA + cfMatBenPUA + cfSurBenPUA + cfAnuBen + cfAcqExpns + cfMntExpns
+      cfTotalRein <- cfReinBen + cfReinPrem + cfReinComm + cfReinPremRfnd + cfReinCommRfnd
 
       result$Cf <- list(
          CovId = rep(ifelse(length(GetId(cov)) > 0, GetId(cov), NA), length.out = projLen),
