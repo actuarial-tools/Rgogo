@@ -75,7 +75,6 @@ setMethod(
       result$PV$Total.Rein = result$PV$Rein.Ben + result$PV$Rein.Prem + result$PV$Rein.Comm + result$PV$Rein.Prem.Rfnd + result$PV$Rein.Comm.Rfnd
       result$PV$Total.Net = result$PV$Total.Gross + result$PV$Total.Rein
       # Save assumption information
-      # result$Assump <- cbind(result$Assump, data.frame(i = i, t = t, v0 = v0, v1 = v1, stringsAsFactors = FALSE))
       result$Assump$i <- i
       result$Assump$t <- t
       result$Assump$v0 <- v0
