@@ -143,26 +143,30 @@ setMethod(
 setMethod(
    f = "Run",
    signature = "IJob",
-   definition = function(object) {
-      msg <- New.SysMessage()
-      AddMessage(msg) <- paste0("Job starts at: ", jobStartTime <- Sys.time())
-      object <- Initialize(object)
-      result <- lapply(
-         GetInpVars(object),
-         function(inp, job) {
-            m <- Dispatch(job, inp)
-            if (is.null(m)) {return(NULL)}
-            rslt <- Run(m, inp, list())
-            return(rslt)
-         },
-         object
-      )
-      result <- Finalize(object, result)
-      jobEndTime <- Sys.time()
-      AddMessage(msg) <- paste0("Job ends at: ", jobEndTime <- Sys.time())
-      AddMessage(msg) <- paste0("Time lapsed: ", round(as.double(difftime(jobEndTime, jobStartTime, units = "min")), digits = 3), " min")
-      cat(GetMessage(msg), sep = "\n")
-      invisible(result)
+   definition = function(object, parallel = TRUE, cores = NA_integer_) {
+      if (parallel == TRUE) {
+         RunParallel(object, cores = cores)
+      } else {
+         msg <- New.SysMessage()
+         AddMessage(msg) <- paste0("Job starts at: ", jobStartTime <- Sys.time())
+         object <- Initialize(object)
+         result <- lapply(
+            GetInpVars(object),
+            function(inp, job) {
+               m <- Dispatch(job, inp)
+               if (is.null(m)) {return(NULL)}
+               rslt <- Run(m, inp, list())
+               return(rslt)
+            },
+            object
+         )
+         result <- Finalize(object, result)
+         jobEndTime <- Sys.time()
+         AddMessage(msg) <- paste0("Job ends at: ", jobEndTime <- Sys.time())
+         AddMessage(msg) <- paste0("Time lapsed: ", round(as.double(difftime(jobEndTime, jobStartTime, units = "min")), digits = 3), " min")
+         cat(GetMessage(msg), sep = "\n")
+         invisible(result)
+      }
    }
 )
 
