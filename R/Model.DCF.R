@@ -50,24 +50,24 @@ setMethod(
       }
       result$PV <- list(
          CovId = ifelse(length(GetId(var)) > 0, GetId(var), NA),
-         Prem = ifelse(is.null(cf$Prem), 0, sum(cf$Prem * v0)),
-         Prem.Tax = sum(cf$Prem.Tax * v0),
-         Comm =  sum(cf$Comm * v0),
-         Comm.Ovrd = sum(cf$Comm.Ovrd * v0),
-         Ben.Dth = sum(cf$Ben.Dth * v1),
-         Ben.Mat = sum(cf$Ben.Mat * v1),
-         Ben.Sur = sum(cf$Ben.Sur * v1),
-         Ben.Dth.PUA = sum(cf$Ben.Dth.PUA * v1),
-         Ben.Mat.PUA = sum(cf$Ben.Mat.PUA * v1),
-         Ben.Sur.PUA = sum(cf$Ben.Sur.PUA * v1),
-         Ben.Anu = sum(cf$Ben.Anu * vAnuBen),
-         Expns.Acq = sum(cf$Expns.Acq * v0),
-         Expns.Mnt = sum(cf$Expns.Mnt * v0),
-         Rein.Ben = sum(cf$Rein.Ben * v1),
-         Rein.Prem = sum(cf$Rein.Prem * v0),
-         Rein.Comm = sum(cf$Rein.Comm * v0),
-         Rein.Prem.Rfnd = sum(cf$Rein.Prem.Rfnd * v1),
-         Rein.Comm.Rfnd = sum(cf$Rein.Comm.Rfnd * v1)
+         Prem = ifelse(is.null(cf$Prem), 0, sum(cf$Prem * v0, na.rm = TRUE)),
+         Prem.Tax = sum(cf$Prem.Tax * v0, na.rm = TRUE),
+         Comm =  sum(cf$Comm * v0, na.rm = TRUE),
+         Comm.Ovrd = sum(cf$Comm.Ovrd * v0, na.rm = TRUE),
+         Ben.Dth = sum(cf$Ben.Dth * v1, na.rm = TRUE),
+         Ben.Mat = sum(cf$Ben.Mat * v1, na.rm = TRUE),
+         Ben.Sur = sum(cf$Ben.Sur * v1, na.rm = TRUE),
+         Ben.Dth.PUA = sum(cf$Ben.Dth.PUA * v1, na.rm = TRUE),
+         Ben.Mat.PUA = sum(cf$Ben.Mat.PUA * v1, na.rm = TRUE),
+         Ben.Sur.PUA = sum(cf$Ben.Sur.PUA * v1, na.rm = TRUE),
+         Ben.Anu = sum(cf$Ben.Anu * vAnuBen, na.rm = TRUE),
+         Expns.Acq = sum(cf$Expns.Acq * v0, na.rm = TRUE),
+         Expns.Mnt = sum(cf$Expns.Mnt * v0, na.rm = TRUE),
+         Rein.Ben = sum(cf$Rein.Ben * v1, na.rm = TRUE),
+         Rein.Prem = sum(cf$Rein.Prem * v0, na.rm = TRUE),
+         Rein.Comm = sum(cf$Rein.Comm * v0, na.rm = TRUE),
+         Rein.Prem.Rfnd = sum(cf$Rein.Prem.Rfnd * v1, na.rm = TRUE),
+         Rein.Comm.Rfnd = sum(cf$Rein.Comm.Rfnd * v1, na.rm = TRUE)
       )
       result$PV$Total.Gross = result$PV$Prem + result$PV$Prem.Tax + result$PV$Comm + result$PV$Comm.Ovrd +
          result$PV$Ben.Dth + result$PV$Ben.Mat + result$PV$Ben.Sur + result$PV$Ben.Dth.PUA + result$PV$Ben.Mat.PUA +
