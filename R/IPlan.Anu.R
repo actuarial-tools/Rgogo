@@ -2,18 +2,19 @@
 NULL
 
 setClass(
-   Class = "IPlan.IA",
+   Class = "IPlan.Anu",
    contains = "IPlan.End",
    slots = c(
+      AnuStart = "numeric",
       AnuMode = "integer",
       AnuTiming = "integer",
       CrtnMonths = "integer",
-      AnuAdjIndex = "numeric"
+      SurChrgSchd = "numeric"
    )
 )
 
 setValidity(
-   Class = "IPlan.IA",
+   Class = "IPlan.Anu",
    method = function(object) {
       err <- New.SysMessage()
       # Validate annuity mode @AnuMode
@@ -57,27 +58,38 @@ setValidity(
    }
 )
 
-IPlan.IA <- function(anuYears = NA, anuToAge = NA, anuMode = 12L, anuTiming = 0L, crtnMonths = 0L, anuAdjIndex = 0,
-                     premTable = character(0L), polFee = numeric(0), premTaxRate = numeric(0L),
-                     commSchd = numeric(0L), ovrdOnPremSchd = numeric(0L), ovrdOnCommSchd = numeric(0L),
-                     id = character(0L), descrip = character(0L)) {
+IPlan.Anu <- function(premYears = NA, premToAge = NA, anuStartYear = NA, anuStartAge = NA,
+                      anuYears = NA, anuToAge = NA, anuMode = 12L, anuTiming = 0L, crtnMonths = 0L,
+                      premTable = character(0L), modFactor = c("1" = 1, "2" = 0.5, "4" = 0.25, "12" = 1/12),
+                      polFee = numeric(0), premTaxRate = numeric(0L),
+                      cvTable = character(0L), surChrgSchd = numeric(0L),
+                      commSchd = numeric(0L), ovrdOnPremSchd = numeric(0L), ovrdOnCommSchd = numeric(0L),
+                      id = character(0L), descrip = character(0L)) {
    # Define premium period
-   premPeriod <- c(PremYears = 1 / 12)
-   # Define end of annuity payout period, which is the end of coverage period.
+   premPeriod <- c(PremYears = premYears, PremToAge = as.integer(premToAge))
+   premPeriod <- premPeriod[!is.na(premPeriod)]
+   stopifnot(length(premPeriod) == 1)
+   # Define beginning of annuity payout period
+   anuStart <- c(AnuStartYear = anuStartYear, AnuStartAge = anuStartAge)
+   anuStart <- anuStart[!is.na(anuStart)]
+   stopifnot(length(anuStart) == 1)
+   # Define end of annuity payout period, which is also end of coverage period
    covPeriod <- c(CovYears = anuYears, CovToAge = anuToAge)
    covPeriod <- covPeriod[!is.na(covPeriod)]
-   plan <- new(Class = "IPlan.IA",
+   stopifnot(length(covPeriod) >= 1)
+   plan <- new(Class = "IPlan.Anu",
                CovPeriod = covPeriod,
                PremPeriod = premPeriod,
+               AnuStart = anuStart,
                AnuMode = anuMode,
                AnuTiming = anuTiming,
-               AnuAdjIndex = anuAdjIndex,
                CrtnMonths = crtnMonths,
                PremTable = premTable,
-               ModFactor = numeric(0L),
+               ModFactor = modFactor,
                PolFee = polFee,
                PremTaxRate = premTaxRate,
-               CVTable = character(0L),
+               CVTable = cvTable,
+               SurChrgSchd = surChrgSchd,
                CommSchd = commSchd,
                OvrdOnPremSchd = ovrdOnPremSchd,
                OvrdOnCommSchd = ovrdOnCommSchd,
@@ -90,15 +102,21 @@ IPlan.IA <- function(anuYears = NA, anuToAge = NA, anuMode = 12L, anuTiming = 0L
 
 setMethod(
    f = "GetAnutzPeriod",
-   signature = "IPlan.IA",
+   signature = "IPlan.Anu",
    definition = function(object, cov) {
-      return(1:GetCovMonths(object, cov))
+      if (!is.na(object@AnuStart["AnuStartYear"])) {
+         anuStartMonth <- (object@AnuStart["AnuStartYear"] - 1) * 12 + 1
+      } else {
+         anuStartMonth <- (object@AnuStart["AnuStartAge"] - GetIssAge(cov)) * 12 + 1
+      }
+      anuEndMonth <- GetCovMonths(object, cov)
+      return(anuStartMonth:anuEndMonth)
    }
 )
 
 setMethod(
    f = "GetAnuMode",
-   signature = "IPlan.IA",
+   signature = "IPlan.Anu",
    definition = function(object) {
       # Annuity due (payable at the beginning of period): object@AnuMode == 0L
       # Annuity immediate (payable at the end of period): object@AnuMode == 1L
@@ -108,7 +126,7 @@ setMethod(
 
 setMethod(
    f = "SetAnuMode<-",
-   signature = "IPlan.IA",
+   signature = "IPlan.Anu",
    definition = function(object, value) {
       object@AnuMode <- as.integer(value)
       validObject(object)
@@ -118,7 +136,7 @@ setMethod(
 
 setMethod(
    f = "GetAnuTiming",
-   signature = "IPlan.IA",
+   signature = "IPlan.Anu",
    definition = function(object) {
       return(object@AnuTiming)
    }
@@ -126,7 +144,7 @@ setMethod(
 
 setMethod(
    f = "SetAnuTiming<-",
-   signature = "IPlan.IA",
+   signature = "IPlan.Anu",
    definition = function(object, value) {
       object@AnuTiming <- as.integer(value)
       validObject(object)
@@ -136,47 +154,15 @@ setMethod(
 
 setMethod(
    f = "GetAnuCrtnMonths",
-   signature = "IPlan.IA",
+   signature = "IPlan.Anu",
    definition = function(object) {
       return(object@CrtnMonths)
    }
 )
 
 setMethod(
-   f = "GetCVTable",
-   signature = "IPlan.IA",
-   definition = function(object, cov) {
-      return(NULL)
-   }
-)
-
-setMethod(
-   f = "SetCVTable<-",
-   signature = "IPlan.IA",
-   definition = function(object, value) {
-      stop("Cannot set cash value table for an instance of 'IPlan.IA'.")
-   }
-)
-
-setMethod(
-   f = "GetModFactor",
-   signature = "IPlan.IA",
-   definition = function(object, premMode) {
-      return(1)
-   }
-)
-
-setMethod(
-   f = "SetModFactor<-",
-   signature = "IPlan.IA",
-   definition = function(object, value) {
-      stop("Cannot set modal factor for an instance of 'IPlan.IA'.  It is a single premium product.")
-   }
-)
-
-setMethod(
    f = "SetAnuCrtnMonths<-",
-   signature = "IPlan.IA",
+   signature = "IPlan.Anu",
    definition = function(object, value) {
       object@CrtnMonths <- as.integer(value)
       validObject(object)
@@ -185,29 +171,26 @@ setMethod(
 )
 
 setMethod(
-   f = "GetAnuAdjIndex",
-   signature = "IPlan.IA",
+   f = "GetSurChrgSchd",
+   signature = "IPlan.Anu",
    definition = function(object, cov = NULL) {
       if (is.null(cov)) {
-         return(object@AnuAdjIndex)
-      } else {
-         anuYears <- ceiling(length(GetAnutzPeriod(object, cov)) / 12)
-         if (length(object@AnuAdjIndex) == 0) {
-            return(rep(0, length.out = anuYears))
-         } else if (length(object@AnuAdjIndex) == 1) {
-            return(rep(object@AnuAdjIndex, length.out = anuYears))
-         } else {
-            return(FillTail(object@AnuAdjIndex, filler = 0, len = anuYears))
-         }
+         return(object@SurChrgSchd)
       }
+      if (HasValue(object@SurChrgSchd)) {
+         schd <- FillZeroIfNA(rep(object@SurChrgSchd, each = 12), GetCovMonths(object, cov))
+      } else {
+         schd <- rep(0, len = GetCovMonths(object, cov))
+      }
+      return(schd)
    }
 )
 
 setMethod(
-   f = "SetAnuAdjIndex<-",
-   signature = "IPlan.IA",
+   f = "SetSurChrgSchd<-",
+   signature = "IPlan.Anu",
    definition = function(object, value) {
-      object@AnuAdjIndex <- value
+      object@SurChrgSchd <- value
       validObject(object)
       return(object)
    }
@@ -215,7 +198,7 @@ setMethod(
 
 setMethod(
    f = "GetRein",
-   signature = "IPlan.IA",
+   signature = "IPlan.Anu",
    definition = function(object, cov = NULL) {
       return(NULL)
    }
@@ -223,15 +206,15 @@ setMethod(
 
 setMethod(
    f = "SetRein<-",
-   signature = "IPlan.IA",
+   signature = "IPlan.Anu",
    definition = function(object, value) {
-      stop("Cannot set reinsurance for an instance of 'IPlan.IA'.")
+      stop("Cannot set reinsurance for an instance of 'IPlan.Anu'.")
    }
 )
 
 setMethod(
    f = "ProjDthBen",
-   signature = "IPlan.IA",
+   signature = "IPlan.Anu",
    definition = function(object, cov, resultContainer) {
       # No death benefit is implemented.  It needs to be implemented by users if there is any.
       return(resultContainer)
@@ -240,7 +223,7 @@ setMethod(
 
 setMethod(
    f = "ProjMatBen",
-   signature = "IPlan.IA",
+   signature = "IPlan.Anu",
    definition = function(object, cov, resultContainer) {
       # No maturity benefit is implemented.  It needs to be implemented by users if there is any.
       return(resultContainer)
@@ -248,25 +231,34 @@ setMethod(
 )
 
 setMethod(
-   f = "ProjSurBen",
-   signature = "IPlan.IA",
+   f = "ProjSurChrg",
+   signature = "IPlan.Anu",
    definition = function(object, cov, resultContainer) {
-      # No surrender benefit.
+      resultContainer$Proj$Chrg.Sur <- resultContainer$Proj$CV * GetSurChrgSchd(object, cov)
+      return(resultContainer)
+   }
+)
+
+setMethod(
+   f = "ProjSurBen",
+   signature = "IPlan.Anu",
+   definition = function(object, cov, resultContainer) {
+      resultContainer <- ProjSurChrg(object, cov, resultContainer)
+      surBen <- resultContainer$Proj$CV - resultContainer$Proj$Chrg.Sur
+      # Cannot surrender during annuitization period.
+      anutzPeriod <- GetAnutzPeriod(object, cov)
+      resultContainer$Proj$Ben.Sur <- surBen * !(seq_along(surBen) %in% anutzPeriod)
       return(resultContainer)
    }
 )
 
 setMethod(
    f = "ProjAnuBen",
-   signature = "IPlan.IA",
+   signature = "IPlan.Anu",
    definition = function(object, cov, resultContainer) {
       anuPeriod <- GetAnutzPeriod(object, cov)
-      anuMonths <- length(anuPeriod)
       anuMode <- GetAnuMode(object)
-      cola <- c(0, GetAnuAdjIndex(object, cov))
-      cola <- rep(cola, each = 12, length.out = anuMonths) * (((1:anuMonths) - 1) %% 12 == 0)
-      cola <- cumprod(1 + cola)
-      a <- rep(GetFaceAmt(cov) / anuMode, length.out = anuMonths) * cola   # Face amount of coverage contrains annualized annuity benefit information.
+      a <- rep(GetFaceAmt(cov) / anuMode, length.out = length(anuPeriod))   # Face amount of coverage contrains annualized annuity benefit information.
       if (GetAnuTiming(object) == 0) {
          m <- (seq(from = 1, to = length(a)) - 1) %% (12 / anuMode) == 0
       } else {
@@ -279,7 +271,7 @@ setMethod(
 
 setMethod(
    f = "ProjRein",
-   signature = "IPlan.IA",
+   signature = "IPlan.Anu",
    definition = function(object, cov, resultContainer) {
       # Reinsurance, if there is any, needs to be implemented by users.
       return(resultContainer)
@@ -288,12 +280,17 @@ setMethod(
 
 setMethod(
    f = "Project",
-   signature = "IPlan.IA",
+   signature = "IPlan.Anu",
    definition = function(object, cov, resultContainer) {
       resultContainer <- NewProjection(resultContainer, cov, object)
       resultContainer <- ProjPrem(object, cov, resultContainer)
       resultContainer <- ProjComm(object, cov, resultContainer)
+      resultContainer <- ProjDthBen(object, cov, resultContainer)
+      resultContainer <- ProjMatBen(object, cov, resultContainer)
+      resultContainer <- ProjCV(object, cov, resultContainer)
+      resultContainer <- ProjSurBen(object, cov, resultContainer)
       resultContainer <- ProjAnuBen(object, cov, resultContainer)
+      resultContainer <- ProjRein(object, cov, resultContainer)
       return(resultContainer)
    }
 )

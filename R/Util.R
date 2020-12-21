@@ -215,6 +215,11 @@ GetYearStartValue <- function(monthlyValue) {
    return(v)
 }
 
+GetYearEndValue <- function(monthlyValue) {
+   v <- monthlyValue[(1:length(monthlyValue)) %% 12 == 0]
+   return(v)
+}
+
 Shift <- function(v, positions, filler) {
    # Shift the elements of a vector by specified number of positions (positons).
    # Shift right if positions > 0; shift left if positions < 0.

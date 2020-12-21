@@ -2,13 +2,13 @@
 NULL
 
 setClass(
-   Class = "Model.PremSolver.IAJS",
+   Class = "Model.PremSolver.IA.JS",
    contains = "Model.PremSolver"
 )
 
-Model.PremSolver.IAJS <- function(args, id = character(0L), descrip = character(0L)) {
+Model.PremSolver.IA.JS <- function(args, id = character(0L), descrip = character(0L)) {
    model <- new(
-      Class = "Model.PremSolver.IAJS",
+      Class = "Model.PremSolver.IA.JS",
       Args = args,
       Descrip = as.character(descrip)
    )
@@ -18,7 +18,7 @@ Model.PremSolver.IAJS <- function(args, id = character(0L), descrip = character(
 
 setMethod(
    f = "Run",
-   signature = c("Model.PremSolver.IAJS", "IPlan.IAJS"),
+   signature = c("Model.PremSolver.IA.JS", "IPlan.IA.JS"),
    definition = function(object, var, result = list()) {
       if (length(GetPremTable(var)) > 1) {
          riskClasses <- names(GetPremTable(var))
@@ -28,8 +28,6 @@ setMethod(
       unitFace <- GetArgValue(object, "UnitFaceAmt")
       issDate <- GetArgValue(object, "ProjStartDate")
       premMode <- GetArgValue(object, "PricPremMode")
-      # In R 4.0.0, there appear to be a bug when using makeCluster in MacOS.  A way to work around is to add argument setup_strategy = "sequential".
-      # This issue does not exist when running R 4.0.0 in Windows 10.
       cl <- parallel::makeCluster(min(parallel::detectCores() - 1, length(riskClasses)), setup_strategy = "sequential")
       for(pkg in (.packages())) {
          eval(parse(text = paste0("parallel::clusterEvalQ(cl, expr = library(", pkg, "))")))
@@ -95,7 +93,7 @@ setMethod(
 
 setMethod(
    f = GetIssAge2,
-   signature = "Model.PremSolver.IAJS",
+   signature = "Model.PremSolver.IA.JS",
    definition = function(object, cov) {
       arg <- GetArgValue(object, "SurvrAgeDiff")
       issAge2 <- arg[GetRiskClass(cov)] + GetIssAge(cov)
@@ -105,7 +103,7 @@ setMethod(
 
 setMethod(
    f = GetRiskClass2,
-   signature = "Model.PremSolver.IAJS",
+   signature = "Model.PremSolver.IA.JS",
    definition = function(object, cov) {
       arg <- GetArgValue(object, "SurvrRiskClass")
       return(arg[GetRiskClass(cov)])

@@ -1,5 +1,5 @@
 setClass(
-   Class = "ArgSet.PremSolver.IAJS",
+   Class = "ArgSet.PremSolver.IA.JS",
    contains = "ArgSet.PremSolver.IA",
    slots = c(
       SurvrAgeDiff = "integer",
@@ -8,7 +8,7 @@ setClass(
 )
 
 setValidity(
-   Class = "ArgSet.PremSolver.IAJS",
+   Class = "ArgSet.PremSolver.IA.JS",
    method = function(object) {
       err <- New.SysMessage()
       # Slot @SurvrAgeDiff must have name attribute.
@@ -33,26 +33,26 @@ setValidity(
    }
 )
 
-ArgSet.PremSolver.IAJS <- function(projStartDate,
-                                   pricIssAge,
-                                   survrAgeDiff = integer(0L),
-                                   survrRiskClass = character(0L),
-                                   pricFaceAmt,
-                                   unitFaceAmt,
-                                   targProfitMargin,
-                                   mortAssump = character(0L),
-                                   expnsAssump = character(0L),
-                                   intrAssump = character(0L),
-                                   applyMortMargin = FALSE,
-                                   applyExpnsMargin = FALSE,
-                                   applyIntrMargin = FALSE,
-                                   digits = 2L,
-                                   interval = c(0, 99999),
-                                   tolerance = 10^-4,
-                                   id = character(0L),
-                                   descrip = character(0L)) {
+ArgSet.PremSolver.IA.JS <- function(projStartDate,
+                                    pricIssAge,
+                                    survrAgeDiff = integer(0L),
+                                    survrRiskClass = character(0L),
+                                    pricFaceAmt,
+                                    unitFaceAmt,
+                                    targProfitMargin,
+                                    mortAssump = character(0L),
+                                    expnsAssump = character(0L),
+                                    intrAssump = character(0L),
+                                    applyMortMargin = FALSE,
+                                    applyExpnsMargin = FALSE,
+                                    applyIntrMargin = FALSE,
+                                    digits = 2L,
+                                    interval = c(0, 99999),
+                                    tolerance = 10^-4,
+                                    id = character(0L),
+                                    descrip = character(0L)) {
    arg <- new(
-      Class = "ArgSet.PremSolver.IAJS",
+      Class = "ArgSet.PremSolver.IA.JS",
       ProjStartDate = lubridate::as_date(projStartDate),
       PricIssAge = pricIssAge,
       SurvrAgeDiff = survrAgeDiff,

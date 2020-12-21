@@ -128,8 +128,7 @@ setMethod(
    f = "ProjSurBen",
    signature = "IPlan.End",
    definition = function(object, cov, resultContainer) {
-      cv <- resultContainer$Proj$CV
-      resultContainer$Proj$Ben.Sur
+      resultContainer$Proj$Ben.Sur <- resultContainer$Proj$CV
       return(resultContainer)
    }
 )

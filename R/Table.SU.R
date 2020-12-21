@@ -185,8 +185,13 @@ setMethod(
       sRates <- tbl@TValue[as.character(issAge),]
       uRates <- tbl@TValueUlt[as.integer(rownames(tbl@TValueUlt)) >= (issAge + selPeriod), 1]
    } else {
-      sRates <- tbl@TValue[as.character(tbl@MaxSelAge), as.character((issAge - maxSelAge + 1):selPeriod)]
-      uRates <- tbl@TValueUlt[as.integer(rownames(tbl@TValueUlt)) >= (maxSelAge + selPeriod), 1]
+      if ((issAge - maxSelAge) < selPeriod) {
+         sRates <- tbl@TValue[as.character(tbl@MaxSelAge), as.character((issAge - maxSelAge + 1):selPeriod)]
+         uRates <- tbl@TValueUlt[as.integer(rownames(tbl@TValueUlt)) >= (maxSelAge + selPeriod), 1]
+      } else {
+         sRates <- numeric(0L)
+         uRates <- tbl@TValueUlt[as.integer(rownames(tbl@TValueUlt)) >= issAge, 1]
+      }
    }
    v <- c(sRates, uRates) / tbl@TBase
    length(v) <- GetMaxAttAge(tbl) - GetMinSelAge(tbl) + 1

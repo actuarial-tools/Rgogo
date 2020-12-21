@@ -101,7 +101,7 @@ setValidity(
       #Validate @Rein
       vg <- Validator.Names(hasNames = (length(object@Rein) >= 1))
       if (Validate(vg, object@Rein) != TRUE) {
-         AddMessage(err) <- "Invalid reinsurance setting."
+         AddMessage(err) <- "Invalid reinsurance setting.  The character vector must have name attribute to indicate the effective date of the treaty."
       }
       if (NoMessage(err)) {
          return(TRUE)
