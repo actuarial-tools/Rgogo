@@ -61,7 +61,10 @@ IPlan.End <- function(covYears = NA, covToAge = NA, premYears = NA, premToAge = 
 setMethod(
    f = "GetCVTable",
    signature = "IPlan.End",
-   definition = function(object, cov) {
+   definition = function(object, cov = NULL) {
+      if (is.null(cov)) {
+         return(object@CVTable)
+      }
       if (length(object@CVTable) == 0) {
          return(NULL)
       }
