@@ -137,6 +137,7 @@ setMethod(
       expns <- rep(object@MEPerPol / 12, length.out = projLen)
       inflAdj <- .GetInflAdjVector(object@MEPerPolInflRate, projLen)
       me.PerPol.Expd <- expns * inflAdj * (GetProjTimeline(tInfo) >= GetIssDate(cov))
+      me.PerPol.Expd <- me.PerPol.Expd * GetExpnsWeight(cov)
       names(me.PerPol.Expd) <- NULL
       assumpInfo$me.PerPol.Expd <- me.PerPol.Expd
       return(assumpInfo)
@@ -160,6 +161,7 @@ setMethod(
          me.PerPrem.Expd <- rep(0, length.out = projLen)
          me.PerPremAmt.Expd <- rep(0, length.out = projLen)
       }
+      me.PerPrem.Expd <- me.PerPrem.Expd * GetExpnsWeight(cov)
       names(me.PerPrem.Expd) <- NULL
       assumpInfo$me.PerPrem.Expd <- me.PerPrem.Expd
       names(me.PerPremAmt.Expd) <- NULL
@@ -187,6 +189,7 @@ setMethod(
          ae.PerPol.Expd <- rep(0, length.out = projLen)
          ae.PerFaceAmt.Expd <- rep(0, length.out = projLen)
       }
+      ae.PerPol.Expd <- ae.PerPol.Expd * GetExpnsWeight(cov)
       names(ae.PerPol.Expd) <- NULL
       assumpInfo$ae.PerPol.Expd <- ae.PerPol.Expd
       names(ae.PerFaceAmt.Expd) <- NULL

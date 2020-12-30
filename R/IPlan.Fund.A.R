@@ -1,3 +1,5 @@
+# This may be replaced by IPlan.Fund.R
+
 setClass(
    Class = "IPlan.Fund.A",
    contains = "IPlan.Fund",

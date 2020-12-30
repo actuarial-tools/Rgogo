@@ -356,7 +356,6 @@ setGeneric(name = "SetMaxProjYears<-", def = function(object, value) {standardGe
 setGeneric(name = "CompactDb", def = function(conn) {standardGeneric("CompactDb")})
 setGeneric(name = "ConnectDb", def = function(object, ...) {standardGeneric("ConnectDb")})
 setGeneric(name = "DisconnectDb", def = function(object) {standardGeneric("DisconnectDb")})
-setGeneric(name = "GetSurChrg", def = function(object, cov, resultContainer) {standardGeneric("GetSurChrg")})
 setGeneric(name = "ProjFund", def = function(object, cov, resultContainer, ...) {standardGeneric("ProjFund")})
 setGeneric(name = "GetIntrCredRate", def = function(object, ...) {standardGeneric("GetIntrCredRate")})
 setGeneric(name = "SetIntrCredRate<-", def = function(object, value) {standardGeneric("SetIntrCredRate<-")})
@@ -386,7 +385,9 @@ setGeneric(name = "GetAnutzPeriod", def = function(object, ...) {standardGeneric
 setGeneric(name = "ProjSurChrg", def = function(object, ...) {standardGeneric("ProjSurChrg")})
 setGeneric(name = "GetAnuAdjIndex", def = function(object, ...) {standardGeneric("GetAnuAdjIndex")})
 setGeneric(name = "SetAnuAdjIndex<-", def = function(object, value) {standardGeneric("SetAnuAdjIndex<-")})
-setGeneric(name = "GetAccumPeriod", def = function(object, ...) {standardGeneric("GetAccumPeriod")})
+# setGeneric(name = "GetAccumPeriod", def = function(object, ...) {standardGeneric("GetAccumPeriod")})
+setGeneric(name = "GetAnuBenSchd", def = function(object, ...) {standardGeneric("GetAnuBenSchd")})
+setGeneric(name = "SetAnuBenSchd<-", def = function(object, ...) {standardGeneric("SetAnuBenSchd<-")})
 
 setGeneric(name = "Get.q", def = function(object, ...) {standardGeneric("Get.q")})
 setGeneric(name = "Get.p", def = function(object, ...) {standardGeneric("Get.p")})
@@ -413,4 +414,6 @@ setGeneric(name = "Get.am", def = function(object, ...) {standardGeneric("Get.am
 setGeneric(name = "Get.ag", def = function(object, crtnYears, entryAge) {standardGeneric("Get.ag")})
 setGeneric(name = "Get.amg", def = function(object, crtnYears, entryAge, ...) {standardGeneric("Get.amg")})
 
+setGeneric(name = "GetExpnsWeight", def = function(object, ...) {return(standardGeneric("GetExpnsWeight"))})
+setGeneric(name = "SetExpnsWeight<-", def = function(object, ...) {return(standardGeneric("SetExpnsWeight<-"))})
 

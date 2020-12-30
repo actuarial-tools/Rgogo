@@ -20,6 +20,7 @@ setClass(
              FaceAmt2 = "numeric",
              LifeStatus = "integer",
              LifeStatus2 = "integer",
+             ExpnsWeight = "numeric",
              ReportClass1 = "character",
              ReportClass2 = "character",
              ReportClass3 = "character"
@@ -180,6 +181,17 @@ setValidity(
       if (isValid != TRUE) {
          AddMessage(err) <- "The length of slot value @LifeStatus2 cannot be greater than 1.  The value must be 0L or 1L"
       }
+      # Validate @ExpnsWeight
+      isValid <- Validate(
+         ValidatorGroup(
+            Validator.Length(minLen = 0, maxLen = 1),
+            Validator.Range(minValue = 0, allowNA = TRUE)
+         ),
+         object@ExpnsWeight
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Slot @ExpnsWeight must contain a non-negative numeric scalar."
+      }
       # Validate @ReportClass1
       isValid <- Validate(
          Validator.Length(minLen = 0, maxLen = 1),
@@ -226,6 +238,7 @@ Cov <- function(issDate,
                 faceAmt2 = NA_real_,
                 lifeStatus = NA_integer_,
                 lifeStatus2 = NA_integer_,
+                expnsWeight = NA_real_,
                 reportClass1 = character(0L),
                 reportClass2 = character(0L),
                 reportClass3 = character(0L),
@@ -481,6 +494,28 @@ setMethod(
    signature = "Cov",
    definition = function(object, value) {
       object@AccBal <- as.numeric(value)
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "GetExpnsWeight",
+   signature = "Cov",
+   definition = function(object) {
+      if (HasValue(object@ExpnsWeight)) {
+         return(object@ExpnsWeight)
+      } else {
+         return(1)
+      }
+   }
+)
+
+setMethod(
+   f = "SetExpnsWeight<-",
+   signature = "Cov",
+   definition = function(object, value) {
+      object@ExpnsWeight <- value
       validObject(object)
       return(object)
    }
