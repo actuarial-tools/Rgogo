@@ -272,9 +272,9 @@ setMethod(
          return(object@CommSchd)
       }
       if (HasValue(object@CommSchd)) {
-         comm <- FillZeroIfNA(rep(object@CommSchd, each = 12), GetCovMonths(object, cov))
+         comm <- FillTail(rep(object@CommSchd, each = 12), filler = 0, len = GetCovMonths(object, cov))
       } else {
-         comm <- rep(0, len = GetCovMonths(object, cov))
+         comm <- rep(0, length.out = GetCovMonths(object, cov))
       }
       return(comm)
    }
@@ -298,9 +298,9 @@ setMethod(
          return(object@OvrdOnCommSchd)
       }
       if (HasValue(object@OvrdOnCommSchd)) {
-         ovrd <- FillZeroIfNA(rep(object@OvrdOnCommSchd, each = 12), GetCovMonths(object, cov))
+         ovrd <- FillTail(rep(object@OvrdOnCommSchd, each = 12), filler = 0, len = GetCovMonths(object, cov))
       } else {
-         ovrd <- rep(0, len = GetCovMonths(object, cov))
+         ovrd <- rep(0, length.out = GetCovMonths(object, cov))
       }
       return(ovrd)
    }
@@ -324,9 +324,9 @@ setMethod(
          return(object@OvrdOnPremSchd)
       }
       if (HasValue(object@OvrdOnPremSchd)) {
-         ovrd <- FillZeroIfNA(rep(object@OvrdOnPremSchd, each = 12), GetCovMonths(object, cov))
+         ovrd <- FillTail(rep(object@OvrdOnPremSchd, each = 12), filler = 0, len = GetCovMonths(object, cov))
       } else {
-         ovrd <- rep(0, len = GetCovMonths(object, cov))
+         ovrd <- rep(0, length.out = GetCovMonths(object, cov))
       }
       return(ovrd)
    }
