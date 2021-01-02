@@ -267,7 +267,10 @@ setMethod(
 setMethod(
    f = "GetCommSchd",
    signature = "IPlan.LT",
-   definition = function(object, cov) {
+   definition = function(object, cov = NULL) {
+      if (is.null(cov)) {
+         return(object@CommSchd)
+      }
       if (HasValue(object@CommSchd)) {
          comm <- FillZeroIfNA(rep(object@CommSchd, each = 12), GetCovMonths(object, cov))
       } else {
@@ -290,7 +293,10 @@ setMethod(
 setMethod(
    f = "GetOvrdOnCommSchd",
    signature = "IPlan.LT",
-   definition = function(object, cov) {
+   definition = function(object, cov = NULL) {
+      if (is.null(cov)) {
+         return(object@OvrdOnCommSchd)
+      }
       if (HasValue(object@OvrdOnCommSchd)) {
          ovrd <- FillZeroIfNA(rep(object@OvrdOnCommSchd, each = 12), GetCovMonths(object, cov))
       } else {
@@ -313,7 +319,10 @@ setMethod(
 setMethod(
    f = "GetOvrdOnPremSchd",
    signature = "IPlan.LT",
-   definition = function(object, cov) {
+   definition = function(object, cov = NULL) {
+      if (is.null(cov)) {
+         return(object@OvrdOnPremSchd)
+      }
       if (HasValue(object@OvrdOnPremSchd)) {
          ovrd <- FillZeroIfNA(rep(object@OvrdOnPremSchd, each = 12), GetCovMonths(object, cov))
       } else {
