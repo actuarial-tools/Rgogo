@@ -295,9 +295,9 @@ setMethod(
       # Project retention and reinsured Naar
       resultContainer <- ProjNaar(object, cov, resultContainer)
       naar <- resultContainer$Proj$Naar
-      resultContainer$Proj$Rein.Naar = naar * reinProp
-      resultContainer$Proj$Rein.Retn = naar * (1 - reinProp)
-      resultContainer$Proj$Rein.Ben = naar * reinProp
+      resultContainer$Proj$Rein.Naar <- naar * reinProp
+      resultContainer$Proj$Rein.Retn <- naar * (1 - reinProp)
+      resultContainer$Proj$Rein.Ben <- naar * reinProp
       resultContainer$.ReinProp <- reinProp
       return(resultContainer)
    }
