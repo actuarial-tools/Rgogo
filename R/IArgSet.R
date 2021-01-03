@@ -58,7 +58,11 @@ setMethod(
    f = "GetArgValue",
    signature = "IArgSet",
    definition = function(object, argName) {
-      return(slot(object, argName))
+      if (argName %in% slotNames(object)) {
+         return(slot(object, argName))
+      } else {
+         return(NULL)
+      }
    }
 )
 
