@@ -1,12 +1,12 @@
-#' @include IPlan.End.R
-NULL
-
 setClass(
-   Class = "IPlan.PUA",
-   contains = "IPlan.End",
+   Class = "IPUA",
+   #contains = "IPlan.End",
+   contains = "IObject",
    slots = c(
+      CovPeriod = "numeric",
       PUASchd = "numeric",
       PUACredMonth = "integer",
+      CVTable = "character",
       HasDthBen = "logical",
       HasMatBen = "logical",
       HasSurBen = "logical"
@@ -14,7 +14,7 @@ setClass(
 )
 
 setValidity(
-   Class = "IPlan.PUA",
+   Class = "IPUA",
    method = function(object) {
       err <- New.SysMessage()
       if (length(object@Id) > 0) {
@@ -52,17 +52,15 @@ setValidity(
    }
 )
 
-IPlan.PUA <- function(covYears = NA, covToAge = NA,
+IPUA <- function(covYears = NA, covToAge = NA,
                  puaSchd = numeric(0L), puaCredMonth = 1L, cvTable = character(0L),
                  hasDthBen = TRUE, hasMatBen = TRUE, hasSurBen = TRUE,
                  id = character(0L), descrip = character(0L)) {
    covPeriod <- c(CovYears = covYears, CovToAge = as.integer(covToAge))
    covPeriod <- covPeriod[!is.na(covPeriod)]
-   premPeriod <- c(PremYears = 0)
    pua <- new(
-      Class = "IPlan.PUA",
+      Class = "IPUA",
       CovPeriod = covPeriod,
-      PremPeriod = premPeriod,
       PUASchd = puaSchd,
       PUACredMonth = puaCredMonth,
       CVTable = cvTable,
@@ -71,97 +69,90 @@ IPlan.PUA <- function(covYears = NA, covToAge = NA,
       HasSurBen = hasSurBen,
       Descrip = as.character(descrip)
    )
-   SetPlanId(pua) <- id
+   SetId(pua) <- id
    return(pua)
 }
 
 setMethod(
-   f = "SetPlanId<-",
-   signature = c("IPlan.PUA", "character"),
+   f = "SetId<-",
+   signature = c("IPUA", "character"),
    definition = function(object, value) {
       if (length(value) == 0) return(object)
-      if (!startsWith(value, "PUA.")) {
-         value <- paste0("PUA.", value)
-      }
-      SetId(object) <- value
+      object@Id <- ifelse (startsWith(value, "PUA."), value, paste0("PUA.", value))
       return(object)
    }
 )
 
 setMethod(
-   f = "GetPremYears",
-   signature = "IPlan.PUA",
+   f = "GetCovYears",
+   signature = "IPUA",
    definition = function(object, cov) {
-      return(0)
+      years1 <- ifelse(is.na(object@CovPeriod["CovYears"]), Inf, object@CovPeriod["CovYears"])
+      years2 <- ifelse(is.na(object@CovPeriod["CovToAge"]), Inf, object@CovPeriod["CovToAge"] - GetIssAge(cov))
+      covYears <- min(years1, years2)
+      return(covYears)
    }
 )
 
 setMethod(
-   f = "SetPremTable<-",
-   signature = "IPlan.PUA",
-   definition = function(object, value) {
-      stop("Method 'SetPremTable<-' cannot be invoked by a class of or extending 'IPlan.PUA' class.")
+   f = "GetCovMonths",
+   signature = "IPUA",
+   definition = function(object, cov) {
+      return(round(GetCovYears(object, cov) * 12, digits = 0))
    }
 )
 
 setMethod(
-   f = "SetModFactor<-",
-   signature = "IPlan.PUA",
-   definition = function(object, value) {
-      stop("Method 'SetModFactor<-' cannot be invoked by a class of or extending 'IPlan.PUA' class.")
+   f = "GetCVTable",
+   signature = "IPUA",
+   definition = function(object, cov = NULL) {
+      if (is.null(cov)) {
+         return(object@CVTable)
+      }
+      if (length(object@CVTable) == 0) {
+         return(NULL)
+      }
+      if (length(object@CVTable) == 1) {
+         tblId <- object@CVTable
+      } else {
+         tblId <- object@CVTable[GetRiskClass(object, cov)]
+      }
+      tblId <- ifelse(startsWith(tblId, "CV."), tblId, paste0("CV.", tblId))
+      return(eval(expr = parse(text = tblId)))
    }
 )
 
 setMethod(
-   f = "SetPolFee<-",
-   signature = "IPlan.PUA",
+   f = "SetCVTable<-",
+   signature = "IPUA",
    definition = function(object, value) {
-      stop("Method 'SetPolFee<-' cannot be invoked by a class of or extending 'IPlan.PUA' class.")
+      object@CVTable <- value
+      validObject(object)
+      return(object)
    }
 )
 
 setMethod(
-   f = "SetCommSchd<-",
-   signature = "IPlan.PUA",
-   definition = function(object, value) {
-      stop("Method 'SetCommSchd<-' cannot be invoked by a class of or extending 'IPlan.PUA' class.")
-   }
-)
-
-setMethod(
-   f = "SetOvrdOnCommSchd<-",
-   signature = "IPlan.PUA",
-   definition = function(object, value) {
-      stop("Method 'SetOvrdOnCommSchd<-' cannot be invoked by a class of or extending 'IPlan.PUA' class.")
-   }
-)
-
-setMethod(
-   f = "SetOvrdOnPremSchd<-",
-   signature = "IPlan.PUA",
-   definition = function(object, value) {
-      stop("Method 'SetOvrdOnPremSchd<-' cannot be invoked by a class of or extending 'IPlan.PUA' class.")
-   }
-)
-
-setMethod(
-   f = "SetPremTaxRate<-",
-   signature = "IPlan.PUA",
-   definition = function(object, value) {
-      stop("Method 'SetPremTaxRate<-' cannot be invoked by a class of or extending 'IPlan.PUA' class.")
-   }
-)
-
-setMethod(
-   f = "SetRein<-",
-   signature = "IPlan.PUA",
-   definition = function(object, value) {
-      stop("Method 'SetRein<-' cannot be invoked by a class of or extending 'IPlan.PUA' class.")
+   f = "GetCVRateVector",
+   signature = "IPUA",
+   definition = function(object, cov) {
+      covMonths <- GetCovMonths(object, cov)
+      covYears <- ceiling(covMonths / 12)
+      cvTable <- GetCVTable(object, cov)
+      if (is.null(cvTable)) {return(rep(0, covMonths))}
+      cvFactor <- LookUp(cvTable, cov)[1:covYears]     # Cash value factors at the end of policy years
+      cv1 <- matrix(data = cvFactor, nrow = covYears)     # Cash value factors at the end of policy years, in 1 by N matrix
+      cv0 <- matrix(data = c(0, cvFactor)[1:covYears], nrow = covYears)     # Cash value factors at the beginning of policy years, in 1 by N matrix
+      s <- matrix(data = seq(from = 1/12, to = 1, length.out = 12), ncol = 12)
+      m <- cv0 %*% (1-s) + cv1 %*% s
+      cvRate <- as.vector(t(m))[1:covMonths]
+      return(cvRate)
    }
 )
 
 setMethod(
    f = "GetPUASchd",
+   signature = "IPUA",
    definition = function(object, cov = NULL) {
       if (is.null(cov)) {
          return(object@PUASchd)
@@ -183,7 +174,7 @@ setMethod(
 
 setMethod(
    f = "SetPUASchd<-",
-   signature = "IPlan.PUA",
+   signature = "IPUA",
    definition = function(object, value) {
       object@PUASchd <- value
       validObject(object)
@@ -193,6 +184,7 @@ setMethod(
 
 setMethod(
    f = "GetPUACredMonth",
+   signature = "IPUA",
    definition = function(object) {
       return(object@PUACredMonth)
    }
@@ -200,7 +192,7 @@ setMethod(
 
 setMethod(
    f = "SetPUACredMonth<-",
-   signature = "IPlan.PUA",
+   signature = "IPUA",
    definition = function(object, value) {
       object@PUACredMonth <- as.integer(value)
       validObject(object)
@@ -210,7 +202,7 @@ setMethod(
 
 setMethod(
    f = "HasDthBen",
-   signature = "IPlan.PUA",
+   signature = "IPUA",
    definition = function(object) {
       return(object@HasDthBen)
    }
@@ -218,7 +210,7 @@ setMethod(
 
 setMethod(
    f = "HasMatBen",
-   signature = "IPlan.PUA",
+   signature = "IPUA",
    definition = function(object) {
       return(object@HasMatBen)
    }
@@ -226,7 +218,7 @@ setMethod(
 
 setMethod(
    f = "HasSurBen",
-   signature = "IPlan.PUA",
+   signature = "IPUA",
    definition = function(object) {
       return(object@HasSurBen)
    }
@@ -234,7 +226,7 @@ setMethod(
 
 setMethod(
    f = "HasDthBen<-",
-   signature = "IPlan.PUA",
+   signature = "IPUA",
    definition = function(object, value) {
       object@HasDthBen <- value
       validObject(object)
@@ -244,7 +236,7 @@ setMethod(
 
 setMethod(
    f = "HasMatBen<-",
-   signature = "IPlan.PUA",
+   signature = "IPUA",
    definition = function(object, value) {
       object@HasMatBen <- value
       validObject(object)
@@ -254,7 +246,7 @@ setMethod(
 
 setMethod(
    f = "HasSurBen<-",
-   signature = "IPlan.PUA",
+   signature = "IPUA",
    definition = function(object, value) {
       object@HasSurBen <- value
       validObject(object)
@@ -263,26 +255,8 @@ setMethod(
 )
 
 setMethod(
-   f = "ProjPrem",
-   signature = "IPlan.PUA",
-   definition = function(object, cov, resultContainer) {
-      resultContainer$Prem.Tax <- resultContainer$Prem <- rep(0, length.out = GetCovMonths(object, cov))
-      return(resultContainer)
-   }
-)
-
-setMethod(
-   f = "ProjComm",
-   signature = "IPlan.PUA",
-   definition = function(object, cov, resultContainer) {
-      resultContainer$Comm <- resultContainer$Comm.Ovrd <- rep(0, length.out = GetCovMonths(object, cov))
-      return(resultContainer)
-   }
-)
-
-setMethod(
    f = "ProjPUA",
-   signature = "IPlan.PUA",
+   signature = "IPUA",
    definition = function(object, cov, resultContainer) {
       if (is.null(resultContainer$.ArgSet)) {
          projStartDate <- GetIssDate(cov)
@@ -305,7 +279,7 @@ setMethod(
 
 setMethod(
    f = "ProjDthBen",
-   signature = "IPlan.PUA",
+   signature = "IPUA",
    definition = function(object, cov, resultContainer) {
       if (HasDthBen(object)) {
          pua <- resultContainer$Proj$PUA
@@ -317,7 +291,7 @@ setMethod(
 
 setMethod(
    f = "ProjMatBen",
-   signature = "IPlan.PUA",
+   signature = "IPUA",
    definition = function(object, cov, resultContainer) {
       if (HasMatBen(object)) {
          pua <- resultContainer$Proj$PUA
@@ -331,7 +305,7 @@ setMethod(
 
 setMethod(
    f = "ProjCV",
-   signature = "IPlan.PUA",
+   signature = "IPUA",
    definition = function(object, cov, resultContainer) {
       projPUACV <- GetCVRateVector(object, cov) * resultContainer$Proj$PUA
       resultContainer$Proj$CV.PUA <- projPUACV
@@ -341,7 +315,7 @@ setMethod(
 
 setMethod(
    f = "ProjSurBen",
-   signature = "IPlan.PUA",
+   signature = "IPUA",
    definition = function(object, cov, resultContainer) {
       if (HasSurBen(object)) {
          projPUACV <- resultContainer$Proj$CV.PUA
@@ -353,7 +327,7 @@ setMethod(
 
 setMethod(
    f = "Project",
-   signature = "IPlan.PUA",
+   signature = "IPUA",
    definition = function(object, cov, resultContainer) {
       resultContainer <- NewProjection(resultContainer, cov, object)
       resultContainer <- ProjPUA(object, cov, resultContainer)

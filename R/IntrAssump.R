@@ -25,7 +25,8 @@ setValidity(
    Class = "IntrAssump",
    method = function(object) {
       err <- New.SysMessage()
-      v <- Validator.Length(minLen = 1, maxLen = Global.MaxProjYears())
+      # v <- Validator.Length(minLen = 1, maxLen = Global.MaxProjYears())
+      v <- Validator.Length(minLen = 1, maxLen = GetValue(Rgogo::Const.MaxProjYears))
       isValid <- Validate(v, object@IntrRate)
       if (!isValid) {
          AddMessage(err) <- "Slot '@IntrRate' in an object of or extending class 'IntrAssump' has invalid length."
@@ -116,7 +117,7 @@ setMethod(
 setMethod(
    f = "GetAssump",
    signature = "IntrAssump",
-   definition = function(object, assumpInfo = list(), projFreq = 1L, projLen = Global.MaxProjYears() * projFreq) {
+   definition = function(object, assumpInfo = list(), projFreq = 1L, projLen = GetValue(Rgogo::Const.MaxProjYears) * projFreq) {
       stopifnot(projFreq %in% c(1, 2, 4, 12), Is.WholeNumber(projLen))
       assumpInfo <- GetExpdAssump(object, assumpInfo, projFreq, projLen)
       assumpInfo <- GetPaddAssump(object, assumpInfo, projFreq, projLen)

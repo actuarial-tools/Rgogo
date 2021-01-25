@@ -28,17 +28,26 @@ setValidity(
       if (length(object@PremMode) > 1) {
          AddMessage(err) <- "PremMode: the length of the slot value cannot be greater than 1."
       }
-      # RetnProp: length cannot be greater than 1.
+      # RetnProp
       if (length(object@RetnProp) > 1) {
-         AddMessage(err) <- "RetnProp: the length of the slot value cannot be greater than 1."
+         isValid <- Validate(Validator.Names(hasNames = TRUE), object@RetnProp)
+         if (isValid != TRUE) {
+            AddMessage(err) <- "@RetnProp: the slot value must have name attribute representing risk classes if the length is greater than 1."
+         }
       }
       # RetnLimit: length cannot be greater than 1.
       if (length(object@RetnLimit) > 1) {
-         AddMessage(err) <- "RetnLimit: the length of the slot value cannot be greater than 1."
+         isValid <- Validate(Validator.Names(hasNames = TRUE), object@RetnLimit)
+         if (isValid != TRUE) {
+            AddMessage(err) <- "@RetnLimit: the slot value must have name attribute representing risk classes if the length is greater than 1."
+         }
       }
       # MinReinAmt: length cannot be greater than 1.
       if (length(object@MinReinAmt) > 1) {
-         AddMessage(err) <- "MinReinAmt: the length of the slot value cannot be greater than 1."
+         isValid <- Validate(Validator.Names(hasNames = TRUE), object@MinReinAmt)
+         if (isValid != TRUE) {
+            AddMessage(err) <- "@MinReinAmt: the slot value must have name attribute representing risk classes if the length is greater than 1."
+         }
       }
       # RfndUrndPremOnLapse: length cannot be greater than 1.
       if (length(object@RfndUrndPremOnLapse) > 1) {
@@ -132,24 +141,36 @@ setMethod(
 setMethod(
    f = "GetRetnProp",
    signature = "IRein",
-   definition = function(object) {
-      return(object@RetnProp)
+   definition = function(object, cov = NULL) {
+      if (is.null(cov) | length(object@RetnProp) == 1) {
+         return(object@RetnProp)
+      } else {
+         return(object@RetnProp[GetRiskClass(object, cov)])
+      }
    }
 )
 
 setMethod(
    f = "GetRetnLimit",
    signature = "IRein",
-   definition = function(object) {
-      return(object@RetnLimit)
+   definition = function(object, cov = NULL) {
+      if (is.null(cov) | length(object@RetnLimit) == 1) {
+         return(object@RetnLimit)
+      } else {
+         return(object@RetnLimit[GetRiskClass(object, cov)])
+      }
    }
 )
 
 setMethod(
    f = "GetMinReinAmt",
    signature = "IRein",
-   definition = function(object) {
-      return(object@MinReinAmt)
+   definition = function(object, cov = NULL) {
+      if (is.null(cov) | length(object@MinReinAmt == 1)) {
+         return(object@MinReinAmt)
+      } else {
+         return(object@MinReinAmt[GetRiskClass(object, cov)])
+      }
    }
 )
 

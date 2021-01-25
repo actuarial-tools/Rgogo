@@ -1,11 +1,7 @@
-#' @include IPlan.R
-#' @include IObject.R
-NULL
-
 setClass(
    Class = "Cov",
-   contains = "IObject",
-   slots = c(PlanId = "character",
+   slots = c(Id = "character",
+             PlanId = "character",
              IssDate = "Date",
              IssAge = "integer",
              RiskClass = "character",
@@ -23,7 +19,14 @@ setClass(
              ExpnsWeight = "numeric",
              ReportClass1 = "character",
              ReportClass2 = "character",
-             ReportClass3 = "character"
+             ReportClass3 = "character",
+             CommSchd = "character",
+             OvrdOnPremSchd = "character",
+             OvrdOnCommSchd = "character",
+             CommSchd2 = "character",
+             OvrdOnPremSchd2 = "character",
+             OvrdOnCommSchd2 = "character",
+             Descrip = "character"
    )
 )
 
@@ -31,6 +34,14 @@ setValidity(
    Class = "Cov",
    method = function(object) {
       err <- New.SysMessage()
+      # Validate @Id
+      isValid <- Validate(
+         Validator.Length(minLen = 0, maxLen = 1),
+         object@Id
+      )
+      if (isValid != TRUE) {
+         AddMessage(err) <- "The length of slot value @Id cannot be greater than 1."
+      }
       # Validate @PlanId
       isValid <- Validate(
          Validator.Length(minLen = 0, maxLen = 1),
@@ -273,7 +284,7 @@ Cov <- function(issDate,
 }
 
 setMethod(
-   f = "GetCovId",
+   f = "GetId",
    signature = "Cov",
    definition = function(object) {
       return(object@Id)
@@ -281,7 +292,7 @@ setMethod(
 )
 
 setMethod(
-   f = "SetCovId<-",
+   f = "SetId<-",
    signature = "Cov",
    definition = function(object, value) {
       object@Id <- as.character(value)
@@ -749,4 +760,166 @@ as.CovList <- function(dfCov) {
 IsSingleLife <- function(cov) {
    return(!HasValue(GetIssAge2(cov)) | !HasValue(GetRiskClass2(cov)))
 }
+
+setMethod(
+   f = "GetCommSchd",
+   signature = "Cov",
+   definition = function(object) {
+      # This method returns an instance of Const.
+      if (HasValue(object@CommSchd)) {
+         if (startsWith(object@CommSchd, "Const.")) {
+            return(eval(expr = parse(text = object@CommSchd)))
+         } else {
+            return(eval(expr = parse(text = paste0("Const.", object@CommSchd))))
+         }
+      } else {
+         return(NULL)
+      }
+   }
+)
+
+setMethod(
+   f = "SetCommSchd<-",
+   signature = c("Cov", "Const"),
+   definition = function(object, value) {
+      object@CommSchd <- GetId(value)
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "GetOvrdOnPremSchd",
+   signature = "Cov",
+   definition = function(object) {
+      # This method returns an instance of Const.
+      if (HasValue(object@OvrdOnPremSchd)) {
+         if (startsWith(object@OvrdOnPremSchd, "Const.")) {
+            return(eval(expr = parse(text = object@OvrdOnPremSchd)))
+         } else {
+            return(eval(expr = parse(text = paste0("Const.", object@OvrdOnPremSchd))))
+         }
+      } else {
+         return(NULL)
+      }
+   }
+)
+
+setMethod(
+   f = "SetOvrdOnPremSchd<-",
+   signature = c("Cov", "Const"),
+   definition = function(object, value) {
+      object@OvrdOnPremSchd <- GetId(value)
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "GetOvrdOnCommSchd",
+   signature = "Cov",
+   definition = function(object) {
+      # This method returns an instance of Const.
+      if (HasValue(object@OvrdOnCommSchd)) {
+         if (startsWith(object@OvrdOnCommSchd, "Const.")) {
+            return(eval(expr = parse(text = object@OvrdOnCommSchd)))
+         } else {
+            return(eval(expr = parse(text = paste0("Const.", object@OvrdOnCommSchd))))
+         }
+      } else {
+         return(NULL)
+      }
+   }
+)
+
+setMethod(
+   f = "SetOvrdOnCommSchd<-",
+   signature = c("Cov", "Const"),
+   definition = function(object, value) {
+      object@OvrdOnCommSchd <- GetId(value)
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "GetCommSchd2",
+   signature = "Cov",
+   definition = function(object) {
+      # This method returns an instance of Const.
+      if (HasValue(object@CommSchd2)) {
+         if (startsWith(object@CommSchd2, "Const.")) {
+            return(eval(expr = parse(text = object@CommSchd2)))
+         } else {
+            return(eval(expr = parse(text = paste0("Const.", object@CommSchd2))))
+         }
+      } else {
+         return(NULL)
+      }
+   }
+)
+
+setMethod(
+   f = "SetCommSchd2<-",
+   signature = c("Cov", "Const"),
+   definition = function(object, value) {
+      object@CommSchd2 <- GetId(value)
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "GetOvrdOnPremSchd2",
+   signature = "Cov",
+   definition = function(object) {
+      # This method returns an instance of Const.
+      if (HasValue(object@OvrdOnPremSchd2)) {
+         if (startsWith(object@OvrdOnPremSchd2, "Const.")) {
+            return(eval(expr = parse(text = object@OvrdOnPremSchd2)))
+         } else {
+            return(eval(expr = parse(text = paste0("Const.", object@OvrdOnPremSchd2))))
+         }
+      } else {
+         return(NULL)
+      }
+   }
+)
+
+setMethod(
+   f = "SetOvrdOnPremSchd2<-",
+   signature = c("Cov", "Const"),
+   definition = function(object, value) {
+      object@OvrdOnPremSchd2 <- GetId(value)
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
+   f = "GetOvrdOnCommSchd2",
+   signature = "Cov",
+   definition = function(object) {
+      # This method returns an instance of Const.
+      if (HasValue(object@OvrdOnCommSchd2)) {
+         if (startsWith(object@OvrdOnCommSchd2, "Const.")) {
+            return(eval(expr = parse(text = object@OvrdOnCommSchd2)))
+         } else {
+            return(eval(expr = parse(text = paste0("Const.", object@OvrdOnCommSchd2))))
+         }
+      } else {
+         return(NULL)
+      }
+   }
+)
+
+setMethod(
+   f = "SetOvrdOnCommSchd2<-",
+   signature = c("Cov", "Const"),
+   definition = function(object, value) {
+      object@OvrdOnCommSchd2 <- GetId(value)
+      validObject(object)
+      return(object)
+   }
+)
 

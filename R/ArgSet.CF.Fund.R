@@ -139,5 +139,29 @@ setMethod(
    }
 )
 
+setMethod(
+   f = "GetPremAssump",
+   signature = "list",
+   definition = function(object) {
+      args <- object$.ArgSet
+      if (!is.null(args) & is(args, "IArgSet") & "PremAssump" %in% slotNames(args)) {
+         return(GetPremAssump(args))
+      } else {
+         return(NULL)
+      }
+   }
+)
 
+setMethod(
+   f = "GetIntrCredAssump",
+   signature = "list",
+   definition = function(object) {
+      args <- object$.ArgSet
+      if (!is.null(args) & is(args, "IArgSet") & "IntrCredAssump" %in% slotNames(args)) {
+         return(GetIntrCredAssump(args))
+      } else {
+         return(NULL)
+      }
+   }
+)
 

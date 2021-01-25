@@ -1,11 +1,7 @@
 setMethod(
    f = "Run.CF",
-   signature = c("Model.CF", "IPlan.IA", "Cov"),
+   signature = c("Model.CF", "IPlan.Anu", "Cov"),
    definition = function(object, plan, cov, result) {
-      # Return error if the model contains lapse assumption.
-      if (HasValue(GetArgValue(object, "LapseAssump"))) {
-         stop("Lapse assumption is not permitted for projecting immediate annuity cash flow.")
-      }
       covMonths <- GetCovMonths(plan, cov)
       projStartDate <- GetArgValue(object, "ProjStartDate")
       result$Timeline <- GetProjTimelineInfo(projStartDate, cov, plan)
@@ -29,6 +25,28 @@ setMethod(
          q <- Convert_qx(qRate, 12L, "ud")[1:covMonths]
       } else {
          q <- rep(0, length.out = covMonths)
+      }
+
+      # Get lapse assumption information.  No lapses during annuitization period.
+      lapseAssump <- GetArgValue(object, "LapseAssump")
+      if (!is.null(lapseAssump)) {
+         result <- GetAssump(lapseAssump, cov, plan, result)
+         if (GetArgValue(object, "ApplyLapseMargin")) {
+            wRate <- result$w.Padd
+         } else {
+            wRate <- result$w.Expd
+         }
+         lapseMode <- ifelse(length(GetPremMode(cov)) == 0, 12L, GetPremMode(cov))
+         wRate <- Convert_qx(wRate, lapseMode, "ud")
+         w <- unlist(lapply(as.list(wRate), function(x){return(c(rep(0, length.out = 12/lapseMode - 1), x))}))
+         covPeriod <- 1:covMonths
+         if (is(plan, "IPlan.Anu")) {
+            w <- w[covPeriod] * (!covPeriod %in% GetAnutzPeriod(plan, cov))
+         } else {
+            w <- w[covPeriod]
+         }
+      } else {
+         w <- rep(0, length.out = covMonths)
       }
 
       # Get expense assumption information
@@ -73,7 +91,7 @@ setMethod(
       }
 
       # Probability of survival and cashflow projection
-      p <- 1 - q
+      p <- 1 - q - w
       pn <- ShiftRight(cumprod(p), positions = 1, filler = 1)
       pn <- pn / pn[projPolMonths[1]]
       zeroCf <- rep(0, length.out = projLen - covProjLen)
@@ -156,44 +174,38 @@ setMethod(
          cfSurBen <- rep(0, length.out = projLen)
       }
 
-      # Annuity benefit cashflow
-      # if (!is.null(proj$Ben.Anu)) {
-      crtnMonths <- GetAnuCrtnMonths(plan)
-      if (GetAnuTiming(plan) == 0L) {
-         cfAnuBen <- -proj$Ben.Anu[projPolMonths] * pn[projPolMonths]   # Annuity benefit payable at the beginning of period
+      # Annuity benefit cash flow
+      if (!is.null(proj$Ben.Anu)) {
+         if (GetAnuTiming(plan) == 0L) {
+            cfAnuBen <- -proj$Ben.Anu[projPolMonths] * pn[projPolMonths]   # Annuity benefit payable at the beginning of period
+         } else {
+            cfAnuBen <- -proj$Ben.Anu[projPolMonths] * pn[projPolMonths] * p[projPolMonths]    # Annuity benefit payable at the end of period
+         }
+         crtnMonths <- GetAnuCrtnMonths(plan)
+         if (crtnMonths > 0) {
+            anutzPeriod <- GetAnutzPeriod(plan, cov)
+            if (projPolMonths[1] <= (anutzPeriod[1] + crtnMonths - 1)) {
+               anuCrtn <- proj$Ben.Anu[max(projPolMonths[1], anutzPeriod[1]):(anutzPeriod[1] + crtnMonths - 1)]
+               m <- max(anutzPeriod[1] - projPolMonths[1] + 1, 1)
+               if (GetAnuTiming(plan) == 0L) {
+                  anuCrtn <- anuCrtn * pn[projPolMonths[m]]
+               } else {
+                  anuCrtn <- anuCrtn * pn[projPolMonths[m]] * p[projPolMonths[m]]
+               }
+               cfAnuBen[m:(m + length(anuCrtn) - 1)] <- -anuCrtn
+            }
+         }
+         # if (crtnMonths >= projPolMonths[1]) {
+         #    cfAnuBen[1:(crtnMonths - projPolMonths[1] + 1)] <- -proj$Ben.Anu[projPolMonths[1]:crtnMonths]
+         # }
+         if (projLen > covProjLen) {
+            cfAnuBen <- c(zeroCf, cfAnuBen)
+         } else if (!IsBegPolMonth) {
+            cfAnuBen <- ShiftLeft(cfAnuBen, positions = 1, filler = 0)
+         }
       } else {
-         cfAnuBen <- -proj$Ben.Anu[projPolMonths] * pn[projPolMonths] * p[projPolMonths]    # Annuity benefit payable at the end of period
+         cfAnuBen <- rep(0, length.out = projLen)
       }
-      if (crtnMonths >= projPolMonths[1]) {
-         cfAnuBen[1:(crtnMonths - projPolMonths[1] + 1)] <- -proj$Ben.Anu[projPolMonths[1]:crtnMonths]
-      }
-      if (projLen > covProjLen) {
-         cfAnuBen <- c(zeroCf, cfAnuBen)
-      } else if (!IsBegPolMonth) {
-         cfAnuBen <- ShiftLeft(cfAnuBen, positions = 1, filler = 0)
-      }
-      # } else {
-      #    cfAnuBen <- rep(0, length.out = projLen)
-      # }
-
-      # if (!is.null(proj$Ben.Anu)) {
-      #    crtnMonths <- GetAnuCrtnMonths(plan)
-      #    if (GetAnuTiming(plan) == 0L) {
-      #       cfAnuBen <- -proj$Ben.Anu[projPolMonths] * pn[projPolMonths]    # Annuity benefit payable at the beginning of period
-      #    } else {
-      #       cfAnuBen <- -proj$Ben.Anu[projPolMonths] * pn[projPolMonths] * p[projPolMonths]    # Annuity benefit payable at the end of period
-      #    }
-      #    if (crtnMonths >= projPolMonths[1]) {
-      #       cfAnuBen[1:(crtnMonths - projPolMonths[1] + 1)] <- -proj$Ben.Anu[projPolMonths[1]:crtnMonths]
-      #    }
-      #    if (projLen > covProjLen) {
-      #       cfAnuBen <- c(zeroCf, cfAnuBen)
-      #    } else if (!IsBegPolMonth) {
-      #       cfAnuBen <- ShiftLeft(cfAnuBen, positions = 1, filler = 0)
-      #    }
-      # } else {
-      #    cfAnuBen <- rep(0, length.out = projLen)
-      # }
 
       # Projected expenses and projected expense cashflows
       result$Proj$Expns.Acq = c(rep(NA, covMonths - covProjLen), ae[(projLen - covProjLen + 1):projLen])

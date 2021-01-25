@@ -1,6 +1,3 @@
-#' @include IPlan.End.R
-NULL
-
 setClass(
    Class = "IPlan.Anu",
    contains = "IPlan.End",
@@ -9,6 +6,7 @@ setClass(
       AnuMode = "integer",
       AnuTiming = "integer",
       CrtnMonths = "integer",
+      AnuBenSchd = "numeric",
       SurChrgSchd = "numeric"
    )
 )
@@ -59,7 +57,7 @@ setValidity(
 )
 
 IPlan.Anu <- function(premYears = NA, premToAge = NA, anuStartYear = NA, anuStartAge = NA,
-                      anuYears = NA, anuToAge = NA, anuMode = 12L, anuTiming = 0L, crtnMonths = 0L,
+                      anuYears = NA, anuToAge = NA, anuMode = 12L, anuTiming = 0L, crtnMonths = 0L, anuBenSchd = numeric(0L),
                       premTable = character(0L), modFactor = c("1" = 1, "2" = 0.5, "4" = 0.25, "12" = 1/12),
                       polFee = numeric(0), premTaxRate = numeric(0L),
                       cvTable = character(0L), surChrgSchd = numeric(0L),
@@ -68,7 +66,7 @@ IPlan.Anu <- function(premYears = NA, premToAge = NA, anuStartYear = NA, anuStar
    # Define premium period
    premPeriod <- c(PremYears = premYears, PremToAge = as.integer(premToAge))
    premPeriod <- premPeriod[!is.na(premPeriod)]
-   stopifnot(length(premPeriod) == 1)
+   stopifnot(length(premPeriod) > 0)
    # Define beginning of annuity payout period
    anuStart <- c(AnuStartYear = anuStartYear, AnuStartAge = anuStartAge)
    anuStart <- anuStart[!is.na(anuStart)]
@@ -76,7 +74,7 @@ IPlan.Anu <- function(premYears = NA, premToAge = NA, anuStartYear = NA, anuStar
    # Define end of annuity payout period, which is also end of coverage period
    covPeriod <- c(CovYears = anuYears, CovToAge = anuToAge)
    covPeriod <- covPeriod[!is.na(covPeriod)]
-   stopifnot(length(covPeriod) >= 1)
+   stopifnot(length(covPeriod) > 0)
    plan <- new(Class = "IPlan.Anu",
                CovPeriod = covPeriod,
                PremPeriod = premPeriod,
@@ -84,6 +82,7 @@ IPlan.Anu <- function(premYears = NA, premToAge = NA, anuStartYear = NA, anuStar
                AnuMode = anuMode,
                AnuTiming = anuTiming,
                CrtnMonths = crtnMonths,
+               AnuBenSchd = anuBenSchd,
                PremTable = premTable,
                ModFactor = modFactor,
                PolFee = polFee,
@@ -111,6 +110,14 @@ setMethod(
       }
       anuEndMonth <- GetCovMonths(object, cov)
       return(anuStartMonth:anuEndMonth)
+   }
+)
+
+setMethod(
+   f = "GetAnutzAge",
+   signature = "IPlan.Anu",
+   definition = function(object, cov) {
+      return(GetIssAge(cov) + (GetAnutzPeriod(object, cov)[1] - 1) %/% 12)
    }
 )
 
@@ -171,18 +178,47 @@ setMethod(
 )
 
 setMethod(
+   f = "GetAnuBenSchd",
+   signature = "IPlan.Anu",
+   definition = function(object, cov = NULL) {
+      if (is.null(cov)) {
+         return(object@AnuBenSchd)
+      } else {
+         anuMonths <- length(GetAnutzPeriod(object, cov))
+         if (length(object@AnuBenSchd) == 0) {
+            return(rep(1, len = anuMonths))
+         } else if (length(object@AnuBenSchd) == 1) {
+            return(rep(object@AnuBenSchd, len = anuMonths))
+         } else {
+            return(FillTail(rep(object@AnuBenSchd, each = 12), filler = 0, len = anuMonths))
+         }
+      }
+   }
+)
+
+setMethod(
+   f = "SetAnuBenSchd<-",
+   signature = "IPlan.Anu",
+   definition = function(object, value) {
+      object@AnuBenSchd <- value
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
    f = "GetSurChrgSchd",
    signature = "IPlan.Anu",
    definition = function(object, cov = NULL) {
       if (is.null(cov)) {
          return(object@SurChrgSchd)
-      }
-      if (HasValue(object@SurChrgSchd)) {
-         schd <- FillZeroIfNA(rep(object@SurChrgSchd, each = 12), GetCovMonths(object, cov))
+      } else if (length(object@SurChrgSchd) == 0) {
+         return(rep(0, len = GetCovMonths(object, cov)))
+      } else if (length(object@SurChrgSchd) == 1) {
+         return(rep(object@SurChrgSchd, len = GetCovMonths(object, cov)))
       } else {
-         schd <- rep(0, len = GetCovMonths(object, cov))
+         return(FillTail(rep(object@SurChrgSchd, each = 12), filler = 0, len = GetCovMonths(object, cov)))
       }
-      return(schd)
    }
 )
 
@@ -243,11 +279,17 @@ setMethod(
    f = "ProjSurBen",
    signature = "IPlan.Anu",
    definition = function(object, cov, resultContainer) {
-      resultContainer <- ProjSurChrg(object, cov, resultContainer)
-      surBen <- resultContainer$Proj$CV - resultContainer$Proj$Chrg.Sur
-      # Cannot surrender during annuitization period.
-      anutzPeriod <- GetAnutzPeriod(object, cov)
-      resultContainer$Proj$Ben.Sur <- surBen * !(seq_along(surBen) %in% anutzPeriod)
+      if (is.null(resultContainer$Proj$CV)) {
+         return(resultContainer)
+      } else {
+         if (is.null(resultContainer$Proj$Chrg.Sur)) {
+            resultContainer$Proj$Ben.Sur <- resultContainer$Proj$CV
+         } else {
+            resultContainer$Proj$Ben.Sur <- resultContainer$Proj$CV - resultContainer$Proj$Chrg.Sur
+            resultContainer$Proj$Ben.Sur <- ifelse(resultContainer$Proj$Ben.Sur >= 0, resultContainer$Proj$Ben.Sur, 0)
+         }
+         return(resultContainer)
+      }
       return(resultContainer)
    }
 )
@@ -264,7 +306,7 @@ setMethod(
       } else {
          m <- (seq(from = 1, to = length(a))) %% (12 / anuMode) == 0
       }
-      resultContainer$Proj$Ben.Anu <-  c(rep(0, length.out = anuPeriod[1] - 1), a * m)
+      resultContainer$Proj$Ben.Anu <-  c(rep(0, length.out = anuPeriod[1] - 1), a * GetAnuBenSchd(object, cov) * m)
       return(resultContainer)
    }
 )
@@ -285,9 +327,9 @@ setMethod(
       resultContainer <- NewProjection(resultContainer, cov, object)
       resultContainer <- ProjPrem(object, cov, resultContainer)
       resultContainer <- ProjComm(object, cov, resultContainer)
+      resultContainer <- ProjCV(object, cov, resultContainer)
       resultContainer <- ProjDthBen(object, cov, resultContainer)
       resultContainer <- ProjMatBen(object, cov, resultContainer)
-      resultContainer <- ProjCV(object, cov, resultContainer)
       resultContainer <- ProjSurBen(object, cov, resultContainer)
       resultContainer <- ProjAnuBen(object, cov, resultContainer)
       resultContainer <- ProjRein(object, cov, resultContainer)

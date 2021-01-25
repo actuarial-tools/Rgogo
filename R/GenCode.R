@@ -17,7 +17,8 @@ GenCode <- function(objectId, objectType, constructor,
          }
          # Start generating codes
          argList <- list(...)   # These are the named arguments to be passed to constructor.
-         tab <- Editor.Tab()
+         #tab <- Editor.Tab()
+         tab <- GetValue(Const.Editor.Tab)
          s <- paste0('New.', objectId, ' <- function() {')
          argList$id <- objectId
          s <- c(s, paste0(tab, .GenCode.FuncCall(funcName = constructor, argList)))
@@ -110,7 +111,8 @@ WriteJsonMsgPacket <- function(status, msg, jsonPath, ...) {
          }
       }
    }
-   tab <- Editor.Tab()
+   # tab <- Editor.Tab()
+   tab <- GetValue(Const.Editor.Tab)
    s <- paste0('object <- ', funcName, '(')
    if (length(funcArgs) > 0) {
       for (i in 1:length(funcArgs)) {

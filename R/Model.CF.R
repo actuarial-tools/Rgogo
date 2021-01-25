@@ -32,6 +32,7 @@ setMethod(
       covProjLen <- GetCovProjLen(result$Timeline)
       projPolMonths <- GetProjPolMonths(result$Timeline)
 
+      result$.ArgSet <- GetArgs(object)
       result <- Project(plan, cov, result)
       proj <- result$Proj
 

@@ -31,7 +31,7 @@ setValidity(
    }
 )
 
-IntrCredAssump <- function(rate = 0, pfad = 0, id = character(0), descrip = character()) {
+IntrCredAssump <- function(rate = c("1900-01-01" = 0), pfad = 0, id = character(0), descrip = character()) {
    assump <- new(
       Class = "IntrCredAssump",
       IntrCredRate = rate,

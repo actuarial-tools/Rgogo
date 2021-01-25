@@ -126,6 +126,7 @@ DeployProject <- function(pkgName, overwrite = FALSE) {
    DeployObject(pkgName, "Rein", overwrite)
    DeployObject(pkgName, "ArgSet", overwrite)
    DeployObject(pkgName, "Model", overwrite)
+   DeployObject(pkgName, "Const", overwrite)
    devtools::install(vignettes = FALSE, quiet = TRUE)
    cat(pkgName, "is deployed successfully.")
 }

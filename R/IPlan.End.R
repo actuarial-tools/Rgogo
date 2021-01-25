@@ -5,7 +5,8 @@ setClass(
    Class = "IPlan.End",
    contains = "IPlan.LT",
    slots = c(
-      CVTable = "character"
+      CVTable = "character",
+      SurChrgSchd = "numeric"
    )
 )
 
@@ -16,7 +17,12 @@ setValidity(
       # Validate cash value table
       v <- Validator.Names(hasNames = (length(object@CVTable) > 1))
       if (Validate(v, object@CVTable) != TRUE) {
-         AddMessage(err) <- "Invalid cash value table setting."
+         AddMessage(err) <- paste0(GetId(object), ": Invalid cash value table setting.")
+      }
+      # Validate @SurChrgSchd
+      isValid <- Validate(Validator.Range(minValue = 0, maxValue = 1), object@SurChrgSchd)
+      if (isValid != TRUE) {
+         AddMessage(err) <- "Invalid surrender charge schedule.  The rates must be between 0 and 1."
       }
       if (NoMessage(err)) {
          return(TRUE)
@@ -28,7 +34,7 @@ setValidity(
 
 IPlan.End <- function(covYears = NA, covToAge = NA, premYears = NA, premToAge = NA,
                       premTable = character(0L), modFactor = c("1" = 1, "2" = 0.5, "4" = 0.25, "12" = 1/12),
-                      polFee = numeric(0), premTaxRate = numeric(0L), cvTable = character(0L),
+                      polFee = numeric(0), premTaxRate = numeric(0L), cvTable = character(0L), surChrgSchd = numeric(0L),
                       commSchd = numeric(0L), ovrdOnPremSchd = numeric(0L), ovrdOnCommSchd = numeric(0L),
                       rein = character(0L), id = character(0L), descrip = character(0L)) {
    stopifnot(any(!is.na(c(covYears, covToAge))))
@@ -47,6 +53,7 @@ IPlan.End <- function(covYears = NA, covToAge = NA, premYears = NA, premToAge = 
                ModFactor = modFactor,
                PolFee = polFee,
                CVTable = cvTable,
+               SurChrgSchd = surChrgSchd,
                CommSchd = commSchd,
                OvrdOnPremSchd = ovrdOnPremSchd,
                OvrdOnCommSchd = ovrdOnCommSchd,
@@ -107,6 +114,32 @@ setMethod(
 )
 
 setMethod(
+   f = "GetSurChrgSchd",
+   signature = "IPlan.End",
+   definition = function(object, cov = NULL) {
+      if (is.null(cov)) {
+         return(object@SurChrgSchd)
+      } else if (length(object@SurChrgSchd) == 0) {
+         return(rep(0, length.out = GetCovMonths(object, cov)))
+      } else if (length(object@SurChrgSchd) == 1) {
+         return(rep(object@SurChrgSchd, length.out = GetCovMonths(object, cov)))
+      } else {
+         return(FillTail(rep(object@SurChrgSchd, each = 12), filler = 0, len = GetCovMonths(object, cov)))
+      }
+   }
+)
+
+setMethod(
+   f = "SetSurChrgSchd<-",
+   signature = "IPlan.End",
+   definition = function(object, value) {
+      object@SurChrgSchd <- value
+      validObject(object)
+      return(object)
+   }
+)
+
+setMethod(
    f = "ProjMatBen",
    signature = "IPlan.End",
    definition = function(object, cov, resultContainer) {
@@ -128,10 +161,27 @@ setMethod(
 )
 
 setMethod(
+   f = "ProjSurChrg",
+   signature = "IPlan.End",
+   definition = function(object, cov, resultContainer) {
+      surChrg <- resultContainer$Proj$CV * GetSurChrgSchd(object, cov)
+      if (!all(surChrg == 0)) {
+         resultContainer$Proj$Chrg.Sur <- surChrg
+      }
+      return(resultContainer)
+   }
+)
+
+setMethod(
    f = "ProjSurBen",
    signature = "IPlan.End",
    definition = function(object, cov, resultContainer) {
-      resultContainer$Proj$Ben.Sur <- resultContainer$Proj$CV
+      if (is.null(resultContainer$Proj$Chrg.Sur)) {
+         surBen <- resultContainer$Proj$CV
+      } else {
+         surBen <- resultContainer$Proj$CV - resultContainer$Proj$Chrg.Sur
+      }
+      resultContainer$Proj$Ben.Sur <- ifelse(surBen > 0, surBen, 0)
       return(resultContainer)
    }
 )

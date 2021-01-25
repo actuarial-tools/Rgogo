@@ -274,7 +274,8 @@ setMethod(
       if (!is.null(qTable)) {
          qTableRate <- LookUp(qTable, cov, ifelse(ignoreCovPeriod, NA_integer_, covYears))
       } else {
-         qTableRate <- rep(0, length.out = ifelse(ignoreCovPeriod, Global.MaxProjYears(), covYears))
+         # qTableRate <- rep(0, length.out = ifelse(ignoreCovPeriod, Global.MaxProjYears(), covYears))
+         qTableRate <- rep(0, length.out = ifelse(ignoreCovPeriod, GetValue(Rgogo::Const.MaxProjYears), covYears))
       }
       qMult <- GetMortTableMult(object, cov, plan)
       return(qTableRate * qMult)
@@ -302,7 +303,8 @@ setMethod(
    f = "GetMortImprovAdjVector",
    signature = "MortAssump",
    definition = function(object, cov, plan, ignoreCovPeriod = FALSE) {
-      len <- ifelse(ignoreCovPeriod, Global.MaxProjYears(), ceiling(GetCovYears(plan, cov)))
+      # len <- ifelse(ignoreCovPeriod, Global.MaxProjYears(), ceiling(GetCovYears(plan, cov)))
+      len <- ifelse(ignoreCovPeriod, GetValue(Rgogo::Const.MaxProjYears), ceiling(GetCovYears(plan, cov)))
       rate <- GetMortImprovRate(object, cov, plan)
       v <- (1 - rate) ^ (1:len)
       return(v)
