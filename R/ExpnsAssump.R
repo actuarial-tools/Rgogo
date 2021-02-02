@@ -177,11 +177,12 @@ setMethod(
       projLen <- GetProjLen(assumpInfo$Timeline)
       covProjLen <- GetCovProjLen(assumpInfo$Timeline)
       if (projStartDate <= GetIssDate(cov)) {
-         if (length(object@AEPerPol) == 1) {
-            ae.PerPol.Expd <- FillZeroIfNA(object@AEPerPol, len = covProjLen)
-         } else {
-            ae.PerPol.Expd <- FillZeroIfNA(object@AEPerPol[as.character(GetIssAge(cov))], len = covProjLen)
-         }
+         ae.PerPol.Expd <- FillZeroIfNA(GetAcqExpnsPerPol(object, cov), len = covProjLen)
+         # if (length(object@AEPerPol) == 1) {
+         #    ae.PerPol.Expd <- FillZeroIfNA(object@AEPerPol, len = covProjLen)
+         # } else {
+         #    ae.PerPol.Expd <- FillZeroIfNA(object@AEPerPol[as.character(GetIssAge(cov))], len = covProjLen)
+         # }
          ae.PerPol.Expd <- c(rep(0, length.out = projLen - covProjLen), ae.PerPol.Expd)
          ae.PerFaceAmt.Expd <- c(rep(0, length.out = projLen - covProjLen),
                                  FillZeroIfNA(GetFaceAmt(cov) * object@AEPerFaceAmt, len = covProjLen))
@@ -299,8 +300,15 @@ setMethod(
 setMethod(
    f = "GetAcqExpnsPerPol",
    signature = "ExpnsAssump",
-   definition = function(object) {
-      return(object@AEPerPol)
+   definition = function(object, cov = NULL) {
+      # return(object@AEPerPol)
+      if (is.null(cov) | length(object@AEPerPol) == 1) {
+         return(object@AEPerPol)
+      } else if (length(object@AEPerPol) == 0) {
+         return(0)
+      } else {     # length(object@AEPerPol) > 1
+         return(object@AEPerPol[as.character(GetIssAge(cov))])
+      }
    }
 )
 

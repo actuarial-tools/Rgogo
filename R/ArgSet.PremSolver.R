@@ -30,10 +30,7 @@ setValidity(
       }
       # TargProfitMargin
       isValid <- Validate(
-         ValidatorGroup(
-            Validator.Length(minLen = 1, maxLen = 1),
-            Validator.Range(allowNA = FALSE)
-         ),
+         ValidatorGroup(Validator.Length(minLen = 1, maxLen = 999999)),
          object@TargProfitMargin
       )
       if (isValid != TRUE) {
