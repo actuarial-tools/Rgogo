@@ -435,11 +435,7 @@ setMethod(
    f = "GetModPrem",
    signature = "Cov",
    definition = function(object) {
-      if (HasValue(object@ModPrem)) {
-         return(object@ModPrem)
-      } else {
-         return(GetModPrem(GetPlan(object), object))
-      }
+      return(object@ModPrem)
    }
 )
 

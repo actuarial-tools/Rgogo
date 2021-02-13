@@ -62,7 +62,8 @@ setMethod(
          lapseMode <- ifelse(length(GetPremMode(cov)) == 0, 12L, GetPremMode(cov))
          wRate <- Convert_qx(wRate, lapseMode, "ud")
          w <- unlist(lapply(as.list(wRate), function(x){return(c(rep(0, length.out = 12/lapseMode - 1), x))}))
-         w <- w[1:covMonths]
+         # w <- w[1:covMonths]
+         w <- w[1:covMonths] * ((1:covMonths) <= GetPremMonths(plan, cov))
       } else {
          w <- rep(0, length.out = covMonths)
       }

@@ -39,11 +39,4 @@ Common types of project that can be done with Rgogo include:
 
 ## Rgogo Project Website
 
-Please visit [Rgogo project website](https://rgogo.xyz) for more information.
-
-## Release Notes
-
-Version 1.0.1 includes the following changes
-
-1. Add `GetMaxPolYear` method in `Table.PY` class.
-2. Bug fixing for `DeployProject` function.
+Please visit [Rgogo project website](https://rmodel.io) for more information.

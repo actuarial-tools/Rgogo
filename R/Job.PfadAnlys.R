@@ -32,10 +32,15 @@ setMethod(
 setMethod(
    f = "Finalize",
    signature = "Job.PfadAnlys",
-   definition = function(object, result, digits = 0) {
-      pfad <- cbind(JobId = GetId(object), To.data.frame(result, "Pfad"))
+   definition = function(object, result) {
+      pfad <- To.data.frame(result[sapply(result, function(x){!is.null(x)})], "Pfad")
+      if (dim(pfad)[1] > 0) {
+         pfad <- cbind(JobId = GetId(object), pfad)
+      } else {
+         pfad <- NULL
+      }
       conn <- ConnectDb(object)
-      if (!is.null(conn)) {
+      if (!is.null(conn) & !is.null(pfad)) {
          WriteTable.Pfad(conn, pfad)
          CompactDb(conn)
          DisconnectDb(conn)

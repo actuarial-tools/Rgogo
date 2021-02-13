@@ -56,13 +56,14 @@ setMethod(
 )
 
 .SumrzResult.Model.PPM <- function(model, cov, result) {
+   m <- GetProjPolMonths(result$Timeline)[1]
    proj <- result$Proj
    pv <- result$PV
    res <- result$Res
-   anlzPrem <- ifelse(is.null(proj$Prem), 0, sum(proj$Prem[1:12], na.rm = TRUE))
-   curCV <- ifelse(is.null(proj$CV), 0, proj$CV[1])
-   grossSumInsd <- ifelse(is.null(proj$Ben.Dth), 0, proj$Ben.Dth[1]) + ifelse(is.null(proj$Ben.Dth.PUA), 0, proj$Ben.Dth.PUA[1])
-   reinSumInsd <- ifelse(is.null(proj$Rein.Ben), 0, proj$Rein.Ben[1])
+   anlzPrem <- ifelse(is.null(proj$Prem), 0, sum(proj$Prem[m:(m + 12 - 1)], na.rm = TRUE))
+   curCV <- ifelse(is.null(proj$CV), 0, proj$CV[m])
+   grossSumInsd <- ifelse(is.null(proj$Ben.Dth), 0, proj$Ben.Dth[m]) + ifelse(is.null(proj$Ben.Dth.PUA), 0, proj$Ben.Dth.PUA[m])
+   reinSumInsd <- ifelse(is.null(proj$Rein.Ben), 0, proj$Rein.Ben[m])
    df <- list(
       CovId = ifelse(length(GetId(cov)) > 0, GetId(cov), NA),
       PlanId = GetId(GetPlan(cov)),

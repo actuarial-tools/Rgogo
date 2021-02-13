@@ -344,9 +344,13 @@ setMethod(
          vReinPremPayable <- rep(ifelse((1:12-1) %% (12/reinPremMode) == 0, 1, 0) / reinPremMode, length.out = covMonths)
          projReinPrem <- vReinPremRate * vReinPremPayable * reinNaar
          if(GetRfndUrndPremOnLapse(object)) {
-            pctRfnd <- rep(seq(from=1,to=reinPremMode/12,length=(12/reinPremMode)),length=covMonths) * ((1:covMonths - 1) %% (12/reinPremMode) != 0)
-            projReinPremRfnd <- projReinPrem[((1:covMonths)-1) %/% 12 * 12 + 1] * pctRfnd
-            resultContainer$.pctRfnd <- pctRfnd
+            # Assume lapse occurs at the date when coverage premium is payable.
+            interval <- 12 / reinPremMode
+            pctRfnd <- rep(seq(from = interval - 1, to = 0) / interval, length.out = covMonths)
+            # lapseTiming <- ((1:covMonths) %% (12/GetPremMode(cov)) == 0) & ((1:covMonths) <= GetPremMonths(cov))
+            lapseTiming <- ((1:covMonths) %% (12/GetPremMode(cov)) == 0)
+            projReinPremRfnd <- projReinPrem[((1:covMonths)-1) %/% interval * interval + 1] * pctRfnd * lapseTiming
+            resultContainer$.pctRfnd <- pctRfnd * lapseTiming
          } else {
             projReinPremRfnd <- rep(0, length.out = covMonths)
          }
@@ -368,7 +372,8 @@ setMethod(
          projReinComm <- projReinPrem * reinCommSchd
          # Refund unearned reinsurance commission if applicable
          if (GetRfndUrndCommOnLapse(object)) {
-            projReinCommRfnd <- projReinComm[((1:covMonths)-1) %/% 12 * 12 + 1] * resultContainer$.pctRfnd
+            interval <- 12 / GetPremMode(object)
+            projReinCommRfnd <- projReinComm[((1:covMonths)-1) %/% interval * interval + 1] * resultContainer$.pctRfnd
          } else {
             projReinCommRfnd <- rep(0, length.out = covMonths)
          }

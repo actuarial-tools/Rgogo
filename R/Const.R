@@ -36,3 +36,4 @@ setMethod(
       return(object@Value)
    }
 )
+

@@ -79,10 +79,15 @@ setMethod(
 setMethod(
    f = "Finalize",
    signature = "Job.Valuation",
-   definition = function(object, result, digits = 0) {
+   definition = function(object, result) {
       jobId <- GetJobId(object)
       valuSumm <- cbind(JobId = jobId, To.data.frame(result, "ValuSumm"))
-      cf <- cbind(JobId = jobId, To.data.frame(result, "Cf"))
+      cf <- To.data.frame(result, "Cf")
+      if (dim(cf)[1] > 0) {
+         cf <- cbind(JobId = jobId, cf)
+      } else {
+         cf <- NULL
+      }
       # Output job results
       conn <- ConnectDb(object)
       if (!is.null(conn)) {
